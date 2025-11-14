@@ -127,23 +127,23 @@ export interface SecurityObjectiveRationaleSessionData {
 }
 
 class SessionService {
-  private readonly STORAGE_KEY = 'ccgentool2_session'
-  private readonly SAR_STORAGE_KEY = 'ccgentool2_sar_session'
-  private readonly COVER_STORAGE_KEY = 'ccgentool2_cover_session'
-  private readonly ST_REF_STORAGE_KEY = 'ccgentool2_stref_session'
-  private readonly TOE_REF_STORAGE_KEY = 'ccgentool2_toeref_session'
-  private readonly TOE_OVERVIEW_STORAGE_KEY = 'ccgentool2_toeoverview_session'
-  private readonly TOE_DESC_STORAGE_KEY = 'ccgentool2_toedesc_session'
-  private readonly CONFORMANCE_CLAIMS_STORAGE_KEY = 'ccgentool2_conformance_session'
-  private readonly ASSUMPTIONS_STORAGE_KEY = 'ccgentool2_assumptions_session'
-  private readonly THREATS_STORAGE_KEY = 'ccgentool2_threats_session'
-  private readonly OSP_STORAGE_KEY = 'ccgentool2_osp_session'
-  private readonly SO_TOE_STORAGE_KEY = 'ccgentool2_so_toe_session'
-  private readonly SO_OE_STORAGE_KEY = 'ccgentool2_so_oe_session'
-  private readonly SO_MATRIX_STORAGE_KEY = 'ccgentool2_so_matrix_session'
-  private readonly SO_RATIONALE_STORAGE_KEY = 'ccgentool2_so_rationale_session'
-  private readonly TSS_STORAGE_KEY = 'ccgentool2_tss_session'
-  private readonly TOKEN_KEY = 'ccgentool2_user_token'
+  private readonly STORAGE_KEY = 'cratool_session'
+  private readonly SAR_STORAGE_KEY = 'cratool_sar_session'
+  private readonly COVER_STORAGE_KEY = 'cratool_cover_session'
+  private readonly ST_REF_STORAGE_KEY = 'cratool_stref_session'
+  private readonly TOE_REF_STORAGE_KEY = 'cratool_toeref_session'
+  private readonly TOE_OVERVIEW_STORAGE_KEY = 'cratool_toeoverview_session'
+  private readonly TOE_DESC_STORAGE_KEY = 'cratool_toedesc_session'
+  private readonly CONFORMANCE_CLAIMS_STORAGE_KEY = 'cratool_conformance_session'
+  private readonly ASSUMPTIONS_STORAGE_KEY = 'cratool_assumptions_session'
+  private readonly THREATS_STORAGE_KEY = 'cratool_threats_session'
+  private readonly OSP_STORAGE_KEY = 'cratool_osp_session'
+  private readonly SO_TOE_STORAGE_KEY = 'cratool_so_toe_session'
+  private readonly SO_OE_STORAGE_KEY = 'cratool_so_oe_session'
+  private readonly SO_MATRIX_STORAGE_KEY = 'cratool_so_matrix_session'
+  private readonly SO_RATIONALE_STORAGE_KEY = 'cratool_so_rationale_session'
+  private readonly TSS_STORAGE_KEY = 'cratool_tss_session'
+  private readonly TOKEN_KEY = 'cratool_user_token'
   private userToken: string
 
   constructor() {
@@ -177,7 +177,7 @@ class SessionService {
   }
 
   /**
-   * Save SFR data to session storage
+   * Save Technical Requirement data to session storage
    */
   saveSfrData(sfrList: any[], selectedSfrId: number | null, nextSfrId: number): void {
     const sessionData: SessionData = {
@@ -192,12 +192,12 @@ class SessionService {
       const storageKey = this.getNamespacedKey(this.STORAGE_KEY)
       localStorage.setItem(storageKey, JSON.stringify(sessionData))
     } catch (error) {
-      console.error('Error saving SFR data to session:', error)
+      console.error('Error saving Technical Requirement data to session:', error)
     }
   }
 
   /**
-   * Load SFR data from session storage
+   * Load Technical Requirement data from session storage
    */
   loadSfrData(): SessionData | null {
     try {
@@ -218,32 +218,32 @@ class SessionService {
 
       return sessionData
     } catch (error) {
-      console.error('Error loading SFR data from session:', error)
+      console.error('Error loading Technical Requirement data from session:', error)
       return null
     }
   }
 
   /**
-   * Clear all SFR session data for the current user
+   * Clear all Technical Requirement session data for the current user
    */
   clearSfrData(): void {
     try {
       const storageKey = this.getNamespacedKey(this.STORAGE_KEY)
       localStorage.removeItem(storageKey)
     } catch (error) {
-      console.error('Error clearing SFR data from session:', error)
+      console.error('Error clearing Technical Requirement data from session:', error)
     }
   }
 
   /**
-   * Clear all SFR session data for all users (nuclear option)
+   * Clear all Technical Requirement session data for all users (nuclear option)
    */
   clearAllSfrData(): void {
     this.clearAllByPrefix(this.STORAGE_KEY)
   }
 
   /**
-   * Check if there's existing SFR session data
+   * Check if there's existing Technical Requirement session data
    */
   hasSessionData(): boolean {
     const storageKey = this.getNamespacedKey(this.STORAGE_KEY)
@@ -251,7 +251,7 @@ class SessionService {
   }
 
   /**
-   * Save SAR data to session storage
+   * Save Assurance Requirement data to session storage
    */
   saveSarData(sarList: any[], selectedSarId: number | null, nextSarId: number, selectedEal: string): void {
     const sessionData: SarSessionData = {
@@ -267,12 +267,12 @@ class SessionService {
       const storageKey = this.getNamespacedKey(this.SAR_STORAGE_KEY)
       localStorage.setItem(storageKey, JSON.stringify(sessionData))
     } catch (error) {
-      console.error('Error saving SAR data to session:', error)
+      console.error('Error saving Assurance Requirement data to session:', error)
     }
   }
 
   /**
-   * Load SAR data from session storage
+   * Load Assurance Requirement data from session storage
    */
   loadSarData(): SarSessionData | null {
     try {
@@ -286,38 +286,38 @@ class SessionService {
       const sessionData: SarSessionData = JSON.parse(data)
 
       if (sessionData.userToken !== this.userToken) {
-        console.warn('Session token mismatch, ignoring stored SAR data')
+        console.warn('Session token mismatch, ignoring stored Assurance Requirement data')
         return null
       }
 
       return sessionData
     } catch (error) {
-      console.error('Error loading SAR data from session:', error)
+      console.error('Error loading Assurance Requirement data from session:', error)
       return null
     }
   }
 
   /**
-   * Clear all SAR session data for the current user
+   * Clear all Assurance Requirement session data for the current user
    */
   clearSarData(): void {
     try {
       const storageKey = this.getNamespacedKey(this.SAR_STORAGE_KEY)
       localStorage.removeItem(storageKey)
     } catch (error) {
-      console.error('Error clearing SAR data from session:', error)
+      console.error('Error clearing Assurance Requirement data from session:', error)
     }
   }
 
   /**
-   * Clear all SAR session data for all users
+   * Clear all Assurance Requirement session data for all users
    */
   clearAllSarData(): void {
     this.clearAllByPrefix(this.SAR_STORAGE_KEY)
   }
 
   /**
-   * Check if there's existing SAR session data
+   * Check if there's existing Assurance Requirement session data
    */
   hasSarSessionData(): boolean {
     const storageKey = this.getNamespacedKey(this.SAR_STORAGE_KEY)
@@ -376,7 +376,7 @@ class SessionService {
   }
 
   /**
-   * Get SFR session info for debugging
+   * Get Technical Requirement session info for debugging
    */
   getSessionInfo(): { userToken: string; hasData: boolean; timestamp?: number } {
     const data = this.loadSfrData()
@@ -388,7 +388,7 @@ class SessionService {
   }
 
   /**
-   * Get SAR session info for debugging
+   * Get Assurance Requirement session info for debugging
    */
   getSarSessionInfo(): { userToken: string; hasData: boolean; timestamp?: number } {
     const data = this.loadSarData()
@@ -522,7 +522,7 @@ class SessionService {
   }
 
   /**
-   * Save TOE Reference data to session storage
+   * Save Product Reference data to session storage
    */
   saveTOEReferenceData(data: Omit<TOEReferenceSessionData, 'userToken' | 'timestamp'>): void {
     const sessionData: TOEReferenceSessionData = {
@@ -535,12 +535,12 @@ class SessionService {
       const storageKey = this.getNamespacedKey(this.TOE_REF_STORAGE_KEY)
       localStorage.setItem(storageKey, JSON.stringify(sessionData))
     } catch (error) {
-      console.error('Error saving TOE Reference data to session:', error)
+      console.error('Error saving Product Reference data to session:', error)
     }
   }
 
   /**
-   * Load TOE Reference data from session storage
+   * Load Product Reference data from session storage
    */
   loadTOEReferenceData(): TOEReferenceSessionData | null {
     try {
@@ -554,19 +554,19 @@ class SessionService {
       const sessionData: TOEReferenceSessionData = JSON.parse(data)
 
       if (sessionData.userToken !== this.userToken) {
-        console.warn('Session token mismatch, ignoring stored TOE Reference data')
+        console.warn('Session token mismatch, ignoring stored Product Reference data')
         return null
       }
 
       return sessionData
     } catch (error) {
-      console.error('Error loading TOE Reference data from session:', error)
+      console.error('Error loading Product Reference data from session:', error)
       return null
     }
   }
 
   /**
-   * Save TOE Overview data to session storage
+   * Save Product Overview data to session storage
    */
   saveTOEOverviewData(data: Omit<TOEOverviewSessionData, 'userToken' | 'timestamp'>): void {
     const sessionData: TOEOverviewSessionData = {
@@ -579,12 +579,12 @@ class SessionService {
       const storageKey = this.getNamespacedKey(this.TOE_OVERVIEW_STORAGE_KEY)
       localStorage.setItem(storageKey, JSON.stringify(sessionData))
     } catch (error) {
-      console.error('Error saving TOE Overview data to session:', error)
+      console.error('Error saving Product Overview data to session:', error)
     }
   }
 
   /**
-   * Load TOE Overview data from session storage
+   * Load Product Overview data from session storage
    */
   loadTOEOverviewData(): TOEOverviewSessionData | null {
     try {
@@ -598,19 +598,19 @@ class SessionService {
       const sessionData: TOEOverviewSessionData = JSON.parse(data)
 
       if (sessionData.userToken !== this.userToken) {
-        console.warn('Session token mismatch, ignoring stored TOE Overview data')
+        console.warn('Session token mismatch, ignoring stored Product Overview data')
         return null
       }
 
       return sessionData
     } catch (error) {
-      console.error('Error loading TOE Overview data from session:', error)
+      console.error('Error loading Product Overview data from session:', error)
       return null
     }
   }
 
   /**
-   * Save TOE Description data to session storage
+   * Save Product Description data to session storage
    */
   saveTOEDescriptionData(data: Omit<TOEDescriptionSessionData, 'userToken' | 'timestamp'>): void {
     const sessionData: TOEDescriptionSessionData = {
@@ -623,12 +623,12 @@ class SessionService {
       const storageKey = this.getNamespacedKey(this.TOE_DESC_STORAGE_KEY)
       localStorage.setItem(storageKey, JSON.stringify(sessionData))
     } catch (error) {
-      console.error('Error saving TOE Description data to session:', error)
+      console.error('Error saving Product Description data to session:', error)
     }
   }
 
   /**
-   * Load TOE Description data from session storage
+   * Load Product Description data from session storage
    */
   loadTOEDescriptionData(): TOEDescriptionSessionData | null {
     try {
@@ -642,7 +642,7 @@ class SessionService {
       const sessionData: TOEDescriptionSessionData = JSON.parse(data)
 
       if (sessionData.userToken !== this.userToken) {
-        console.warn('Session token mismatch, ignoring stored TOE Description data')
+        console.warn('Session token mismatch, ignoring stored Product Description data')
         return null
       }
 
@@ -652,7 +652,7 @@ class SessionService {
 
       return sessionData
     } catch (error) {
-      console.error('Error loading TOE Description data from session:', error)
+      console.error('Error loading Product Description data from session:', error)
       return null
     }
   }
@@ -908,7 +908,7 @@ class SessionService {
       const storageKey = this.getNamespacedKey(this.TSS_STORAGE_KEY)
       localStorage.setItem(storageKey, JSON.stringify(sessionData))
     } catch (error) {
-      console.error('Error saving TOE Summary Specification data to session:', error)
+      console.error('Error saving Product Summary Specification data to session:', error)
     }
   }
 
@@ -924,7 +924,7 @@ class SessionService {
       const sessionData: TssSessionData = JSON.parse(data)
 
       if (sessionData.userToken !== this.userToken) {
-        console.warn('Session token mismatch, ignoring stored TOE Summary Specification data')
+        console.warn('Session token mismatch, ignoring stored Product Summary Specification data')
         return null
       }
 
@@ -932,7 +932,7 @@ class SessionService {
 
       return sessionData
     } catch (error) {
-      console.error('Error loading TOE Summary Specification data from session:', error)
+      console.error('Error loading Product Summary Specification data from session:', error)
       return null
     }
   }
@@ -942,7 +942,7 @@ class SessionService {
       const storageKey = this.getNamespacedKey(this.TSS_STORAGE_KEY)
       localStorage.removeItem(storageKey)
     } catch (error) {
-      console.error('Error clearing TOE Summary Specification data from session:', error)
+      console.error('Error clearing Product Summary Specification data from session:', error)
     }
   }
 }

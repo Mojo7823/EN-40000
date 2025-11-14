@@ -143,11 +143,11 @@ const buildSfrTemplate = ({
     sections.push(`<h4>${rootSectionNumber}.1 Security Functional Requirements</h4>`)
   }
   sections.push(
-    '<p>This section defines the Security functional requirements (SFRs) and the Security assurance requirements (SARs) that fulfill the TOE. Assignment, selection, iteration and refinement operations have been made, adhering to the following conventions:</p>',
+    '<p>This section defines the Security functional requirements (SFRs) and the Security assurance requirements (SARs) that fulfill the Product. Assignment, selection, iteration and refinement operations have been made, adhering to the following conventions:</p>',
     '<p><strong>Assignments.</strong> They appear between square brackets. The word "assignment" is maintained and the resolution is presented in <strong><em><span style="color: #0000FF;">boldface, italic and blue color</span></em></strong>.</p>',
     '<p><strong>Selections.</strong> They appear between square brackets. The word "selection" is maintained and the resolution is presented in <strong><em><span style="color: #0000FF;">boldface, italic and blue color</span></em></strong>.</p>',
     '<p><strong>Iterations.</strong> It includes "/" and an "identifier" following requirement identifier that allows to distinguish the iterations of the requirement. Example: FCS_COP.1/XXX.</p>',
-    '<p><strong>Refinements:</strong> the text where the refinement has been done is shown <strong><em><span style="color: #FF6B6B;">bold, italic, and light red color</span></em></strong>. Where part of the content of a SFR component has been removed, the removed text is shown in <strong><em><span style="color: #FF6B6B;"><s>bold, italic, light red color and crossed out</s></span></em></strong>.</p>'
+    '<p><strong>Refinements:</strong> the text where the refinement has been done is shown <strong><em><span style="color: #FF6B6B;">bold, italic, and light red color</span></em></strong>. Where part of the content of a Technical Requirement component has been removed, the removed text is shown in <strong><em><span style="color: #FF6B6B;"><s>bold, italic, light red color and crossed out</s></span></em></strong>.</p>'
   )
   return sections.join('')
 }
@@ -228,9 +228,9 @@ const buildSarTemplate = ({
   }
   const escapedEal = escapeHtml(selectedEal)
   sections.push(
-    `<p>The development and the evaluation of the TOE shall be done in accordance to the following security assurance requirements: ${escapedEal} as specified in Part 5 of the Common Criteria.</p>`,
+    `<p>The development and the evaluation of the Product shall be done in accordance to the following security assurance requirements: ${escapedEal} as specified in Part 5 of the CRA (Cyber Resilience Act).</p>`,
     '<p>No operations are applied to the assurance components.</p>',
-    '<p>The TOE shall meet the following security assurance requirements:</p>'
+    '<p>The Product shall meet the following security assurance requirements:</p>'
   )
   return sections.join('')
 }
@@ -257,7 +257,7 @@ export const buildSarPreviewHtml = (
         <table class="sar-preview-table">
           <thead>
             <tr>
-              <th scope="col">SAR Class</th>
+              <th scope="col">Assurance Requirement Class</th>
               <th scope="col">Assurance Components</th>
             </tr>
           </thead>
@@ -324,7 +324,7 @@ export const buildSarPreviewHtml = (
       <table class="sar-preview-table">
         <thead>
           <tr>
-            <th scope="col">SAR Class</th>
+            <th scope="col">Assurance Requirement Class</th>
             <th scope="col">Assurance Components</th>
           </tr>
         </thead>

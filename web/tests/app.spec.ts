@@ -4,7 +4,7 @@ test.describe('CCGenTool navigation', () => {
   test('home navigation and generator placeholder', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page.getByRole('heading', { name: /Welcome to Common Criteria/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Welcome to CRA (Cyber Resilience Act)/i })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Open an existing Security Target Project' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Create New Security Target' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Automatically Generate Security Target' })).toBeVisible()

@@ -1,6 +1,6 @@
 <template>
   <div class="card home-card">
-    <h1 class="home-title">CCGenTool2 Demo Gallery</h1>
+    <h1 class="home-title">CRA Tool Demo Gallery</h1>
     <p class="home-subtitle">Explore each core module through bite-sized demo pages.</p>
     <div class="home-actions">
       <RouterLink v-for="demo in demoLinks" :key="demo.route" class="home-button" :to="demo.route">
@@ -32,7 +32,7 @@
 <script setup lang="ts">
 const demoLinks = [
   { title: 'Modal Demo', route: '/demo/modal' },
-  { title: 'SFR Table', route: '/demo/table' },
+  { title: 'Requirements Table', route: '/demo/table' },
   { title: 'Rich Text Editor', route: '/demo/editor' },
   { title: 'XML Viewer', route: '/demo/xml-viewer' },
   { title: 'DOCX Preview', route: '/demo/docx-preview' },
@@ -47,8 +47,8 @@ const coreFeatureModules = [
     route: '/demo/modal',
   },
   {
-    title: 'SFR Data Table',
-    description: 'Add or remove SFR entries using the lightweight CRUD table component.',
+    title: 'Technical Requirement Data Table',
+    description: 'Add or remove Technical Requirement entries using the lightweight CRUD table component.',
     category: 'Data Entry',
     route: '/demo/table',
   },

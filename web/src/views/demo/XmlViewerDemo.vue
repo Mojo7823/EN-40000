@@ -5,7 +5,7 @@
         <h1>XML Tree Viewer</h1>
         <p>
           Legacy XML parsing has been removed, but the interactive viewer still showcases how structured data is
-          rendered in CCGenTool.
+          rendered in CRA Tool.
         </p>
       </div>
       <select v-model="selectedSampleId" class="input select">

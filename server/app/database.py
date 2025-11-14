@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     # Default local dev connection string - use SQLite for development
-    "sqlite:///./ccgentool2.db",
+    "sqlite:///./cratool.db",
 )
 
 

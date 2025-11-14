@@ -14,7 +14,7 @@ export interface DemoState {
   lastUpdated: string
 }
 
-const STORAGE_KEY = 'ccgentool2_demo_state'
+const STORAGE_KEY = 'cratool_demo_state'
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {

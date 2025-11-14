@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <h2>XML Parser</h2>
-    <p>Upload and parse Common Criteria XML files</p>
+    <p>Upload and parse CRA (Cyber Resilience Act) XML files</p>
     
     <!-- File Upload Section -->
     <div class="upload-section">

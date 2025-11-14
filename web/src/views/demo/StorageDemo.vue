@@ -53,7 +53,7 @@ function exportWorkspace() {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `CCGenTool_Demo_${new Date().toISOString().split('T')[0]}.json`
+  link.download = `CRA Tool_Demo_${new Date().toISOString().split('T')[0]}.json`
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)

@@ -4,7 +4,7 @@
       <Sidebar />
     </aside>
     <header class="navbar">
-      <div class="brand">CCGenTool2</div>
+      <div class="brand">CRA Tool</div>
       <div class="navbar-actions">
         <div class="status">
           <span>DB:</span>
@@ -35,7 +35,7 @@ import api from './services/api'
 
 type Health = { status: 'ok'|'degraded'|string, latency_ms: number }
 const health = ref<Health>({ status: 'degraded', latency_ms: 0 })
-const THEME_KEY = 'ccgentool2_theme'
+const THEME_KEY = 'cratool_theme'
 const theme = ref<'light' | 'dark'>('light')
 
 const themeToggleLabel = computed(() =>

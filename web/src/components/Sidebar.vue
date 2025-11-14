@@ -27,7 +27,7 @@ import { ref } from 'vue'
 const demoOpen = ref(true)
 const demoLinks = [
   { label: 'Modal', to: '/demo/modal' },
-  { label: 'SFR Table', to: '/demo/table' },
+  { label: 'Requirements Table', to: '/demo/table' },
   { label: 'Rich Text Editor', to: '/demo/editor' },
   { label: 'XML Viewer', to: '/demo/xml-viewer' },
   { label: 'Docx Preview', to: '/demo/docx-preview' },

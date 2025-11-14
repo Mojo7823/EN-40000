@@ -120,7 +120,7 @@ async function downloadDocx() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = 'CCGenTool_Demo.docx'
+    link.download = 'CRA Tool_Demo.docx'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

@@ -3,7 +3,7 @@
     <header class="demo-header">
       <div>
         <h1>Modal Interaction</h1>
-        <p>Demonstrates the accessible modal shell used throughout CCGenTool.</p>
+        <p>Demonstrates the accessible modal shell used throughout CRA Tool.</p>
       </div>
       <button class="btn primary" type="button" @click="openModal">
         Launch Demo Modal

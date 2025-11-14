@@ -37,25 +37,25 @@ async def lifespan(app: FastAPI):
     # Shutdown (if needed)
 
 
-app = FastAPI(title="CCGenTool2 API", lifespan=lifespan)
+app = FastAPI(title="CRA Tool API", lifespan=lifespan)
 
-COVER_UPLOAD_ROOT = Path(os.getenv("COVER_UPLOAD_DIR", Path(tempfile.gettempdir()) / "ccgentool2_cover_uploads"))
+COVER_UPLOAD_ROOT = Path(os.getenv("COVER_UPLOAD_DIR", Path(tempfile.gettempdir()) / "cratool_cover_uploads"))
 COVER_UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
-COVER_DOCX_ROOT = Path(os.getenv("COVER_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_cover_docx"))
+COVER_DOCX_ROOT = Path(os.getenv("COVER_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_cover_docx"))
 COVER_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
-SFR_DOCX_ROOT = Path(os.getenv("SFR_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_sfr_docx"))
+SFR_DOCX_ROOT = Path(os.getenv("SFR_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_sfr_docx"))
 SFR_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
-SAR_DOCX_ROOT = Path(os.getenv("SAR_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_sar_docx"))
+SAR_DOCX_ROOT = Path(os.getenv("SAR_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_sar_docx"))
 SAR_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
-ST_INTRO_DOCX_ROOT = Path(os.getenv("ST_INTRO_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_stintro_docx"))
+ST_INTRO_DOCX_ROOT = Path(os.getenv("ST_INTRO_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_stintro_docx"))
 ST_INTRO_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
-SPD_DOCX_ROOT = Path(os.getenv("SPD_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_spd_docx"))
+SPD_DOCX_ROOT = Path(os.getenv("SPD_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_spd_docx"))
 SPD_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
-SO_DOCX_ROOT = Path(os.getenv("SO_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_so_docx"))
+SO_DOCX_ROOT = Path(os.getenv("SO_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_so_docx"))
 SO_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
-TSS_DOCX_ROOT = Path(os.getenv("TSS_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_tss_docx"))
+TSS_DOCX_ROOT = Path(os.getenv("TSS_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_tss_docx"))
 TSS_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
-FINAL_DOCX_ROOT = Path(os.getenv("FINAL_DOCX_DIR", Path(tempfile.gettempdir()) / "ccgentool2_final_docx"))
+FINAL_DOCX_ROOT = Path(os.getenv("FINAL_DOCX_DIR", Path(tempfile.gettempdir()) / "cratool_final_docx"))
 FINAL_DOCX_ROOT.mkdir(parents=True, exist_ok=True)
 
 USER_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
@@ -187,7 +187,7 @@ def _build_cover_document(payload: CoverPreviewRequest) -> Path:
         run.add_picture(str(image_file), width=Mm(120))
         image_paragraph.space_after = Pt(12)
 
-    title_text = payload.title.strip() if payload.title else "Security Target Title"
+    title_text = payload.title.strip() if payload.title else "CRA Documentation Title"
     title_paragraph = document.add_paragraph()
     title_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     title_run = title_paragraph.add_run(title_text)
@@ -723,16 +723,16 @@ def _build_tss_preview_document(html_content: str, user_id: str) -> Path:
     section.right_margin = Mm(25)
 
     heading = document.add_paragraph()
-    heading_run = heading.add_run("6. TOE Summary Specification")
+    heading_run = heading.add_run("6. Product Summary Specification")
     heading_run.font.size = Pt(20)
     heading_run.font.bold = True
     heading.space_after = Pt(8)
 
     intro_paragraph = document.add_paragraph(
         (
-            "This section describes the TOE security functions that satisfy the security functional requirements. "
-            "The TOE also includes additional relevant security functions which are also described in the following "
-            "sections, as well as a mapping to the security functional requirements satisfied by the TOE."
+            "This section describes the Product security functions that satisfy the security functional requirements. "
+            "The Product also includes additional relevant security functions which are also described in the following "
+            "sections, as well as a mapping to the security functional requirements satisfied by the Product."
         )
     )
     intro_paragraph.space_after = Pt(12)
@@ -781,7 +781,7 @@ def _build_st_intro_combined_document(payload: STIntroPreviewRequest) -> Path:
                 pass  # Skip if image not found
         
         # Add cover title
-        title_text = cover_dict.get("title", "").strip() or "Security Target Title"
+        title_text = cover_dict.get("title", "").strip() or "CRA Documentation Title"
         title_paragraph = document.add_paragraph()
         title_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         title_run = title_paragraph.add_run(title_text)
@@ -815,15 +815,15 @@ def _build_st_intro_combined_document(payload: STIntroPreviewRequest) -> Path:
 
     # Add main heading
     heading = document.add_paragraph()
-    heading_run = heading.add_run("1. Security Target Introduction")
+    heading_run = heading.add_run("1. CRA Documentation Introduction")
     heading_run.font.size = Pt(20)
     heading_run.font.bold = True
     heading.space_after = Pt(12)
     
     # Add introduction text
     intro_text = (
-        "This section presents the following information required for a Common Criteria (CC) evaluation:\n"
-        "• Identifies the Security Target (ST) and the Target of Evaluation (TOE)\n"
+        "This section presents the following information required for a CRA (Cyber Resilience Act) (CC) evaluation:\n"
+        "• Identifies the CRA Documentation (ST) and the Target of Evaluation (Product)\n"
         "• Specifies the security target conventions,\n"
         "• Describes the organization of the security target"
     )
@@ -841,10 +841,10 @@ def _build_st_intro_combined_document(payload: STIntroPreviewRequest) -> Path:
         
         _append_html_to_document(document, payload.st_reference_html)
 
-    # Add TOE Reference section
+    # Add Product Reference section
     if payload.toe_reference_html:
         toe_ref_heading = document.add_paragraph()
-        toe_ref_run = toe_ref_heading.add_run("1.2 TOE Reference")
+        toe_ref_run = toe_ref_heading.add_run("1.2 Product Reference")
         toe_ref_run.font.size = Pt(18)
         toe_ref_run.font.bold = True
         toe_ref_heading.space_before = Pt(12)
@@ -852,10 +852,10 @@ def _build_st_intro_combined_document(payload: STIntroPreviewRequest) -> Path:
         
         _append_html_to_document(document, payload.toe_reference_html)
 
-    # Add TOE Overview section
+    # Add Product Overview section
     if payload.toe_overview_html:
         toe_overview_heading = document.add_paragraph()
-        toe_overview_run = toe_overview_heading.add_run("1.3 TOE Overview")
+        toe_overview_run = toe_overview_heading.add_run("1.3 Product Overview")
         toe_overview_run.font.size = Pt(18)
         toe_overview_run.font.bold = True
         toe_overview_heading.space_before = Pt(12)
@@ -863,10 +863,10 @@ def _build_st_intro_combined_document(payload: STIntroPreviewRequest) -> Path:
         
         _append_html_to_document(document, payload.toe_overview_html)
 
-    # Add TOE Description section
+    # Add Product Description section
     if payload.toe_description_html:
         toe_desc_heading = document.add_paragraph()
-        toe_desc_run = toe_desc_heading.add_run("1.4 TOE Description")
+        toe_desc_run = toe_desc_heading.add_run("1.4 Product Description")
         toe_desc_run.font.size = Pt(18)
         toe_desc_run.font.bold = True
         toe_desc_heading.space_before = Pt(12)
@@ -881,7 +881,7 @@ def _build_st_intro_combined_document(payload: STIntroPreviewRequest) -> Path:
 
 
 def _build_final_combined_document(payload: FinalPreviewRequest) -> Path:
-    """Build the complete final Security Target document from all sections."""
+    """Build the complete final CRA Documentation document from all sections."""
     docx_dir = _get_preview_docx_dir(FINAL_DOCX_ROOT, payload.user_id, create=True)
 
     # Clear previous previews
@@ -916,7 +916,7 @@ def _build_final_combined_document(payload: FinalPreviewRequest) -> Path:
                 pass  # Skip if image not found
         
         # Add cover title
-        title_text = cover_dict.get("title", "").strip() or "Security Target Title"
+        title_text = cover_dict.get("title", "").strip() or "CRA Documentation Title"
         title_paragraph = document.add_paragraph()
         title_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         title_run = title_paragraph.add_run(title_text)
@@ -950,14 +950,14 @@ def _build_final_combined_document(payload: FinalPreviewRequest) -> Path:
 
     # Page 2: Add ST Introduction heading
     heading = document.add_paragraph()
-    heading_run = heading.add_run("1. Security Target Introduction")
+    heading_run = heading.add_run("1. CRA Documentation Introduction")
     heading_run.font.size = Pt(20)
     heading_run.font.bold = True
     heading.space_after = Pt(12)
 
     intro_text = (
-        "This section presents the following information required for a Common Criteria (CC) evaluation:\n"
-        "• Identifies the Security Target (ST) and the Target of Evaluation (TOE)\n"
+        "This section presents the following information required for a CRA (Cyber Resilience Act) (CC) evaluation:\n"
+        "• Identifies the CRA Documentation (ST) and the Target of Evaluation (Product)\n"
         "• Specifies the security target conventions,\n"
         "• Describes the organization of the security target"
     )
@@ -974,30 +974,30 @@ def _build_final_combined_document(payload: FinalPreviewRequest) -> Path:
         st_ref_heading.space_after = Pt(8)
         _append_html_to_document(document, payload.st_reference_html)
 
-    # Page 3: Add TOE Reference section
+    # Page 3: Add Product Reference section
     if payload.toe_reference_html:
         toe_ref_heading = document.add_paragraph()
-        toe_ref_run = toe_ref_heading.add_run("1.2 TOE Reference")
+        toe_ref_run = toe_ref_heading.add_run("1.2 Product Reference")
         toe_ref_run.font.size = Pt(18)
         toe_ref_run.font.bold = True
         toe_ref_heading.space_before = Pt(12)
         toe_ref_heading.space_after = Pt(8)
         _append_html_to_document(document, payload.toe_reference_html)
 
-    # Page 4: Add TOE Overview section
+    # Page 4: Add Product Overview section
     if payload.toe_overview_html:
         toe_overview_heading = document.add_paragraph()
-        toe_overview_run = toe_overview_heading.add_run("1.3 TOE Overview")
+        toe_overview_run = toe_overview_heading.add_run("1.3 Product Overview")
         toe_overview_run.font.size = Pt(18)
         toe_overview_run.font.bold = True
         toe_overview_heading.space_before = Pt(12)
         toe_overview_heading.space_after = Pt(8)
         _append_html_to_document(document, payload.toe_overview_html)
 
-    # Page 5: Add TOE Description section
+    # Page 5: Add Product Description section
     if payload.toe_description_html:
         toe_desc_heading = document.add_paragraph()
-        toe_desc_run = toe_desc_heading.add_run("1.4 TOE Description")
+        toe_desc_run = toe_desc_heading.add_run("1.4 Product Description")
         toe_desc_run.font.size = Pt(18)
         toe_desc_run.font.bold = True
         toe_desc_heading.space_before = Pt(12)
@@ -1100,7 +1100,7 @@ def _build_final_combined_document(payload: FinalPreviewRequest) -> Path:
     if payload.tss_html:
         document.add_page_break()
         tss_heading = document.add_paragraph()
-        tss_run = tss_heading.add_run("6. TOE Summary Specification")
+        tss_run = tss_heading.add_run("6. Product Summary Specification")
         tss_run.font.size = Pt(20)
         tss_run.font.bold = True
         tss_heading.space_before = Pt(12)
@@ -1108,9 +1108,9 @@ def _build_final_combined_document(payload: FinalPreviewRequest) -> Path:
 
         intro_paragraph = document.add_paragraph(
             (
-                "This section describes the TOE security functions that satisfy the security functional requirements. "
-                "The TOE also includes additional relevant security functions which are also described in the following "
-                "sections, as well as a mapping to the security functional requirements satisfied by the TOE."
+                "This section describes the Product security functions that satisfy the security functional requirements. "
+                "The Product also includes additional relevant security functions which are also described in the following "
+                "sections, as well as a mapping to the security functional requirements satisfied by the Product."
             )
         )
         intro_paragraph.space_after = Pt(12)

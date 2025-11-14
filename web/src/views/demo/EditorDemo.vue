@@ -3,7 +3,7 @@
     <header class="demo-header">
       <div>
         <h1>Rich Text Editor</h1>
-        <p>Powered by TipTap with CCGenTool styling, now refactored as a standalone component.</p>
+        <p>Powered by TipTap with CRA Tool styling, now refactored as a standalone component.</p>
       </div>
       <span class="meta">Last updated: {{ lastUpdatedLabel }}</span>
     </header>

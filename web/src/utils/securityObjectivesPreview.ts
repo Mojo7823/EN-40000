@@ -219,16 +219,16 @@ export function buildSecurityObjectivesHtml(
   }
 
   html +=
-    '<p>The specific conditions listed in the following subsections are assumed to exist in the TOE’s environment. These assumptions include both practical realities in the development of the TOE security requirements and the essential environmental conditions on the use of the TOE.</p>'
+    '<p>The specific conditions listed in the following subsections are assumed to exist in the Product’s environment. These assumptions include both practical realities in the development of the Product security requirements and the essential environmental conditions on the use of the Product.</p>'
 
-  html += `<h3>${rootSectionNumber}.1 Security Objectives for the TOE</h3>`
-  html += '<p>The following security objectives are to be satisfied by the TOE:</p>'
+  html += `<h3>${rootSectionNumber}.1 Security Objectives for the Product</h3>`
+  html += '<p>The following security objectives are to be satisfied by the Product:</p>'
 
   if (toeObjectives.length) {
-    html += buildObjectivesTable(toeObjectives, 'Security Objectives for the TOE', `${rootSectionNumber}.1`)
+    html += buildObjectivesTable(toeObjectives, 'Security Objectives for the Product', `${rootSectionNumber}.1`)
     html += '<p></p>'
   } else {
-    html += '<p>There are no security objectives defined for the TOE.</p>'
+    html += '<p>There are no security objectives defined for the Product.</p>'
   }
 
   html += `<h3>${rootSectionNumber}.2 Security Objectives for the Operational Environment</h3>`

@@ -73,7 +73,7 @@ class FruDb(ComponentFamilyBase, Base):
 
 
 class FtaDb(ComponentFamilyBase, Base):
-    """TOE access (FTA) family"""
+    """Product access (FTA) family"""
     __tablename__ = "fta_db"
 
 
@@ -109,7 +109,7 @@ class ApeDb(ComponentFamilyBase, Base):
 
 
 class AseDb(ComponentFamilyBase, Base):
-    """Security Target evaluation (ASE) family"""
+    """CRA Documentation evaluation (ASE) family"""
     __tablename__ = "ase_db"
 
 

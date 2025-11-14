@@ -23,7 +23,7 @@ export const xmlSamples: XmlSample[] = [
   {
     id: 'fcs',
     title: 'Cryptographic Support',
-    description: 'Snapshot of a Common Criteria FCS class and its nested components.',
+    description: 'Snapshot of a CRA cryptographic support class and its nested components.',
     tree: {
       label: 'f-class (FCS)',
       data: 'Cryptographic Support',
@@ -49,7 +49,7 @@ export const xmlSamples: XmlSample[] = [
   {
     id: 'fia',
     title: 'Identification & Authentication',
-    description: 'Simplified FIA tree highlighting TOE user authentication elements.',
+    description: 'Simplified FIA tree highlighting Product user authentication elements.',
     tree: {
       label: 'f-class (FIA)',
       data: 'Identification and Authentication',

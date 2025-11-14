@@ -78,31 +78,31 @@ export function buildSecurityProblemDefinitionHtml(
   html +=
     '<p>This chapter identifies the following:</p>' +
     '<ul>' +
-    '<li>Significant assumptions about the TOE’s operational environment.</li>' +
-    '<li>Threats that must be countered by the TOE or its environment.</li>' +
+    '<li>Significant assumptions about the Product’s operational environment.</li>' +
+    '<li>Threats that must be countered by the Product or its environment.</li>' +
     '</ul>'
   html +=
     '<p>This document identifies assumptions as A.assumption with “assumption” specifying a unique name. Threats are identified as T.threat with “threat” specifying a unique name.</p>'
 
   html += `<h3>${rootSectionNumber}.1 Assumptions</h3>`
   html +=
-    '<p>The specific conditions listed in the following subsections are assumed to exist in the TOE’s environment. These assumptions include both practical realities in the development of the TOE security requirements and the essential environmental conditions on the use of the TOE.</p>'
+    '<p>The specific conditions listed in the following subsections are assumed to exist in the Product’s environment. These assumptions include both practical realities in the development of the Product security requirements and the essential environmental conditions on the use of the Product.</p>'
 
   if (assumptions.length) {
     html += buildEntriesTable(assumptions, 'Assumptions', `${rootSectionNumber}.1`)
     html += '<p></p>'
   } else {
-    html += '<p>There are no assumptions identified for this TOE.</p>'
+    html += '<p>There are no assumptions identified for this Product.</p>'
   }
 
   html += `<h3>${rootSectionNumber}.2 Threats</h3>`
-  html += '<p>The following table defines the security threats for the TOE.</p>'
+  html += '<p>The following table defines the security threats for the Product.</p>'
 
   if (threats.length) {
     html += buildEntriesTable(threats, 'Threats', `${rootSectionNumber}.2`)
     html += '<p></p>'
   } else {
-    html += '<p>There are no threats identified for this TOE.</p>'
+    html += '<p>There are no threats identified for this Product.</p>'
   }
 
   html += `<h3>${rootSectionNumber}.3 Organisational Security Policies</h3>`
@@ -112,7 +112,7 @@ export function buildSecurityProblemDefinitionHtml(
   if (osp.length) {
     html += buildEntriesTable(osp, 'Organisational Security Policies', `${rootSectionNumber}.3`)
   } else {
-    html += '<p>There are no Organizational Security Policies identified for this TOE.</p>'
+    html += '<p>There are no Organizational Security Policies identified for this Product.</p>'
   }
 
   return html

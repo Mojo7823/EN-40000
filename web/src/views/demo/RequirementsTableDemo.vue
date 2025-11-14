@@ -2,11 +2,11 @@
   <div class="card demo-card">
     <header class="demo-header">
       <div>
-        <h1>SFR Table Demo</h1>
+        <h1>Requirements Table Demo</h1>
         <p>Showcases the CRUD-style table previously used for Security Functional Requirements.</p>
       </div>
       <button class="btn primary" type="button" @click="openModal">
-        Add SFR
+        Add Technical Requirement
       </button>
     </header>
 
@@ -14,7 +14,7 @@
       <table>
         <thead>
           <tr>
-            <th>SFR Class</th>
+            <th>Technical Requirement Class</th>
             <th>Component</th>
             <th>Description</th>
             <th></th>
@@ -30,7 +30,7 @@
             </td>
           </tr>
           <tr v-if="sfrEntries.length === 0">
-            <td colspan="4" class="empty-state">No entries yet. Click “Add SFR” to create one.</td>
+            <td colspan="4" class="empty-state">No entries yet. Click “Add Technical Requirement” to create one.</td>
           </tr>
         </tbody>
       </table>
@@ -40,7 +40,7 @@
   <div v-if="isModalOpen" class="demo-modal-overlay" @click="closeModal">
     <div class="demo-modal" role="dialog" aria-modal="true" aria-labelledby="sfrModalTitle" @click.stop>
       <header class="demo-modal-header">
-        <h2 id="sfrModalTitle">Add SFR Entry</h2>
+        <h2 id="sfrModalTitle">Add Technical Requirement Entry</h2>
         <button class="modal-close" type="button" @click="closeModal" aria-label="Close">&times;</button>
       </header>
       <div class="demo-modal-body">
@@ -66,7 +66,7 @@
           v-model="form.summary"
           class="input"
           rows="4"
-          placeholder="Brief description of the SFR adjustments..."
+          placeholder="Brief description of the Technical Requirement adjustments..."
         ></textarea>
       </div>
       <footer class="demo-modal-footer">
