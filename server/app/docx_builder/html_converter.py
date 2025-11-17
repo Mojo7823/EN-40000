@@ -29,7 +29,12 @@ def paragraph_has_content(paragraph) -> bool:
     return False
 
 
-def append_inline_content(paragraph, element, inherited_styles: Optional[Dict] = None):
+def append_inline_content(
+    paragraph,
+    element,
+    inherited_styles: Optional[Dict] = None,
+    suppress_leading_break: bool = False,
+):
     """
     Append inline HTML content to a docx paragraph.
     
@@ -95,7 +100,7 @@ def append_inline_content(paragraph, element, inherited_styles: Optional[Dict] =
     
     # Handle block-level elements inline (p, div)
     if tag in {"p", "div"}:
-        if paragraph_has_content(paragraph):
+        if paragraph_has_content(paragraph) and not suppress_leading_break:
             paragraph.add_run().add_break()
         
         text_content = element.text or ""
@@ -142,7 +147,7 @@ def append_inline_content(paragraph, element, inherited_styles: Optional[Dict] =
             apply_styles_to_run(run, combined_styles)
         
         for child in element:
-            append_inline_content(paragraph, child, combined_styles)
+            append_inline_content(paragraph, child, combined_styles, suppress_leading_break=True)
             tail = child.tail or ""
             if tail:
                 tail_run = paragraph.add_run(tail.replace("\xa0", " "))

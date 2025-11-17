@@ -1,0 +1,19 @@
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
+  font-weight: 600;
+}
+
+.accordion-content {
+  padding-left: 8px;
+}
+
+.menu.nested {
+  padding-left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

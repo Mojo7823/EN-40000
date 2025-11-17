@@ -1,0 +1,33 @@
+.demo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.demo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.preview-pane {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--surface);
+  min-height: 300px;
+  overflow: auto;
+}

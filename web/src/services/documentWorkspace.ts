@@ -12,8 +12,50 @@ export interface CoverFormState {
   imagePath: string | null
 }
 
+export interface IntroductionFormState {
+  productName: string
+  productVersion: string
+  productType: string
+  manufacturerName: string
+  manufacturerAddress: string
+  status: string
+  preparedBy: string
+  reviewedBy: string
+  approvedBy: string
+}
+
+export interface PurposeScopeState {
+  scopeSelections: string[]
+  assessmentStart: string
+  assessmentEnd: string
+  methodologyHtml: string
+}
+
+export interface ProductIdentificationState {
+  productDescriptionHtml: string
+  keyFunctionsHtml: string
+  targetMarket: string
+}
+
+export interface ManufacturerInformationState {
+  legalEntity: string
+  registrationNumber: string
+  address: string
+  contactPerson: string
+  phone: string
+}
+
+export interface ProductOverviewState {
+  productDescriptionHtml: string
+}
+
 export interface DocumentWorkspaceState {
   cover: CoverFormState
+  introduction: IntroductionFormState
+  purposeScope: PurposeScopeState
+  productIdentification: ProductIdentificationState
+  manufacturerInformation: ManufacturerInformationState
+  productOverview: ProductOverviewState
   lastUpdated: string
 }
 
@@ -31,8 +73,46 @@ const defaultCoverState: CoverFormState = {
   imagePath: null,
 }
 
+const defaultIntroductionState: IntroductionFormState = {
+  productName: '',
+  productVersion: '',
+  productType: '',
+  manufacturerName: '',
+  manufacturerAddress: '',
+  status: '',
+  preparedBy: '',
+  reviewedBy: '',
+  approvedBy: '',
+}
+
 const defaultState: DocumentWorkspaceState = {
   cover: { ...defaultCoverState },
+  introduction: { ...defaultIntroductionState },
+  purposeScope: {
+    scopeSelections: [],
+    assessmentStart: '',
+    assessmentEnd: '',
+    methodologyHtml:
+      '<p><em>Describe the methodology used – e.g., document review, interviews, technical testing, code review, penetration testing.</em></p>',
+  },
+  productIdentification: {
+    productDescriptionHtml:
+      '<p><em>Summarize the product’s architecture, deployment model, and distinguishing traits.</em></p>',
+    keyFunctionsHtml:
+      '<ol><li><em>Function 1</em></li><li><em>Function 2</em></li><li><em>Function 3</em></li></ol>',
+    targetMarket: '',
+  },
+  manufacturerInformation: {
+    legalEntity: '',
+    registrationNumber: '',
+    address: '',
+    contactPerson: '',
+    phone: '',
+  },
+  productOverview: {
+    productDescriptionHtml:
+      '<p><strong>2. Product Overview</strong></p><p><em>Provide a detailed description of the product including hardware, software, connectivity, user interface, and data processing characteristics.</em></p>',
+  },
   lastUpdated: new Date(0).toISOString(),
 }
 
@@ -47,6 +127,16 @@ function cloneState(state: DocumentWorkspaceState): DocumentWorkspaceState {
   return {
     ...state,
     cover: { ...state.cover },
+    introduction: { ...state.introduction },
+    purposeScope: {
+      scopeSelections: [...state.purposeScope.scopeSelections],
+      assessmentStart: state.purposeScope.assessmentStart,
+      assessmentEnd: state.purposeScope.assessmentEnd,
+      methodologyHtml: state.purposeScope.methodologyHtml,
+    },
+    productIdentification: { ...state.productIdentification },
+    manufacturerInformation: { ...state.manufacturerInformation },
+    productOverview: { ...state.productOverview },
   }
 }
 
@@ -83,6 +173,29 @@ function readFromStorage(): DocumentWorkspaceState | null {
       cover: {
         ...defaultCoverState,
         ...parsed.cover,
+      },
+      introduction: {
+        ...defaultIntroductionState,
+        ...parsed.introduction,
+      },
+      purposeScope: {
+        ...defaultState.purposeScope,
+        ...parsed.purposeScope,
+        scopeSelections: Array.isArray(parsed.purposeScope?.scopeSelections)
+          ? [...parsed.purposeScope.scopeSelections]
+          : [],
+      },
+      productIdentification: {
+        ...defaultState.productIdentification,
+        ...parsed.productIdentification,
+      },
+      manufacturerInformation: {
+        ...defaultState.manufacturerInformation,
+        ...parsed.manufacturerInformation,
+      },
+      productOverview: {
+        ...defaultState.productOverview,
+        ...parsed.productOverview,
       },
     }
   } catch (error) {
@@ -133,6 +246,87 @@ export function updateCoverState(patch: Partial<CoverFormState>): DocumentWorksp
   return { ...next }
 }
 
+export function updateIntroductionState(patch: Partial<IntroductionFormState>): DocumentWorkspaceState {
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    introduction: {
+      ...inMemoryState.introduction,
+      ...patch,
+    },
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
+export function updatePurposeScopeState(patch: Partial<PurposeScopeState>): DocumentWorkspaceState {
+  const nextSelections = patch.scopeSelections
+    ? [...patch.scopeSelections]
+    : [...inMemoryState.purposeScope.scopeSelections]
+
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    purposeScope: {
+      ...inMemoryState.purposeScope,
+      ...patch,
+      scopeSelections: nextSelections,
+    },
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
+export function updateProductIdentificationState(
+  patch: Partial<ProductIdentificationState>
+): DocumentWorkspaceState {
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    productIdentification: {
+      ...inMemoryState.productIdentification,
+      ...patch,
+    },
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
+export function updateManufacturerInformationState(
+  patch: Partial<ManufacturerInformationState>
+): DocumentWorkspaceState {
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    manufacturerInformation: {
+      ...inMemoryState.manufacturerInformation,
+      ...patch,
+    },
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
+export function updateProductOverviewState(
+  patch: Partial<ProductOverviewState>
+): DocumentWorkspaceState {
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    productOverview: {
+      ...inMemoryState.productOverview,
+      ...patch,
+    },
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
 export function clearDocumentWorkspace(): DocumentWorkspaceState {
   persistState(defaultState)
   sessionService.clearCoverData()
@@ -155,6 +349,29 @@ export function importDocumentWorkspace(payload: { state: DocumentWorkspaceState
     cover: {
       ...defaultCoverState,
       ...state.cover,
+    },
+    introduction: {
+      ...defaultIntroductionState,
+      ...state.introduction,
+    },
+    purposeScope: {
+      ...defaultState.purposeScope,
+      ...state.purposeScope,
+      scopeSelections: Array.isArray(state.purposeScope?.scopeSelections)
+        ? [...state.purposeScope.scopeSelections]
+        : [],
+    },
+    productIdentification: {
+      ...defaultState.productIdentification,
+      ...state.productIdentification,
+    },
+    manufacturerInformation: {
+      ...defaultState.manufacturerInformation,
+      ...state.manufacturerInformation,
+    },
+    productOverview: {
+      ...defaultState.productOverview,
+      ...state.productOverview,
     },
     lastUpdated: new Date().toISOString(),
   }

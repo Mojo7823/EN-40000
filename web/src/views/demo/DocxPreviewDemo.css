@@ -1,0 +1,190 @@
+.demo-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-text h1 {
+  margin: 0;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.content-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.preview-controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.zoom-controls,
+.page-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--panel-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-icon:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoom-level,
+.page-info {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 50px;
+  text-align: center;
+}
+
+.docx-preview-shell {
+  position: relative;
+  min-height: 600px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 12px;
+  overflow: auto;
+}
+
+.docx-preview-container {
+  width: 100%;
+  min-height: 600px;
+  overflow: visible;
+  background: transparent;
+  transition: transform 0.2s ease;
+}
+
+.docx-preview-container.hidden {
+  display: none;
+}
+
+/* Wrapper with checkerboard background */
+.docx-preview-container :deep(.docx-wrapper) {
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  padding: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* A4 page with proper dimensions and shadow */
+.docx-preview-container :deep(.docx) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+  background: #ffffff !important;
+  /* A4 dimensions: 210mm x 297mm at 96dpi = 794px x 1123px */
+  width: 794px !important;
+  min-height: 1123px;
+  margin: 0 auto;
+  page-break-after: always;
+}
+
+/* Individual sections (pages) */
+.docx-preview-container :deep(.docx > section) {
+  background: #ffffff !important;
+  min-height: 1123px;
+  padding: 96px 120px; /* Standard Word margins (1 inch = 96px) */
+  box-sizing: border-box;
+  page-break-after: always;
+}
+
+/* Page breaks between sections */
+.docx-preview-container :deep(.docx > section + section) {
+  margin-top: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure text doesn't overflow page width */
+.docx-preview-container :deep(.docx p),
+.docx-preview-container :deep(.docx h1),
+.docx-preview-container :deep(.docx h2),
+.docx-preview-container :deep(.docx h3),
+.docx-preview-container :deep(.docx table) {
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+/* Table styling */
+.docx-preview-container :deep(.docx table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Fix for dark mode - ensure document stays white */
+.docx-preview-container :deep(.docx),
+.docx-preview-container :deep(.docx > section) {
+  color: #000000 !important;
+}
+
+.muted {
+  color: var(--text-muted);
+}

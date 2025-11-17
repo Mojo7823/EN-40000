@@ -33,6 +33,49 @@ class ComponentOut(ComponentBase):
 
 
 # Preview request schemas
+class CoverIntroductionSection(BaseModel):
+    """Document Information fields for the Introduction section."""
+    product_name: Optional[str] = None
+    product_version: Optional[str] = None
+    product_type: Optional[str] = None
+    manufacturer: Optional[str] = None
+    manufacturer_address: Optional[str] = None
+    status: Optional[str] = None
+    prepared_by: Optional[str] = None
+    reviewed_by: Optional[str] = None
+    approved_by: Optional[str] = None
+
+
+class PurposeScopeSection(BaseModel):
+    """Purpose and Scope data for section 1.2."""
+    product_name: Optional[str] = None
+    scope_selections: List[str] = Field(default_factory=list)
+    assessment_start: Optional[str] = None
+    assessment_end: Optional[str] = None
+    methodology_html: Optional[str] = None
+
+
+class ProductIdentificationSection(BaseModel):
+    """Product Identification data for section 1.3."""
+    product_description_html: Optional[str] = None
+    key_functions_html: Optional[str] = None
+    target_market: Optional[str] = None
+
+
+class ProductOverviewSection(BaseModel):
+    """Product Overview data for section 2."""
+    product_description_html: Optional[str] = None
+
+
+class ManufacturerInformationSection(BaseModel):
+    """Manufacturer Information data for section 1.4."""
+    legal_entity: Optional[str] = None
+    registration_number: Optional[str] = None
+    address: Optional[str] = None
+    contact_person: Optional[str] = None
+    phone: Optional[str] = None
+
+
 class CoverPreviewRequest(BaseModel):
     """Cover page preview request."""
     model_config = ConfigDict(populate_by_name=True)
@@ -45,6 +88,11 @@ class CoverPreviewRequest(BaseModel):
     manufacturer: Optional[str] = None
     date: Optional[str] = None
     image_path: Optional[str] = Field(None, alias="image_path")
+    introduction: Optional[CoverIntroductionSection] = None
+    purpose_scope: Optional[PurposeScopeSection] = None
+    product_identification: Optional[ProductIdentificationSection] = None
+    product_overview: Optional[ProductOverviewSection] = None
+    manufacturer_information: Optional[ManufacturerInformationSection] = None
 
 
 class HtmlPreviewRequest(BaseModel):

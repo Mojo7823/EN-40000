@@ -10,7 +10,6 @@
         </p>
       </div>
       <div class="hero-actions">
-        <RouterLink class="btn ghost" to="/document/cover">Edit Cover</RouterLink>
         <button class="btn" type="button" :disabled="!latestDocPath || downloading" @click="downloadDocx">
           {{ downloading ? 'Preparing…' : 'Download DOCX' }}
         </button>
@@ -20,57 +19,31 @@
       </div>
     </section>
 
-    <section class="card cover-summary-card">
+    <section class="card status-card">
       <header>
         <div>
-          <h2>Cover Snapshot</h2>
-          <p class="muted">This summary is generated from the Cover page. Update it there before rendering.</p>
-        </div>
-        <div class="summary-meta">
-          <span :class="['badge', coverStatusClass]">{{ coverStatusText }}</span>
-          <small>Last updated: {{ lastUpdatedText }}</small>
+          <h2>Section Status</h2>
+          <p class="muted">Check the completion status of each document section.</p>
         </div>
       </header>
-      <div class="cover-summary">
-        <div class="cover-details">
-          <p class="cover-eyebrow">Document Cover</p>
-          <h3>{{ cover.deviceName || 'Untitled Device' }}</h3>
-          <p class="cover-description">
-            {{ cover.deviceDescription || 'Add a product description on the Cover page to display it here.' }}
-          </p>
-          <dl>
+      <ul class="status-list">
+        <li v-for="item in sectionStatuses" :key="item.key">
+          <RouterLink class="status-link" :to="item.to">
             <div>
-              <dt>Version Number</dt>
-              <dd>{{ cover.versionNumber || '—' }}</dd>
+              <p class="status-title">{{ item.title }}</p>
+              <p class="status-hint">{{ item.hint }}</p>
             </div>
-            <div>
-              <dt>Revision Date</dt>
-              <dd>{{ formattedRevisionDate }}</dd>
-            </div>
-            <div>
-              <dt>Lab Name</dt>
-              <dd>{{ cover.labName || '—' }}</dd>
-            </div>
-            <div>
-              <dt>Lab Address</dt>
-              <dd>{{ cover.labAddress || '—' }}</dd>
-            </div>
-          </dl>
-        </div>
-        <div class="cover-image-pane" :class="{ empty: !cover.imageData }">
-          <img v-if="cover.imageData" :src="cover.imageData" alt="Cover artwork preview" />
-          <div v-else class="placeholder">
-            <span>Drag and drop an image on the Cover page to show it here.</span>
-          </div>
-        </div>
-      </div>
+            <span :class="['status-pill', item.state]">{{ item.label }}</span>
+          </RouterLink>
+        </li>
+      </ul>
     </section>
 
     <section class="card preview-card">
       <header class="result-header">
         <div>
-          <h2>Preview Result</h2>
-          <p class="muted">The cover is rendered at true A4 dimensions with zoom and navigation controls.</p>
+          <h2>DOCX Preview</h2>
+          <p class="muted">Rendered at true A4 dimensions with zoom and navigation controls.</p>
         </div>
         <div v-if="hasGeneratedDocx && !previewLoading" class="preview-controls">
           <div class="zoom-controls">
@@ -123,8 +96,24 @@ import {
 } from '../../services/documentWorkspace'
 import { dataUrlToFile } from '../../utils/dataUrl'
 
+const lifecyclePhases = [
+  'Concept and planning',
+  'Design and development',
+  'Implementation',
+  'Verification and validation',
+  'Production and distribution',
+  'Deployment and operation',
+  'Maintenance and support',
+  'Decommissioning',
+]
+
 const workspaceState = ref<DocumentWorkspaceState>(loadDocumentWorkspace())
 const cover = computed(() => workspaceState.value.cover)
+const introduction = computed(() => workspaceState.value.introduction)
+const purposeScope = computed(() => workspaceState.value.purposeScope)
+const productIdentification = computed(() => workspaceState.value.productIdentification)
+const manufacturerInformation = computed(() => workspaceState.value.manufacturerInformation)
+const productOverview = computed(() => workspaceState.value.productOverview)
 const previewLoading = ref(false)
 const previewError = ref('')
 const hasGeneratedDocx = ref(false)
@@ -136,19 +125,8 @@ const zoomLevel = ref(100)
 const currentPage = ref(1)
 const totalPages = ref(1)
 
-const hasCoverContent = computed(
-  () =>
-    !!(
-      cover.value.deviceName ||
-      cover.value.deviceDescription ||
-      cover.value.versionNumber ||
-      cover.value.labName
-    )
-)
-const formattedRevisionDate = computed(() => formatDate(cover.value.revisionDate))
-const coverStatusClass = computed(() => (hasCoverContent.value ? 'ok' : 'degraded'))
-const coverStatusText = computed(() => (hasCoverContent.value ? 'Ready' : 'Missing details'))
 const lastUpdatedText = computed(() => formatDate(workspaceState.value.lastUpdated, true))
+const sectionStatuses = computed(() => buildSectionStatuses())
 
 let unsubscribe: (() => void) | null = null
 
@@ -175,6 +153,160 @@ function formatDate(value: string | null | undefined, fallbackDash = false) {
     return '—'
   }
   return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+function stripHtml(value?: string | null) {
+  if (!value) return ''
+  if (typeof window === 'undefined') {
+    return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  }
+  const div = document.createElement('div')
+  div.innerHTML = value
+  return div.textContent?.trim() ?? ''
+}
+
+function normalizeHtml(value?: string | null) {
+  if (!value) return undefined
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+  return stripHtml(trimmed) ? trimmed : undefined
+}
+
+function formatAssessmentPeriod(start?: string | null, end?: string | null) {
+  const startLabel = formatPeriodDate(start)
+  const endLabel = formatPeriodDate(end)
+  if (!startLabel && !endLabel) return '—'
+  if (!startLabel) return `Through ${endLabel}`
+  if (!endLabel) return `${startLabel} onward`
+  return `${startLabel} to ${endLabel}`
+}
+
+function formatPeriodDate(value?: string | null) {
+  if (!value) return ''
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) {
+    return value
+  }
+  return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+function escapeHtml(value?: string | null) {
+  if (!value) return ''
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function formatMultiline(value?: string | null, placeholder = '—') {
+  if (!value) return placeholder
+  const trimmed = value.trim()
+  if (!trimmed) return placeholder
+  return escapeHtml(trimmed).replace(/\n/g, '<br />')
+}
+
+function buildSectionStatuses() {
+  return [
+    createStatus(
+      'cover',
+      'Cover',
+      'Device metadata, versioning, and lab details.',
+      [
+        cover.value.deviceName,
+        cover.value.deviceDescription,
+        cover.value.versionNumber,
+        cover.value.labName,
+        cover.value.labAddress,
+      ],
+      '/document/cover'
+    ),
+    createStatus(
+      'document-info',
+      'Document Information',
+      'Product identification, manufacturer, and responsible parties.',
+      [
+        introduction.value.productName,
+        introduction.value.productVersion,
+        introduction.value.productType,
+        introduction.value.manufacturerName,
+        introduction.value.manufacturerAddress,
+        introduction.value.status,
+        introduction.value.preparedBy,
+        introduction.value.reviewedBy,
+        introduction.value.approvedBy,
+      ],
+      '/document/introduction'
+    ),
+    createStatus(
+      'purpose-scope',
+      'Purpose & Scope',
+      'Lifecycle phases, assessment period, and methodology.',
+      [
+        purposeScope.value.scopeSelections.length > 0 ? 'yes' : '',
+        purposeScope.value.assessmentStart,
+        purposeScope.value.assessmentEnd,
+        stripHtml(purposeScope.value.methodologyHtml),
+      ],
+      '/document/purpose-scope'
+    ),
+    createStatus(
+      'product-identification',
+      'Product Identification',
+      'Product description, key functions, and target market.',
+      [
+        introduction.value.productName,
+        introduction.value.productVersion,
+        introduction.value.productType,
+        stripHtml(productIdentification.value.productDescriptionHtml),
+        stripHtml(productIdentification.value.keyFunctionsHtml),
+        productIdentification.value.targetMarket,
+      ],
+      '/document/product-identification'
+    ),
+    createStatus(
+      'product-overview',
+      'Product Overview',
+      'Narrative covering physical, software, and data-processing characteristics.',
+      [stripHtml(productOverview.value.productDescriptionHtml)],
+      '/product-overview/description'
+    ),
+    createStatus(
+      'manufacturer-information',
+      'Manufacturer Information',
+      'Legal entity details and primary contact information.',
+      [
+        manufacturerInformation.value.legalEntity,
+        manufacturerInformation.value.registrationNumber,
+        manufacturerInformation.value.address,
+        manufacturerInformation.value.contactPerson,
+        manufacturerInformation.value.phone,
+      ],
+      '/document/manufacturer-information'
+    ),
+  ]
+}
+
+function createStatus(
+  key: string,
+  title: string,
+  hint: string,
+  values: Array<string | undefined | null>,
+  to: string
+) {
+  const state = evaluateCompletion(values)
+  const label = state === 'completed' ? 'Completed' : state === 'partial' ? 'Partial' : 'Missing'
+  return { key, title, hint, state, label, to }
+}
+
+function evaluateCompletion(values: Array<string | undefined | null>) {
+  const normalized = values.map((value) => (typeof value === 'string' ? value.trim() : ''))
+  const total = normalized.length
+  const filled = normalized.filter((value) => value.length > 0).length
+  if (filled === 0) return 'missing'
+  if (filled === total) return 'completed'
+  return 'partial'
 }
 
 async function uploadCoverImageIfNeeded(force = false) {
@@ -208,8 +340,11 @@ async function generatePreview() {
   previewError.value = ''
   workspaceState.value = loadDocumentWorkspace()
 
-  if (!cover.value.deviceName?.trim()) {
-    previewError.value = 'Please provide a Device Name on the Cover page before generating the preview.'
+  const productTitle = introduction.value.productName?.trim() || cover.value.deviceName?.trim() || ''
+
+  if (!productTitle) {
+    previewError.value =
+      'Please provide a Product Name on the Introduction page (or a Device Name on the Cover page) before generating the preview.'
     return
   }
 
@@ -218,15 +353,65 @@ async function generatePreview() {
   try {
     const userId = sessionService.getUserToken()
     const imagePath = await uploadCoverImageIfNeeded()
+    const normalize = (value?: string | null) => {
+      if (!value) return undefined
+      const trimmed = value.trim()
+      return trimmed.length ? trimmed : undefined
+    }
+
+    const introductionPayload = {
+      product_name: normalize(introduction.value.productName),
+      product_version: normalize(introduction.value.productVersion),
+      product_type: normalize(introduction.value.productType),
+      manufacturer: normalize(introduction.value.manufacturerName),
+      manufacturer_address: normalize(introduction.value.manufacturerAddress),
+      status: normalize(introduction.value.status),
+      prepared_by: normalize(introduction.value.preparedBy),
+      reviewed_by: normalize(introduction.value.reviewedBy),
+      approved_by: normalize(introduction.value.approvedBy),
+    }
+
+    const methodologyHtml = purposeScope.value.methodologyHtml?.trim()
+    const purposeScopePayload = {
+      product_name: productTitle,
+      scope_selections: [...purposeScope.value.scopeSelections],
+      assessment_start: normalize(purposeScope.value.assessmentStart),
+      assessment_end: normalize(purposeScope.value.assessmentEnd),
+      methodology_html: methodologyHtml && stripHtml(methodologyHtml) ? methodologyHtml : undefined,
+    }
+
+    const productIdentificationPayload = {
+      product_description_html: normalizeHtml(productIdentification.value.productDescriptionHtml),
+      key_functions_html: normalizeHtml(productIdentification.value.keyFunctionsHtml),
+      target_market: normalize(productIdentification.value.targetMarket),
+    }
+
+    const productOverviewPayload = {
+      product_description_html: normalizeHtml(productOverview.value.productDescriptionHtml),
+    }
+
+    const manufacturerInformationPayload = {
+      legal_entity: normalize(manufacturerInformation.value.legalEntity),
+      registration_number: normalize(manufacturerInformation.value.registrationNumber),
+      address: normalize(manufacturerInformation.value.address),
+      contact_person: normalize(manufacturerInformation.value.contactPerson),
+      phone: normalize(manufacturerInformation.value.phone),
+    }
+
     const payload = {
       user_id: userId,
-      title: cover.value.deviceName,
+      title: productTitle,
       description: cover.value.deviceDescription,
       version: cover.value.versionNumber,
       revision: cover.value.revisionDate,
       manufacturer: [cover.value.labName, cover.value.labAddress].filter(Boolean).join('\n'),
       date: cover.value.revisionDate,
       image_path: imagePath ?? undefined,
+      introduction: introductionPayload,
+      purpose_scope: purposeScopePayload,
+      product_identification: productIdentificationPayload,
+      product_overview: productOverviewPayload,
+      manufacturer_information: manufacturerInformationPayload,
     }
 
     const response = await api.post('/cover/preview', payload)
@@ -332,238 +517,4 @@ async function downloadDocx() {
 }
 </script>
 
-<style scoped>
-.document-preview-page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.hero-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.cover-summary-card header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.summary-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.cover-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: 16px;
-}
-
-.cover-details {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.cover-eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.cover-description {
-  margin: 0;
-  color: var(--text-muted);
-}
-
-dl {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin: 0;
-}
-
-dt {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-dd {
-  margin: 0;
-  font-weight: 600;
-}
-
-.cover-image-pane {
-  border: 1px dashed var(--panel-border);
-  border-radius: 16px;
-  min-height: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.cover-image-pane img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.cover-image-pane.empty .placeholder {
-  padding: 24px;
-  text-align: center;
-  color: var(--text-muted);
-}
-
-.preview-card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.result-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.preview-controls {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.zoom-controls,
-.page-navigation {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-}
-
-.btn-icon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface);
-  border: 1px solid var(--panel-border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 18px;
-  color: var(--text);
-}
-
-.btn-icon:hover:not(:disabled) {
-  background: var(--panel-bg);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.btn-icon:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.btn-icon:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.zoom-level,
-.page-info {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  min-width: 50px;
-  text-align: center;
-}
-
-.docx-preview-shell {
-  position: relative;
-  min-height: 600px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  background: var(--surface);
-  padding: 12px;
-  overflow: auto;
-}
-
-.docx-preview-container {
-  width: 100%;
-  min-height: 600px;
-  overflow: visible;
-  background: transparent;
-  transition: transform 0.2s ease;
-}
-
-.docx-preview-container.hidden {
-  display: none;
-}
-
-.docx-preview-container :deep(.docx-wrapper) {
-  background: linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
-  padding: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.docx-preview-container :deep(.docx) {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
-  background: #ffffff !important;
-  width: 794px !important;
-  min-height: 1123px;
-  margin: 0 auto;
-  page-break-after: always;
-}
-
-.docx-preview-container :deep(.docx > section) {
-  background: #ffffff !important;
-  min-height: 1123px;
-  padding: 96px 120px;
-  box-sizing: border-box;
-  page-break-after: always;
-}
-
-.docx-preview-container :deep(.docx > section + section) {
-  margin-top: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-.docx-preview-container :deep(.docx),
-.docx-preview-container :deep(.docx > section) {
-  color: #000000 !important;
-}
-</style>
+<style scoped src="./DocumentPreview.css"></style>

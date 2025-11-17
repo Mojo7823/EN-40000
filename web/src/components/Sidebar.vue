@@ -8,12 +8,42 @@
     </li>
     <li>
       <div class="accordion">
+        <div class="accordion-header" @click="introductionOpen = !introductionOpen">
+          <span>Introduction</span>
+          <span>{{ introductionOpen ? '▾' : '▸' }}</span>
+        </div>
+        <div v-if="introductionOpen" class="accordion-content">
+          <ul class="menu nested">
+            <li v-for="link in introductionLinks" :key="link.to">
+              <RouterLink :to="link.to" active-class="active">{{ link.label }}</RouterLink>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="accordion">
+        <div class="accordion-header" @click="productOverviewOpen = !productOverviewOpen">
+          <span>Product Overview</span>
+          <span>{{ productOverviewOpen ? '▾' : '▸' }}</span>
+        </div>
+        <div v-if="productOverviewOpen" class="accordion-content">
+          <ul class="menu nested">
+            <li v-for="link in productOverviewLinks" :key="link.to">
+              <RouterLink :to="link.to" active-class="active">{{ link.label }}</RouterLink>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="accordion">
         <div class="accordion-header" @click="documentOpen = !documentOpen">
           <span>Document Management</span>
           <span>{{ documentOpen ? '▾' : '▸' }}</span>
         </div>
         <div v-if="documentOpen" class="accordion-content">
-          <ul class="menu">
+          <ul class="menu nested">
             <li v-for="link in documentLinks" :key="link.to">
               <RouterLink :to="link.to" active-class="active">{{ link.label }}</RouterLink>
             </li>
@@ -28,7 +58,7 @@
           <span>{{ demoOpen ? '▾' : '▸' }}</span>
         </div>
         <div v-if="demoOpen" class="accordion-content">
-          <ul class="menu">
+          <ul class="menu nested">
             <li v-for="link in demoLinks" :key="link.to">
               <RouterLink :to="link.to" active-class="active">{{ link.label }}</RouterLink>
             </li>
@@ -42,8 +72,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const introductionOpen = ref(true)
+const productOverviewOpen = ref(true)
 const documentOpen = ref(true)
-const demoOpen = ref(true)
+const demoOpen = ref(false)
+const introductionLinks = [
+  { label: 'Document Information', to: '/document/introduction' },
+  { label: 'Purpose and Scope', to: '/document/purpose-scope' },
+  { label: 'Product Identification', to: '/document/product-identification' },
+  { label: 'Manufacturer Information', to: '/document/manufacturer-information' },
+]
+const productOverviewLinks = [{ label: 'Product Description', to: '/product-overview/description' }]
 const documentLinks = [
   { label: 'Document Preview', to: '/document/preview' },
   { label: 'Load & Save', to: '/document/load-save' },
@@ -58,17 +97,4 @@ const demoLinks = [
 ]
 </script>
 
-<style scoped>
-.accordion-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  padding: 8px 0;
-  font-weight: 600;
-}
-
-.accordion-content {
-  padding-left: 8px;
-}
-</style>
+<style scoped src="./Sidebar.css"></style>

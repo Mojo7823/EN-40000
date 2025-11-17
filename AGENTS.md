@@ -1,6 +1,6 @@
 # Agent Knowledge Base - CRA Tool (EN-40000)
 
-**Last Updated:** November 17, 2024  
+**Last Updated:** February 2025  
 **Project:** CRA Tool - Cyber Resilience Act Documentation Tool  
 **Status:** Active Development
 
@@ -21,6 +21,7 @@
 ```bash
 ./dev_start.sh    # Starts both backend and frontend
 ./dev_stop.sh     # Stops both servers
+./dev_fresh.sh    # Stops servers and clears .venv/node_modules caches
 ```
 
 ---
@@ -56,7 +57,7 @@ server/
 │   │
 │   ├── docx_builder/        # Document generation
 │   │   ├── html_converter.py    # HTML → DOCX conversion
-│   │   ├── cover_builder.py     # Cover pages
+│   │   ├── cover_builder.py     # Cover pages (CoverDocumentRenderer orchestrates layout)
 │   │   ├── section_builders.py  # Section helpers
 │   │   ├── st_intro_builder.py  # ST Introduction
 │   │   └── final_builder.py     # Final documents
@@ -100,14 +101,19 @@ web/
 │   ├── App.vue              # Root component
 │   ├── main.ts              # Application entry
 │   │
-│   ├── components/          # Reusable components
+│   ├── components/
 │   │   ├── RichTextEditor.vue    # TipTap editor (IMPORTANT!)
 │   │   ├── RequirementsTable.vue
 │   │   └── XmlViewer.vue
 │   │
-│   ├── views/               # Page components
+│   ├── views/
+│   │   ├── Dashboard.vue
+│   │   ├── document/
+│   │   │   ├── CoverPage.vue        # Form + drag/drop uploader
+│   │   │   ├── DocumentPreview.vue  # Cover-only preview/download
+│   │   │   └── DocumentStorage.vue  # Load/Save workspace JSON
 │   │   └── demo/
-│   │       ├── DocxPreviewDemo.vue  # DOCX preview (recently enhanced!)
+│   │       ├── DocxPreviewDemo.vue
 │   │       ├── EditorDemo.vue
 │   │       ├── TableDemo.vue
 │   │       └── XmlViewerDemo.vue
@@ -144,7 +150,52 @@ web/
 - Added 'image' to TextAlign types (Line 357)
 - Now supports image alignment in editor
 
-### 2. DOCX Preview Engine
+### 2. Document Management Suite
+
+#### Cover Page (`web/src/views/document/CoverPage.vue`)
+- Title card + cover form: device name/description, version, revision date, lab info
+- Drag & drop (or click) uploader with live image preview/remove controls
+- Auto-saves to shared document workspace; persists image data/path via session service
+
+#### Document Information (`web/src/views/document/DocumentInformation.vue`)
+- Dedicated Introduction entry form for Product Name, Version, Type, Manufacturer, address, and responsible parties
+- Vertical layout with multi-line fields (Prepared/Reviewed) supporting newline-separated names
+- Status dropdown (Draft/Final/Revision/Custom Status). Selecting “Custom Status” launches a modal to collect arbitrary text that is then persisted
+- Shares state via `documentWorkspace` so Document Preview and cover generation can consume the same data
+
+#### Product Identification (`web/src/views/document/ProductIdentification.vue`)
+- Product Name/Version/Type inputs stay in sync with Document Information (shared `documentWorkspace.introduction` fields)
+- Two TipTap-rich editors capture Product Description and Key Product Functions with autosave + placeholder guidance
+- Target Market stored in a large textarea for long-form audience notes
+- State persists via `documentWorkspace.productIdentification` and feeds Section Status + backend DOCX payloads
+
+#### Manufacturer Information (`web/src/views/document/ManufacturerInformation.vue`)
+- Collects legal entity, registration number, address, contact person, and phone details
+- Shares the same autosave/documentWorkspace wiring via `manufacturerInformation` slice
+- Simple responsive form layout styled like other introduction forms; data feeds Section Status + DOCX section 1.4
+
+#### Purpose & Scope (`web/src/views/document/PurposeScope.vue`)
+- Renders a pre-written 1.2 Purpose & Scope narrative with live `[Product Name]` placeholders
+- Interactive lifecycle phase list using checkbox-style buttons stored in workspace state
+- Assessment Period date pickers (start/end) and a TipTap-powered Assessment Methodology editor for rich formatting
+- Data auto-saves via `documentWorkspace` and feeds both Document Preview summaries and DOCX generation
+
+#### Document Preview (`web/src/views/document/DocumentPreview.vue`)
+- Pulls Cover + Introduction + Purpose/Sscope + Product Identification + Manufacturer Information workspace data to call `/cover/preview`
+- Enforces presence of Product Name (falls back to Cover Device Name)
+- Section Status card entries double as RouterLink buttons (Cover, Document Information, Purpose & Scope, Product Identification, Manufacturer Information) with hover animations and completion badges
+- Uploads base64 image to backend if needed before generating preview
+- Status card + DOCX pane auto-update via workspace subscriptions; payload now includes `product_identification` and `manufacturer_information` so sections 1.3/1.4 render in DOCX preview/downloads
+
+> Backend note: `CoverPreviewRequest` accepts `introduction`, `purpose_scope`, `product_identification`, and `manufacturer_information` payloads. `server/app/docx_builder/cover_builder.py` uses a `CoverDocumentRenderer` class to build the cover layout plus sections 1.1–1.4 (Document Information, Purpose & Scope, Product Identification, Manufacturer Information).
+
+
+#### Load & Save (`web/src/views/document/DocumentStorage.vue`)
+- JSON export/import/clear for document workspace
+- Refresh button re-reads localStorage; file picker loads saved snapshots (updates other pages)
+- Mirrors demo storage UI but scoped to cover + introduction state
+
+### 3. DOCX Preview Engine (Demo)
 **File:** `web/src/views/demo/DocxPreviewDemo.vue`
 
 **Features:**
@@ -174,12 +225,14 @@ web/
 - Color support (hex and rgb)
 - Font sizes and styles
 - Margins and indentation
+- Keeps list text inline with bullet/number markers by suppressing redundant paragraph breaks
 
 **Recent Fixes:**
 - Added `parse_text_alignment()` function
 - Block-level image handler with alignment
 - Single-image paragraph detection
 - Three-level image alignment support
+- Suppressed extra line breaks for `<p>` tags nested in `<li>` so DOCX bullets match the editor
 
 ### 3. Requirements Table
 **Purpose:** CRUD interface for technical requirements
@@ -199,14 +252,16 @@ web/
 - Sample datasets (cryptographic, authentication)
 - No XML upload needed
 
-### 5. Workspace Persistence
-**Purpose:** Save and restore work
+### 5. Workspace Persistence (Document Management)
+**Purpose:** Synchronize Cover + Introduction + Product Identification state across Document Management pages + allow JSON backup/restore.
+
+**File:** `web/src/services/documentWorkspace.ts`
 
 **Features:**
-- Export workspace as JSON
-- Import previous sessions
-- localStorage integration
-- Cross-demo state management
+- Shared store for cover form fields + image blob/path **and** Introduction/Purpose/Product Identification data (product info, lifecycle scope, methodology, description/functions/market)
+- `load/update/export/import/clear` helpers with localStorage persistence
+- Subscription API so Cover, Preview, Introduction, Purpose & Scope, and Storage views stay in sync (listeners auto-update UIs)
+- Keeps `sessionService` cover cache in sync for legacy backend flows
 
 ---
 
@@ -610,16 +665,19 @@ grep -r "ComponentName" web/src/
 
 ---
 
-## 🎯 Recent Major Changes (November 2024)
+## 🎯 Recent Major Changes (Late 2024 – Early 2025)
 
-1. **Code Refactoring** - main.py from 1,508 to 92 lines
-2. **A4 Page Sizing** - Proper dimensions in preview
-3. **Zoom Controls** - Interactive 50-200% zoom
-4. **Page Navigation** - Previous/next with counter
-5. **Text Alignment** - Full support (left/center/right/justify)
-6. **Image Alignment** - Three-level fix (block/inline/paragraph)
-7. **TipTap Config** - Added 'image' to TextAlign types
-8. **Documentation** - 8 new markdown files in changelog/
+1. **Document Management rollout** – Added Cover, Document Preview, and Load & Save routes + sidebar section.
+2. **Cover page UX** – New drag/drop image uploader, expanded metadata form, and professional DOCX formatting (single-line conformity heading, inline “Revision  : date”, bottom-aligned “Document Prepared By” block).
+3. **Shared workspace service** – `documentWorkspace.ts` now powers cover state with subscriptions, JSON import/export, and legacy session sync.
+4. **Document Information + Purpose & Scope** – New Introduction forms capture lifecycle coverage, assessment periods, and methodology with a TipTap editor. Data syncs to Document Preview summaries and DOCX generation.
+5. **Document Preview page** – Section Status card + DOCX preview layout replacing the older snapshot cards.
+6. **Cover builder refactor** – `CoverDocumentRenderer` centralizes cover/introduction rendering logic for easier maintenance.
+7. **Load & Save page** – JSON export/import/clear UI for the Document Management workspace, mirroring the demo storage flow.
+8. **Dev tooling** – `dev_start.sh` tracks dependency hashes, `dev_stop.sh` terminates entire process trees, and `dev_fresh.sh` wipes .venv/node_modules to start clean.
+9. **Product Identification rollout** – Dedicated page with synchronized metadata, dual rich-text editors, and target-market capture feeding DOCX section 1.3.
+10. **Preview + DOCX polish** – Section Status links navigate to editor pages, and DOCX bullet rendering now keeps text inline after HTML converter fixes.
+11. **Manufacturer Information rollout** – New form + workspace state populates section 1.4 and displays in the preview & completion tracker.
 
 ---
 

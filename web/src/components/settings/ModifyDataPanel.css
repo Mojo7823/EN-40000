@@ -1,0 +1,18 @@
+.table-selection {
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--panel);
+}
+
+.table-selection h4 {
+  margin: 0 0 12px 0;
+  color: var(--text);
+  font-size: 1.1em;
+}
+
+.no-selection {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+}

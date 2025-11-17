@@ -49,37 +49,4 @@ const activeSample = computed(() => {
 })
 </script>
 
-<style scoped>
-.demo-card {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.demo-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.demo-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tree-wrapper {
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  padding: 16px;
-  background: var(--surface);
-  max-height: 550px;
-  overflow: auto;
-}
-
-.muted {
-  color: var(--text-muted);
-}
-</style>
+<style scoped src="./XmlViewerDemo.css"></style>

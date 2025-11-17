@@ -24,6 +24,24 @@ export interface CoverPreviewPayload {
   manufacturer?: string
   date?: string
   image_path?: string
+  introduction?: {
+    product_name?: string
+    product_version?: string
+    product_type?: string
+    manufacturer?: string
+    manufacturer_address?: string
+    status?: string
+    prepared_by?: string
+    reviewed_by?: string
+    approved_by?: string
+  }
+  purpose_scope?: {
+    product_name?: string
+    scope_selections?: string[]
+    assessment_start?: string
+    assessment_end?: string
+    methodology_html?: string
+  }
 }
 
 export interface FinalPreviewPayload {

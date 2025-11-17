@@ -84,27 +84,4 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.navbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
-}
-
-.theme-toggle-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.theme-toggle-text {
-  font-weight: 500;
-}
-</style>
+<style scoped src="./App.css"></style>

@@ -117,7 +117,29 @@ Interactive hierarchical visualization for structured security data:
 - Sample datasets for cryptographic and authentication classes
 - No XML upload required - works with predefined samples
 
-### 5. **DOCX Preview Engine**
+### 5. **Document Management Suite**
+End-to-end CRA documentation workspace with dedicated pages for each section.
+- **Cover Page** – Device/lab metadata plus drag-and-drop logo upload
+- **Document Information** – Product name, version, type, manufacturer, status, and responsible parties
+- **Product Identification** – Synced metadata + rich-text editors for descriptions and key functions + target-market capture
+- **Manufacturer Information** – Legal entity, registration number, address, contact person, and phone fields
+- **Purpose & Scope** – Lifecycle coverage toggle list, assessment period, and TipTap-based methodology editor
+- **Document Preview** – A4 DOCX preview with zoom/page controls and clickable Section Status links back to each editor
+- **Load & Save** – JSON export/import/clear tools backed by the shared workspace service
+
+## 📄 Document Management Workflow
+
+- **Cover Page** – Capture device metadata, revisions, and lab information plus a drag-and-drop image uploader. Automatically syncs the image path to the backend before previews are generated.
+- **Document Information** – Dedicated Introduction form for product details, manufacturer info, and workflow status (including a Custom Status modal). Data is stored in `documentWorkspace.introduction` for reuse.
+- **Product Identification** – Shares Product Name/Version/Type fields with the Introduction form and adds two TipTap-powered editors (Product Description + Key Product Functions) plus a large Target Market textarea. Data persists via `documentWorkspace.productIdentification`.
+- **Manufacturer Information** – Captures legal entity, registration number, address, contact person, and phone using standard inputs tied to `documentWorkspace.manufacturerInformation`.
+- **Purpose & Scope** – Provides scope narrative placeholders, lifecycle phase selectors, assessment period dates, and a TipTap methodology editor.
+- **Document Preview** – Aggregates the workspace state (cover, introduction, purpose & scope, product identification). Section Status entries act as router links so you can jump to the relevant page when a section is incomplete. The preview payload now includes `product_identification` so section 1.3 renders in the DOCX output.
+- **Load & Save** – Export/import the entire workspace as JSON, refresh from storage, or clear everything for a clean slate.
+
+All of these views share the same persistence layer defined in `web/src/services/documentWorkspace.ts`, ensuring hot module reloads and page refreshes keep state in sync.
+
+### 6. **DOCX Preview Engine**
 Server-side document generation with:
 - HTML to DOCX conversion
 - Styled output with proper formatting
@@ -125,20 +147,20 @@ Server-side document generation with:
 - Support for images, tables, and complex layouts
 - Download generated documents
 
-### 6. **Workspace Persistence**
+### 7. **Workspace Persistence**
 Save and load your entire workspace:
 - Export all data as JSON
 - Import previous sessions
 - Persistent storage using localStorage
-- Cross-demo state management
+- Cross-page state management for Cover, Introduction, Product Identification, Purpose & Scope, and Preview
 
-### 7. **Theme Support**
+### 8. **Theme Support**
 - Light and dark mode
 - Theme persistence across sessions
 - Smooth transitions
 - Accessible contrast ratios
 
-### 8. **Database Integration**
+### 9. **Database Integration**
 - SQLite for development (zero configuration)
 - PostgreSQL support for production
 - Automatic schema creation
@@ -327,23 +349,11 @@ npm install
 
 ## 📚 Additional Resources
 
-- [DATABASE.md](./changelog/DATABASE.md) - Comprehensive database documentation
-- [GLOSSARY.md](./changelog/GLOSSARY.md) - Common Criteria legacy terminology guide
-- [TRANSFORMATION_COMPLETE.md](./changelog/TRANSFORMATION_COMPLETE.md) - Project history
-- [VERIFICATION_CHECKLIST.md](./changelog/VERIFICATION_CHECKLIST.md) - Testing checklist
-- [CLEANUP_SUMMARY.md](./changelog/CLEANUP_SUMMARY.md) - Recent cleanup work summary
-
-## 📖 Legacy Terminology Note
-
-This application was originally developed for Common Criteria (CC) evaluation and has been adapted for CRA compliance. You may encounter legacy terminology in the code:
-
-- **ST** (Security Target) → CRA Documentation
-- **TOE** (Target of Evaluation) → Product
-- **SFR** (Security Functional Requirements) → Technical Requirements
-- **SAR** (Security Assurance Requirements) → Assurance Requirements
-- **TSS** (TOE Summary Specification) → Product Summary Specification
-
-See [GLOSSARY.md](./changelog/GLOSSARY.md) for a complete reference of legacy terms and their meanings.
+- [AGENTS.md](./AGENTS.md) – Full knowledge base for agents working on the CRA Tool (architecture, workflows, changelog pointers)
+- [DATABASE.md](./changelog/DATABASE.md) – Comprehensive database documentation
+- [TRANSFORMATION_COMPLETE.md](./changelog/TRANSFORMATION_COMPLETE.md) – Project history
+- [VERIFICATION_CHECKLIST.md](./changelog/VERIFICATION_CHECKLIST.md) – Testing checklist
+- [CLEANUP_SUMMARY.md](./changelog/CLEANUP_SUMMARY.md) – Recent cleanup work summary
 
 ## 🤝 Contributing
 

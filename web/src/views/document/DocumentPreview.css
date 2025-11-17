@@ -1,0 +1,241 @@
+.document-preview-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero-actions :deep(a) {
+  text-decoration: none;
+}
+
+.summary-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.status-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.status-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-list li {
+  margin: 0;
+}
+
+.status-link {
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel-bg);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.status-link:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+}
+
+.status-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.status-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.status-hint {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.status-pill {
+  min-width: 110px;
+  text-align: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-pill.completed {
+  background: rgba(46, 204, 113, 0.18);
+  color: #1d7a46;
+}
+
+.status-pill.partial {
+  background: rgba(255, 214, 102, 0.25);
+  color: #8a5b00;
+}
+
+.status-pill.missing {
+  background: rgba(255, 99, 71, 0.18);
+  color: #a5271f;
+}
+
+.result-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.preview-controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.zoom-controls,
+.page-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--panel-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-icon:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoom-level,
+.page-info {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 50px;
+  text-align: center;
+}
+
+.docx-preview-shell {
+  position: relative;
+  min-height: 600px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 12px;
+  overflow: auto;
+}
+
+.docx-preview-container {
+  width: 100%;
+  min-height: 600px;
+  overflow: visible;
+  background: transparent;
+  transition: transform 0.2s ease;
+}
+
+.docx-preview-container.hidden {
+  display: none;
+}
+
+.docx-preview-container :deep(.docx-wrapper) {
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  padding: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.docx-preview-container :deep(.docx) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+  background: #ffffff !important;
+  width: 794px !important;
+  min-height: 1123px;
+  margin: 0 auto;
+  page-break-after: always;
+}
+
+.docx-preview-container :deep(.docx > section) {
+  background: #ffffff !important;
+  min-height: 1123px;
+  padding: 96px 120px;
+  box-sizing: border-box;
+  page-break-after: always;
+  margin: 0 auto 32px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.24);
+}
+
+.docx-preview-container :deep(.docx > section + section) {
+  margin-top: 32px;
+}
+
+.docx-preview-container :deep(.docx),
+.docx-preview-container :deep(.docx > section) {
+  color: #000000 !important;
+}
