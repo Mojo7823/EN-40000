@@ -1,0 +1,23 @@
+{
+  "name": "en-40000",
+  "version": "1.0.0",
+  "description": "A comprehensive web application for creating and managing **Cyber Resilience Act (CRA)** compliance documentation. This tool provides an intuitive interface for building security documentation with rich text editing, DOCX generation, and structured data management.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mojo7823/EN-40000.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Mojo7823/EN-40000/issues"
+  },
+  "homepage": "https://github.com/Mojo7823/EN-40000#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.10.1"
+  }
+}

@@ -201,6 +201,84 @@ def parse_text_alignment(element) -> Optional[WD_PARAGRAPH_ALIGNMENT]:
     return None
 
 
+def _extract_css_value(style: str, property_name: str) -> Optional[str]:
+    """
+    Extract the last occurrence of a CSS property's value from an inline style string.
+    """
+    if not style:
+        return None
+    pattern = rf"{re.escape(property_name)}\s*:\s*([^;]+)"
+    matches = list(re.finditer(pattern, style, re.IGNORECASE))
+    if not matches:
+        return None
+    raw_value = matches[-1].group(1)
+    normalized = raw_value.replace("!important", "").strip().lower()
+    return normalized or None
+
+
+def _alignment_from_margins(left: Optional[str], right: Optional[str]) -> Optional[WD_PARAGRAPH_ALIGNMENT]:
+    """
+    Convert margin values into a paragraph alignment.
+    """
+    if left == "auto" and right == "auto":
+        return WD_PARAGRAPH_ALIGNMENT.CENTER
+    if left == "auto":
+        return WD_PARAGRAPH_ALIGNMENT.RIGHT
+    if right == "auto":
+        return WD_PARAGRAPH_ALIGNMENT.LEFT
+    return None
+
+
+def parse_margin_alignment(style: Optional[str]) -> Optional[WD_PARAGRAPH_ALIGNMENT]:
+    """
+    Parse margin declarations to infer horizontal alignment.
+    
+    Primarily used for custom TipTap image alignment where margin auto values
+    represent left/center/right positioning.
+    """
+    if not style:
+        return None
+    left = _extract_css_value(style, "margin-left")
+    right = _extract_css_value(style, "margin-right")
+    alignment = _alignment_from_margins(left, right)
+    if alignment is not None:
+        return alignment
+    margin = _extract_css_value(style, "margin")
+    if not margin:
+        return None
+    tokens = [token.strip().strip(",") for token in margin.split() if token.strip()]
+    if not tokens:
+        return None
+    left_value = right_value = None
+    if len(tokens) == 1:
+        left_value = right_value = tokens[0]
+    elif len(tokens) == 2:
+        left_value = right_value = tokens[1]
+    elif len(tokens) == 3:
+        left_value = right_value = tokens[1]
+    elif len(tokens) >= 4:
+        right_value = tokens[1]
+        left_value = tokens[3]
+    return _alignment_from_margins(left_value, right_value)
+
+
+def parse_image_alignment(element) -> Optional[WD_PARAGRAPH_ALIGNMENT]:
+    """
+    Determine alignment for image elements, including custom container styles.
+    
+    Checks standard align/text-align attributes first, then falls back to
+    non-standard container styles used by the TipTap resize extension.
+    """
+    alignment = parse_text_alignment(element)
+    if alignment is not None:
+        return alignment
+    container_style = element.get("containerstyle") or element.get("containerStyle")
+    alignment = parse_margin_alignment(container_style)
+    if alignment is not None:
+        return alignment
+    return parse_margin_alignment(element.get("style"))
+
+
 def apply_styles_to_run(run, styles: Dict[str, any]) -> None:
     """
     Apply style dictionary to a docx Run object.

@@ -11,7 +11,8 @@ from ..utils.style_parser import (
     merge_styles, 
     apply_styles_to_run,
     parse_margin_left,
-    parse_text_alignment
+    parse_text_alignment,
+    parse_image_alignment,
 )
 from ..utils.converters import px_to_mm
 from ..utils.dimension_parser import extract_dimension_px, extract_table_column_widths
@@ -232,7 +233,7 @@ def append_block_element(document: Document, element, inherited_indent: Optional
             # Check if paragraph contains a single image and use its alignment
             children = list(element)
             if len(children) == 1 and (children[0].tag or "").lower() == "img" and not (element.text or "").strip():
-                img_alignment = parse_text_alignment(children[0])
+                img_alignment = parse_image_alignment(children[0])
                 if img_alignment is not None:
                     paragraph.alignment = img_alignment
         
@@ -336,8 +337,8 @@ def append_block_element(document: Document, element, inherited_indent: Optional
             if indent:
                 paragraph.paragraph_format.left_indent = Pt(indent)
             
-            # Apply text alignment to center/right align images
-            alignment = parse_text_alignment(element)
+            # Apply alignment for block-level images, including custom container styles
+            alignment = parse_image_alignment(element)
             if alignment is not None:
                 paragraph.alignment = alignment
             
