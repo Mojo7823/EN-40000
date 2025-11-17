@@ -127,6 +127,7 @@ const totalPages = ref(1)
 
 const lastUpdatedText = computed(() => formatDate(workspaceState.value.lastUpdated, true))
 const sectionStatuses = computed(() => buildSectionStatuses())
+const DOCX_PAGE_SELECTOR = '.docx-wrapper > section.docx'
 
 let unsubscribe: (() => void) | null = null
 
@@ -265,13 +266,7 @@ function buildSectionStatuses() {
       ],
       '/document/product-identification'
     ),
-    createStatus(
-      'product-overview',
-      'Product Overview',
-      'Narrative covering physical, software, and data-processing characteristics.',
-      [stripHtml(productOverview.value.productDescriptionHtml)],
-      '/product-overview/description'
-    ),
+    
     createStatus(
       'manufacturer-information',
       'Manufacturer Information',
@@ -285,6 +280,15 @@ function buildSectionStatuses() {
       ],
       '/document/manufacturer-information'
     ),
+    createStatus(
+      'product-overview',
+      'Product Description',
+      'Narrative covering physical, software, and data-processing characteristics.',
+      [stripHtml(productOverview.value.productDescriptionHtml)],
+      '/product-overview/description'
+    ),
+
+
   ]
 }
 
@@ -431,11 +435,9 @@ async function generatePreview() {
       })
       hasGeneratedDocx.value = true
       latestDocPath.value = path
-      setTimeout(() => {
-        const sections = docxPreviewContainer.value?.querySelectorAll('.docx > section')
-        totalPages.value = sections?.length || 1
-        currentPage.value = 1
-      }, 100)
+      requestAnimationFrame(() => {
+        annotateRenderedPages()
+      })
     }
   } catch (error) {
     console.error(error)
@@ -476,17 +478,17 @@ function previousPage() {
 }
 
 function scrollToPage(pageNumber: number) {
-  const sections = docxPreviewContainer.value?.querySelectorAll('.docx > section')
-  if (sections && sections[pageNumber - 1]) {
-    const section = sections[pageNumber - 1] as HTMLElement
-    const shell = previewShell.value
-    if (shell) {
-      const sectionTop = section.offsetTop
-      shell.scrollTo({
-        top: sectionTop - 32,
-        behavior: 'smooth',
-      })
-    }
+  const pages = getRenderedPages()
+  if (!pages.length) return
+  const target = pages[pageNumber - 1]
+  const shell = previewShell.value
+  if (target && shell) {
+    const sectionTop = target.offsetTop
+    shell.scrollTo({
+      top: sectionTop - 32,
+      behavior: 'smooth',
+    })
+    highlightActivePage(pageNumber)
   }
 }
 
@@ -514,6 +516,46 @@ async function downloadDocx() {
   } finally {
     downloading.value = false
   }
+}
+
+function annotateRenderedPages() {
+  if (!docxPreviewContainer.value) {
+    totalPages.value = 1
+    currentPage.value = 1
+    return
+  }
+  const rawPages = docxPreviewContainer.value.querySelectorAll<HTMLElement>(DOCX_PAGE_SELECTOR)
+  const pages = Array.from(rawPages)
+  if (!pages.length) {
+    totalPages.value = 1
+    currentPage.value = 1
+    return
+  }
+  pages.forEach((page, index) => {
+    page.classList.add('docx-rendered-page')
+    page.setAttribute('data-page-label', `Page ${index + 1} / ${pages.length}`)
+    page.setAttribute('data-page-number', String(index + 1))
+  })
+  totalPages.value = pages.length
+  currentPage.value = 1
+  previewShell.value?.scrollTo({ top: 0 })
+  highlightActivePage(1)
+}
+
+function getRenderedPages(): HTMLElement[] {
+  const nodes = docxPreviewContainer.value?.querySelectorAll<HTMLElement>('.docx-rendered-page')
+  return nodes ? Array.from(nodes) : []
+}
+
+function highlightActivePage(pageNumber: number) {
+  const pages = getRenderedPages()
+  pages.forEach((page, index) => {
+    if (index === pageNumber - 1) {
+      page.classList.add('is-active')
+    } else {
+      page.classList.remove('is-active')
+    }
+  })
 }
 </script>
 
