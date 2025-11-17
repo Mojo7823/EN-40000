@@ -1,17 +1,20 @@
 """Cover page document builder."""
 import uuid
 from pathlib import Path
+from typing import Any, Optional
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Mm, Pt
 
 from ..utils.formatters import format_cover_date
 
+COVER_HEADER_TEXT = "EN 40000-1-2-2025 Conformity Assessment"
+
 
 def build_cover_document(
     payload,
-    image_file: Path = None,
-    output_dir: Path = None
+    image_file: Optional[Path] = None,
+    output_dir: Optional[Path] = None
 ) -> Path:
     """
     Build a cover page DOCX document.
@@ -37,43 +40,7 @@ def build_cover_document(
     section.left_margin = Mm(25)
     section.right_margin = Mm(25)
     
-    # Add image if provided
-    if image_file:
-        image_paragraph = document.add_paragraph()
-        image_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        run = image_paragraph.add_run()
-        run.add_picture(str(image_file), width=Mm(120))
-        image_paragraph.space_after = Pt(12)
-    
-    # Add title
-    title_text = payload.title.strip() if payload.title else "CRA Documentation Title"
-    title_paragraph = document.add_paragraph()
-    title_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-    title_run = title_paragraph.add_run(title_text)
-    title_run.font.size = Pt(24)
-    title_run.font.bold = True
-    title_paragraph.space_after = Pt(12)
-    
-    # Add description
-    if payload.description:
-        description_paragraph = document.add_paragraph(payload.description.strip())
-        description_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        description_paragraph.space_after = Pt(18)
-    
-    # Add metadata
-    info_items = [
-        ("Version", payload.version.strip() if payload.version else "—"),
-        ("Revision", payload.revision.strip() if payload.revision else "—"),
-        ("Manufacturer/Laboratory", payload.manufacturer.strip() if payload.manufacturer else "—"),
-        ("Date", format_cover_date(payload.date)),
-    ]
-    
-    for label, value in info_items:
-        paragraph = document.add_paragraph()
-        paragraph.space_after = Pt(6)
-        run_label = paragraph.add_run(f"{label}: ")
-        run_label.font.bold = True
-        paragraph.add_run(value)
+    _render_cover_content(document, payload, image_file)
     
     # Save document
     filename = f"{uuid.uuid4().hex}.docx"
@@ -82,7 +49,7 @@ def build_cover_document(
     return output_path
 
 
-def add_cover_to_document(document: Document, cover_data: dict, image_file: Path = None):
+def add_cover_to_document(document: Document, cover_data: dict, image_file: Optional[Path] = None):
     """
     Add cover page content to an existing document.
     
@@ -91,43 +58,85 @@ def add_cover_to_document(document: Document, cover_data: dict, image_file: Path
         cover_data: Dictionary with cover page data
         image_file: Optional path to cover image file
     """
-    # Add cover image if present
+    _render_cover_content(document, cover_data, image_file)
+    
+    # Add page break after cover
+    document.add_page_break()
+
+
+def _render_cover_content(document: Document, data: Any, image_file: Optional[Path]):
+    """Render the standardized cover layout used across previews."""
+    def add_centered_paragraph(
+        text: str,
+        *,
+        size: int = 12,
+        bold: bool = False,
+        space_after: Pt = Pt(6),
+        space_before: Optional[Pt] = None,
+    ):
+        paragraph = document.add_paragraph()
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        if space_before is not None:
+            paragraph.paragraph_format.space_before = space_before
+        run = paragraph.add_run(text)
+        run.font.size = Pt(size)
+        run.font.bold = bold
+        paragraph.space_after = space_after
+        return paragraph
+    
+    def get_value(key: str):
+        if isinstance(data, dict):
+            return data.get(key)
+        return getattr(data, key, None)
+    
+    def split_lines(value: Any):
+        if not value:
+            return []
+        return [line.strip() for line in str(value).splitlines() if line.strip()]
+    
+    add_centered_paragraph(
+        COVER_HEADER_TEXT,
+        size=15,
+        bold=True,
+        space_after=Pt(28),
+        space_before=Pt(18),
+    )
+    
+    title_text = (get_value("title") or "").strip() or "CRA Documentation Title"
+    add_centered_paragraph(title_text, size=28, bold=True, space_after=Pt(16))
+    
+    description_lines = split_lines(get_value("description"))
+    for line in description_lines:
+        add_centered_paragraph(line, size=14, space_after=Pt(6))
+    
+    add_centered_paragraph("", space_after=Pt(10))
+    
     if image_file:
         image_paragraph = document.add_paragraph()
         image_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         run = image_paragraph.add_run()
         run.add_picture(str(image_file), width=Mm(120))
-        image_paragraph.space_after = Pt(12)
+        image_paragraph.space_after = Pt(22)
     
-    # Add cover title
-    title_text = cover_data.get("title", "").strip() or "CRA Documentation Title"
-    title_paragraph = document.add_paragraph()
-    title_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-    title_run = title_paragraph.add_run(title_text)
-    title_run.font.size = Pt(24)
-    title_run.font.bold = True
-    title_paragraph.space_after = Pt(12)
+    version_value = (get_value("version") or "").strip() or "—"
+    add_centered_paragraph(f"Version: {version_value}", size=14, space_after=Pt(12))
     
-    # Add cover description
-    if cover_data.get("description"):
-        description_paragraph = document.add_paragraph(cover_data["description"].strip())
-        description_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        description_paragraph.space_after = Pt(18)
+    revision_value = get_value("revision")
+    formatted_revision = format_cover_date(revision_value)
+    add_centered_paragraph(f"Revision  : {formatted_revision}", size=14, space_after=Pt(28))
     
-    # Add cover metadata
-    info_items = [
-        ("Version", cover_data.get("version", "").strip() or "—"),
-        ("Revision", cover_data.get("revision", "").strip() or "—"),
-        ("Manufacturer/Laboratory", cover_data.get("manufacturer", "").strip() or "—"),
-        ("Date", format_cover_date(cover_data.get("date"))),
-    ]
+    # Large spacer to push the footer content toward the bottom of the page
+    spacer = document.add_paragraph()
+    spacer.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    spacer.paragraph_format.space_before = Pt(200)
     
-    for label, value in info_items:
-        paragraph = document.add_paragraph()
-        paragraph.space_after = Pt(6)
-        run_label = paragraph.add_run(f"{label}: ")
-        run_label.font.bold = True
-        paragraph.add_run(value)
+    add_centered_paragraph("Document Prepared By", size=14, bold=True, space_after=Pt(8))
     
-    # Add page break after cover
-    document.add_page_break()
+    manufacturer_lines = split_lines(get_value("manufacturer"))
+    address_lines = split_lines(get_value("laboratory_address"))
+    
+    if not manufacturer_lines and not address_lines:
+        add_centered_paragraph("—", size=13, space_after=Pt(4))
+    else:
+        for line in manufacturer_lines + address_lines:
+            add_centered_paragraph(line, size=13, space_after=Pt(4))

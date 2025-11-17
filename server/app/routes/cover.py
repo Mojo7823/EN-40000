@@ -14,7 +14,7 @@ from ..schemas import CoverPreviewRequest
 router = APIRouter()
 
 
-@router.post("/cover/upload")
+@router.post("/upload")
 async def upload_cover_image(
     user_id: str,
     file: UploadFile = File(...),
@@ -52,7 +52,7 @@ async def upload_cover_image(
     }
 
 
-@router.post("/cover/preview")
+@router.post("/preview")
 async def generate_cover_preview(payload: CoverPreviewRequest):
     """
     Generate cover page preview DOCX.
@@ -82,7 +82,7 @@ async def generate_cover_preview(payload: CoverPreviewRequest):
     }
 
 
-@router.delete("/cover/upload/{user_id}")
+@router.delete("/upload/{user_id}")
 async def cleanup_cover_images(user_id: str):
     """
     Delete all uploaded cover images for a user.
@@ -101,7 +101,7 @@ async def cleanup_cover_images(user_id: str):
     return {"status": "deleted"}
 
 
-@router.delete("/cover/preview/{user_id}")
+@router.delete("/preview/{user_id}")
 async def cleanup_cover_preview(user_id: str):
     """
     Delete all cover preview documents for a user.
@@ -120,7 +120,7 @@ async def cleanup_cover_preview(user_id: str):
     return {"status": "deleted"}
 
 
-@router.get("/cover/preview/{user_id}/{filename}")
+@router.get("/preview/{user_id}/{filename}")
 async def download_cover_preview(user_id: str, filename: str):
     """
     Download a cover preview document.

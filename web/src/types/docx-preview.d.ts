@@ -5,6 +5,10 @@ declare module 'docx-preview' {
     ignoreWidth?: boolean
     ignoreHeight?: boolean
     useBase64URL?: boolean
+    renderHeaders?: boolean
+    renderFooters?: boolean
+    renderFootnotes?: boolean
+    renderEndnotes?: boolean
   }
 
   export function renderAsync(

@@ -4,6 +4,24 @@
       <RouterLink to="/" active-class="active">Dashboard</RouterLink>
     </li>
     <li>
+      <RouterLink to="/document/cover" active-class="active">Cover</RouterLink>
+    </li>
+    <li>
+      <div class="accordion">
+        <div class="accordion-header" @click="documentOpen = !documentOpen">
+          <span>Document Management</span>
+          <span>{{ documentOpen ? '▾' : '▸' }}</span>
+        </div>
+        <div v-if="documentOpen" class="accordion-content">
+          <ul class="menu">
+            <li v-for="link in documentLinks" :key="link.to">
+              <RouterLink :to="link.to" active-class="active">{{ link.label }}</RouterLink>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+    <li>
       <div class="accordion">
         <div class="accordion-header" @click="demoOpen = !demoOpen">
           <span>Demo</span>
@@ -24,7 +42,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const documentOpen = ref(true)
 const demoOpen = ref(true)
+const documentLinks = [
+  { label: 'Document Preview', to: '/document/preview' },
+  { label: 'Load & Save', to: '/document/load-save' },
+]
 const demoLinks = [
   { label: 'Modal', to: '/demo/modal' },
   { label: 'Requirements Table', to: '/demo/table' },
