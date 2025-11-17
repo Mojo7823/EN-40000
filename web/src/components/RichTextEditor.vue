@@ -355,7 +355,7 @@ const editor = useEditor({
     Highlight.configure({ multicolor: true }),
     TextStyle,
     Color.configure({ types: ['textStyle'] }),
-    TextAlign.configure({ types: ['heading', 'paragraph'] }),
+    TextAlign.configure({ types: ['heading', 'paragraph', 'image'] }),
     ImageResize.configure({ inline: false, allowBase64: true }),
     Table.configure({ resizable: true }),
     TableRow,

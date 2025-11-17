@@ -31,14 +31,38 @@
           <h2>Result</h2>
           <p class="muted">The rendered DOCX appears below with the familiar print-preview styling.</p>
         </div>
+        <div v-if="hasGeneratedDocx && !previewLoading" class="preview-controls">
+          <div class="zoom-controls">
+            <button class="btn-icon" @click="zoomOut" :disabled="zoomLevel <= 50" title="Zoom Out">
+              <span>−</span>
+            </button>
+            <span class="zoom-level">{{ zoomLevel }}%</span>
+            <button class="btn-icon" @click="zoomIn" :disabled="zoomLevel >= 200" title="Zoom In">
+              <span>+</span>
+            </button>
+            <button class="btn-icon" @click="resetZoom" title="Reset Zoom">
+              <span>⟲</span>
+            </button>
+          </div>
+          <div v-if="totalPages > 1" class="page-navigation">
+            <button class="btn-icon" @click="previousPage" :disabled="currentPage <= 1" title="Previous Page">
+              <span>‹</span>
+            </button>
+            <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+            <button class="btn-icon" @click="nextPage" :disabled="currentPage >= totalPages" title="Next Page">
+              <span>›</span>
+            </button>
+          </div>
+        </div>
       </header>
-      <div class="docx-preview-shell">
+      <div class="docx-preview-shell" ref="previewShell">
         <div v-if="previewLoading" class="modal-status overlay">Rendering…</div>
         <p v-else-if="previewError" class="modal-error">{{ previewError }}</p>
         <div
           ref="docxPreviewContainer"
           class="docx-preview-container"
           :class="{ hidden: previewLoading || !!previewError || !hasGeneratedDocx }"
+          :style="{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }"
         ></div>
       </div>
     </section>
@@ -58,8 +82,12 @@ const previewLoading = ref(false)
 const previewError = ref('')
 const hasGeneratedDocx = ref(false)
 const docxPreviewContainer = ref<HTMLDivElement | null>(null)
+const previewShell = ref<HTMLDivElement | null>(null)
 const latestDocPath = ref<string | null>(null)
 const downloading = ref(false)
+const zoomLevel = ref(100)
+const currentPage = ref(1)
+const totalPages = ref(1)
 
 onMounted(() => {
   docxHtml.value = loadDemoState().docxHtml
@@ -69,6 +97,8 @@ watch(docxHtml, (value) => {
   updateDemoState({ docxHtml: value })
   hasGeneratedDocx.value = false
   latestDocPath.value = null
+  currentPage.value = 1
+  totalPages.value = 1
 })
 
 async function generatePreview() {
@@ -93,17 +123,73 @@ async function generatePreview() {
       docxPreviewContainer.value.innerHTML = ''
       await renderAsync(buffer.data, docxPreviewContainer.value, undefined, {
         inWrapper: true,
-        ignoreWidth: true,
-        ignoreHeight: true,
+        ignoreWidth: false,
+        ignoreHeight: false,
+        renderHeaders: true,
+        renderFooters: true,
+        renderFootnotes: true,
+        renderEndnotes: true,
       })
       hasGeneratedDocx.value = true
       latestDocPath.value = path
+      
+      // Count pages
+      setTimeout(() => {
+        const sections = docxPreviewContainer.value?.querySelectorAll('.docx > section')
+        totalPages.value = sections?.length || 1
+        currentPage.value = 1
+      }, 100)
     }
   } catch (error) {
     console.error(error)
     previewError.value = 'Failed to generate preview. Please ensure the backend is running.'
   } finally {
     previewLoading.value = false
+  }
+}
+
+function zoomIn() {
+  if (zoomLevel.value < 200) {
+    zoomLevel.value = Math.min(200, zoomLevel.value + 25)
+  }
+}
+
+function zoomOut() {
+  if (zoomLevel.value > 50) {
+    zoomLevel.value = Math.max(50, zoomLevel.value - 25)
+  }
+}
+
+function resetZoom() {
+  zoomLevel.value = 100
+}
+
+function nextPage() {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    scrollToPage(currentPage.value)
+  }
+}
+
+function previousPage() {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    scrollToPage(currentPage.value)
+  }
+}
+
+function scrollToPage(pageNumber: number) {
+  const sections = docxPreviewContainer.value?.querySelectorAll('.docx > section')
+  if (sections && sections[pageNumber - 1]) {
+    const section = sections[pageNumber - 1] as HTMLElement
+    const shell = previewShell.value
+    if (shell) {
+      const sectionTop = section.offsetTop
+      shell.scrollTo({
+        top: sectionTop - 32,
+        behavior: 'smooth'
+      })
+    }
   }
 }
 
@@ -177,30 +263,91 @@ async function downloadDocx() {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 12px;
+}
+
+.preview-controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.zoom-controls,
+.page-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--panel-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-icon:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoom-level,
+.page-info {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 50px;
+  text-align: center;
 }
 
 .docx-preview-shell {
   position: relative;
-  min-height: 320px;
+  min-height: 600px;
   border: 1px solid var(--panel-border);
   border-radius: 12px;
   background: var(--surface);
   padding: 12px;
+  overflow: auto;
 }
 
 .docx-preview-container {
   width: 100%;
-  height: 100%;
-  overflow: auto;
+  min-height: 600px;
+  overflow: visible;
   background: transparent;
+  transition: transform 0.2s ease;
 }
 
 .docx-preview-container.hidden {
   display: none;
 }
 
-.docx-preview-container .docx-wrapper {
+/* Wrapper with checkerboard background */
+.docx-preview-container :deep(.docx-wrapper) {
   background: linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%),
@@ -210,11 +357,55 @@ async function downloadDocx() {
   padding: 32px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
-.docx-preview-container .docx-wrapper .docx {
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
-  background: #fff;
+/* A4 page with proper dimensions and shadow */
+.docx-preview-container :deep(.docx) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+  background: #ffffff !important;
+  /* A4 dimensions: 210mm x 297mm at 96dpi = 794px x 1123px */
+  width: 794px !important;
+  min-height: 1123px;
+  margin: 0 auto;
+  page-break-after: always;
+}
+
+/* Individual sections (pages) */
+.docx-preview-container :deep(.docx > section) {
+  background: #ffffff !important;
+  min-height: 1123px;
+  padding: 96px 120px; /* Standard Word margins (1 inch = 96px) */
+  box-sizing: border-box;
+  page-break-after: always;
+}
+
+/* Page breaks between sections */
+.docx-preview-container :deep(.docx > section + section) {
+  margin-top: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure text doesn't overflow page width */
+.docx-preview-container :deep(.docx p),
+.docx-preview-container :deep(.docx h1),
+.docx-preview-container :deep(.docx h2),
+.docx-preview-container :deep(.docx h3),
+.docx-preview-container :deep(.docx table) {
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+/* Table styling */
+.docx-preview-container :deep(.docx table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Fix for dark mode - ensure document stays white */
+.docx-preview-container :deep(.docx),
+.docx-preview-container :deep(.docx > section) {
+  color: #000000 !important;
 }
 
 .muted {

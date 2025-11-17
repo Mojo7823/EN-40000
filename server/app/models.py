@@ -3,6 +3,10 @@ from .database import Base
 
 
 class Component(Base):
+    """
+    General-purpose component storage table.
+    Used for managing security components and requirements.
+    """
     __tablename__ = "components"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -16,7 +20,12 @@ class Component(Base):
 
 # Base class for component family tables
 class ComponentFamilyBase:
-    """Base class for component family tables with common structure"""
+    """
+    Base class for component family tables with common structure.
+    
+    Note: These tables are structured based on Common Criteria (CC) organization.
+    They store security functional and assurance requirements organized by families.
+    """
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     class_field = Column("class", String(255), nullable=True, index=True)  # Use class_field to avoid Python keyword
     family = Column(String(255), nullable=True, index=True)
@@ -27,8 +36,10 @@ class ComponentFamilyBase:
 
 
 # Functional Requirements Tables (f-class tables)
+# Note: These are based on Common Criteria Protection Profile families.
+# They organize security functional requirements by category.
 class FauDb(ComponentFamilyBase, Base):
-    """Security audit (FAU) family"""
+    """Security audit (FAU) family - Common Criteria legacy structure"""
     __tablename__ = "fau_db"
 
 
@@ -63,7 +74,7 @@ class FprDb(ComponentFamilyBase, Base):
 
 
 class FptDb(ComponentFamilyBase, Base):
-    """Protection of the TSF (FPT) family"""
+    """Protection of the TSF (FPT) family - TSF = TOE Security Functions (Common Criteria)"""
     __tablename__ = "fpt_db"
 
 
@@ -83,8 +94,10 @@ class FtpDb(ComponentFamilyBase, Base):
 
 
 # Assurance Requirements Tables (a-class tables)
+# Note: These are based on Common Criteria Evaluation Assurance Level (EAL) components.
+# They organize security assurance requirements by category.
 class AcoDb(ComponentFamilyBase, Base):
-    """Composition (ACO) family"""
+    """Composition (ACO) family - Common Criteria legacy structure"""
     __tablename__ = "aco_db"
 
 
@@ -109,7 +122,7 @@ class ApeDb(ComponentFamilyBase, Base):
 
 
 class AseDb(ComponentFamilyBase, Base):
-    """CRA Documentation evaluation (ASE) family"""
+    """CRA Documentation evaluation (ASE) family - Common Criteria: Security Target evaluation"""
     __tablename__ = "ase_db"
 
 
@@ -125,11 +138,16 @@ class AvaDb(ComponentFamilyBase, Base):
 
 # Special table for element lists with colors
 class ElementListDb(Base):
-    """Element list database for special handling of colored XML elements"""
+    """
+    Element list database for special handling of colored XML elements.
+    
+    Used for UI rendering of hierarchical security requirement structures
+    from Common Criteria Protection Profiles.
+    """
     __tablename__ = "element_list_db"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     element = Column(String(255), nullable=True, index=True)
     element_index = Column(String(255), nullable=True, index=True, unique=True)
     item_list = Column(Text, nullable=True)
-    color = Column(String(50), nullable=True)  # For handling colored elements
+    color = Column(String(50), nullable=True)  # For handling colored elements in UI
