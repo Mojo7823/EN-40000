@@ -106,19 +106,22 @@
 
 .table-section {
   overflow-x: auto;
+  width: 100%;
 }
 
 .table-shell {
-  overflow: hidden;
+  min-width: 100%;
+  width: fit-content;
 }
 
 .components-table {
   width: 100%;
-  min-width: 960px;
+  min-width: 700px;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--panel-border);
   border-radius: 12px;
+  table-layout: auto;
 }
 
 .components-table th,
@@ -163,17 +166,66 @@
 .components-table th:first-child,
 .components-table td:first-child {
   width: 52px;
+  min-width: 52px;
+  max-width: 52px;
   text-align: center;
 }
 
-.components-table td.actions {
-  width: 120px;
+/* Component Name column - allow it to expand */
+.components-table th:nth-child(2),
+.components-table td:nth-child(2) {
+  width: auto;
+  min-width: 120px;
+}
+
+/* Type column */
+.components-table th:nth-child(3),
+.components-table td:nth-child(3) {
+  width: 110px;
+  min-width: 110px;
+}
+
+/* Version column */
+.components-table th:nth-child(4),
+.components-table td:nth-child(4) {
+  width: 90px;
+  min-width: 90px;
+}
+
+/* Supplier column */
+.components-table th:nth-child(5),
+.components-table td:nth-child(5) {
+  width: auto;
+  min-width: 120px;
+}
+
+/* Purpose column - gets remaining space */
+.components-table th:nth-child(6),
+.components-table td:nth-child(6) {
+  width: auto;
+  min-width: 150px;
+}
+
+/* License column */
+.components-table th:nth-child(7),
+.components-table td:nth-child(7) {
+  width: 110px;
+  min-width: 110px;
+}
+
+/* Actions column */
+.components-table th:last-child,
+.components-table td:last-child {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
   text-align: center;
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  vertical-align: middle;
+}
+
+.components-table td:last-child {
+  padding: 8px;
 }
 
 .link.danger {

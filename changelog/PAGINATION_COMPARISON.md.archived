@@ -1,0 +1,253 @@
+# Page Break Logic Comparison: Before vs After
+
+## Before Fix (Old Behavior)
+
+```
+┌─────────────────────────────────────┐
+│  3.2 Regulatory Conformance         │
+│                                     │
+│  [Reference: Annex C...]            │
+│  This product conforms to:          │
+│  • Regulation A                     │
+│  • Regulation B                     │
+│                                     │
+│  (500 characters of content)        │
+│                                     │
+├─────────────────────────────────────┤ ← Word auto page break
+│                                     │
+│                                     │
+│         [LARGE GAP]                 │
+│                                     │
+│  (Word decided rest doesn't fit)    │
+│                                     │
+│                                     │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│                                     │
+│  • Regulation C                     │
+│  • Regulation D                     │
+│  ...                                │
+│  (Remaining 9,500 characters)       │
+│                                     │
+│  Long paragraph with detailed       │
+│  explanation...                     │
+│                                     │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Problems:**
+- ❌ Large unused space on first page
+- ❌ Unpredictable break points
+- ❌ Poor page utilization
+- ❌ Preview doesn't match export
+
+---
+
+## After Fix (New Behavior)
+
+```
+┌─────────────────────────────────────┐
+│  3.2 Regulatory Conformance         │
+│                                     │
+│  [Reference: Annex C...]            │
+│  This product conforms to:          │
+│  • Regulation A                     │
+│  • Regulation B                     │
+│  • Regulation C                     │
+│  • Regulation D                     │
+│  • Regulation E                     │
+│                                     │
+│  Other Applicable Regulations:      │
+│  • GDPR — Data Protection          │
+│  • NIS2 — Network Security         │
+│  • RED — Radio Equipment           │
+│                                     │
+│  (~3,200 characters)                │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐ ← Smart page break
+│                                     │
+│  Detailed explanation paragraph     │
+│  about compliance approach...       │
+│                                     │
+│  The product implements the         │
+│  following security controls:       │
+│  - Control 1...                     │
+│  - Control 2...                     │
+│  ...                                │
+│                                     │
+│  (~3,400 characters)                │
+│                                     │
+│  Additional notes follow...         │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐ ← Smart page break
+│                                     │
+│  (Remaining content continues)      │
+│                                     │
+│  Evidence references:               │
+│  - Document A                       │
+│  - Document B                       │
+│                                     │
+│  (~1,800 characters)                │
+│                                     │
+│                                     │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Benefits:**
+- ✅ Pages are well-filled (~3,200-3,500 chars)
+- ✅ Predictable break points (between elements)
+- ✅ No large gaps
+- ✅ Preview matches export
+- ✅ Professional appearance
+
+---
+
+## Technical Implementation
+
+### Pagination Algorithm
+
+```
+INPUT: Long HTML content (e.g., 10,000 characters)
+
+STEP 1: Parse HTML into block elements
+  └─> [<p>, <ul>, <p>, <p>, <table>, ...]
+
+STEP 2: Accumulate elements
+  Current chunk: []
+  Running length: 0
+  
+  FOR EACH element:
+    element_length = count_text_chars(element)
+    
+    IF running_length + element_length > 3,500 
+       AND running_length >= 2,975:
+      └─> SAVE current chunk
+      └─> START new chunk with this element
+    ELSE:
+      └─> ADD element to current chunk
+      └─> running_length += element_length
+
+STEP 3: Insert page breaks between chunks
+  chunk[0] → document
+  PAGE BREAK
+  chunk[1] → document
+  PAGE BREAK
+  chunk[2] → document
+  ...
+
+OUTPUT: Multi-page document with optimal breaks
+```
+
+### Key Parameters
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| `char_limit` | 3,500 | Target characters per page |
+| `min_ratio` | 0.85 | Minimum fill ratio (85%) |
+| `min_floor` | 2,000 | Absolute minimum chars |
+| `min_before_break` | 2,975 | Calculated: max(85% × 3500, 2000) |
+
+### Decision Tree
+
+```
+Is content > 3,500 chars?
+│
+├─ NO ──> Single page (no breaks needed)
+│
+└─ YES ──> Split into chunks
+           │
+           For each element:
+           │
+           Current page has >= 3,500 chars?
+           │
+           ├─ NO ──> Add to current page
+           │
+           └─ YES ──> Current page has >= 2,975 chars?
+                      │
+                      ├─ NO ──> Add to current (ensure min fill)
+                      │
+                      └─ YES ──> Page break! Start new page
+```
+
+---
+
+## Comparison Table
+
+| Aspect | Before | After |
+|--------|--------|-------|
+| **Page breaks** | Word decides | Algorithm decides |
+| **Break location** | Random | Element boundaries |
+| **Page fill** | 20-80% | 85-100% |
+| **Gaps** | Common | Eliminated |
+| **Preview match** | No | Yes |
+| **Predictability** | Low | High |
+| **Element splitting** | Possible | Never |
+
+---
+
+## Real-World Example
+
+### Scenario: 8,000 character Regulatory Conformance section
+
+**Before:**
+```
+Page 1: 600 chars   ← ❌ 17% filled (huge gap)
+Page 2: 3,800 chars ← ✅ Good
+Page 3: 3,600 chars ← ✅ Good
+```
+
+**After:**
+```
+Page 1: 3,200 chars ← ✅ 91% filled
+Page 2: 3,400 chars ← ✅ 97% filled  
+Page 3: 1,400 chars ← ✅ 40% filled (last page ok)
+```
+
+**Improvement:**
+- Saved 1 page (from 3 to 3 pages, but better utilization)
+- Eliminated large gap
+- More professional appearance
+
+---
+
+## Applies To
+
+✅ **Section 3.2 - Regulatory Conformance**
+- Lists of regulations
+- Compliance explanations
+- Evidence references
+
+✅ **Section 3.3 - Conformance Level**
+- Status checkboxes
+- Justification paragraphs
+- Supporting evidence
+
+✅ **Similar sections with WYSIWYG editors**
+- Any section with rich text content > 2,000 chars
+- Content with multiple paragraphs
+- Mixed text/list content
+
+---
+
+## Testing Recommendation
+
+When adding long content to conformance sections:
+
+1. **Write 5,000+ characters** in a single section
+2. **Include mixed elements** (paragraphs, lists, bold text)
+3. **Generate preview** and verify page breaks appear
+4. **Export DOCX** and compare to preview
+5. **Check for gaps** - pages should be 85%+ filled
+
+---
+
+## References
+
+- Implementation: `server/app/docx_builder/conformance_claim_builder.py`
+- Similar logic: `server/app/docx_builder/product_overview_builder.py`
+- Full documentation: `changelog/CONFORMANCE_PAGINATION_FIX.md`

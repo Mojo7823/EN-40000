@@ -749,6 +749,7 @@ grep -r "ComponentName" web/src/
 10. **Preview + DOCX polish** – Section Status links navigate to editor pages, and DOCX bullet rendering now keeps text inline after HTML converter fixes.
 11. **Manufacturer Information rollout** – New form + workspace state populates section 1.4 and displays in the preview & completion tracker.
 12. **Product Overview rollout** – Sidebar accordion + TipTap editor for Section 2.1 Product Description with dedicated DOCX builder.
+13. **Preview refactor (Real Document Approach)** – Removed smart pagination logic from conformance_claim_builder and product_overview_builder. Preview now uses the actual generated DOCX file instead of attempting to predict pagination, ensuring 100% accuracy between preview and export. Word handles natural pagination while we maintain clean section breaks.
 
 ---
 
@@ -785,4 +786,4 @@ grep -r "ComponentName" web/src/
 
 **This knowledge base is maintained for AI agents working on the CRA Tool project. Keep it updated as the project evolves!**
 
-**Last major update:** November 17, 2024 - Added alignment features, refactoring notes, and comprehensive project documentation.
+**Last major update:** January 2025 - Added Conformance Claim smart pagination to eliminate DOCX export gaps.

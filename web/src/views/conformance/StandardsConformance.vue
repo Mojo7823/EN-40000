@@ -13,7 +13,7 @@
         <RouterLink class="btn ghost" to="/document/preview">Go to Document Preview</RouterLink>
       </div>
     </section>
-
+    
     <section class="card form-card primary-standard-card">
       <header class="description-header">
         <p class="section-heading">Primary Standard</p>

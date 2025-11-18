@@ -92,20 +92,23 @@
 
 .table-section {
   overflow-x: auto;
+  width: 100%;
 }
 
 .table-shell {
-  overflow: hidden;
+  min-width: 100%;
+  width: fit-content;
 }
 
 .standards-table,
 .regulations-table {
   width: 100%;
-  min-width: 640px;
+  min-width: 450px;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--panel-border);
   border-radius: 12px;
+  table-layout: auto;
 }
 
 .standards-table th,
@@ -151,22 +154,40 @@
   border-bottom: 1px solid var(--panel-border);
 }
 
-.standards-table th.actions,
-.standards-table td.actions,
-.regulations-table th.actions,
-.regulations-table td.actions {
-  width: 120px;
-  text-align: center;
+/* Regulation/Standard name column */
+.standards-table th:first-child,
+.standards-table td:first-child,
+.regulations-table th:first-child,
+.regulations-table td:first-child {
+  width: 25%;
+  min-width: 150px;
 }
 
-.standards-table td.actions,
-.regulations-table td.actions {
-  display: flex;
-  width: 120px;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
+/* Description column - gets most space */
+.standards-table th:nth-child(2),
+.standards-table td:nth-child(2),
+.regulations-table th:nth-child(2),
+.regulations-table td:nth-child(2) {
+  width: auto;
+  min-width: 200px;
+}
+
+/* Actions column */
+.standards-table th:last-child,
+.standards-table td:last-child,
+.regulations-table th:last-child,
+.regulations-table td:last-child {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+.standards-table td:last-child,
+.regulations-table td:last-child {
+  padding: 8px;
 }
 
 .link.danger {

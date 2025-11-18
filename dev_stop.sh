@@ -80,7 +80,7 @@ fi
 # Kill any remaining vite processes (frontend)
 echo ""
 echo "🔍 Searching for zombie frontend processes..."
-FRONTEND_PIDS=$(pgrep -f "vite.*--host.*127.0.0.1.*--port.*5173" 2>/dev/null || true)
+FRONTEND_PIDS=$(pgrep -f "node_modules/.bin/vite" 2>/dev/null || true)
 if [[ -n "$FRONTEND_PIDS" ]]; then
   FRONTEND_COUNT=$(echo "$FRONTEND_PIDS" | wc -w)
   echo "  ⚠️  Found $FRONTEND_COUNT zombie vite processes!"
@@ -95,8 +95,8 @@ fi
 
 # Kill processes by port (belt and suspenders approach)
 echo ""
-echo "🔍 Checking ports 8000 and 5173..."
-for port in 8000 5173; do
+echo "🔍 Checking ports 8000, 5173, and 5174..."
+for port in 8000 5173 5174; do
   PORT_PIDS=$(lsof -ti :$port 2>/dev/null || true)
   if [[ -n "$PORT_PIDS" ]]; then
     echo "  ⚠️  Found processes on port $port: $PORT_PIDS"

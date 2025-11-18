@@ -211,6 +211,10 @@ let unsubscribe: (() => void) | null = null
 
 const isModalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
+const modalTitle = computed(() => (modalMode.value === 'edit' ? 'Edit Regulation' : 'Add Regulation'))
+const modalSubtitle = computed(() =>
+  modalMode.value === 'edit' ? 'Update the selected regulation entry.' : 'Capture another supporting regulation.'
+)
 const modalForm = reactive<RegulatoryReferenceEntry>({
   id: '',
   regulation: '',

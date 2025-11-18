@@ -247,5 +247,19 @@ body {
   border-color: var(--border-muted);
   color: var(--disabled-text);
 }
-.table { width: 100%; border-collapse: collapse; }
-.table th, .table td { border-bottom: 1px solid var(--panel-border); padding: 8px; text-align: left; }
+.table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  table-layout: auto;
+}
+.table th, .table td { 
+  border-bottom: 1px solid var(--panel-border); 
+  padding: 8px; 
+  text-align: left; 
+}
+.table .actions {
+  width: 100px;
+  min-width: 100px;
+  text-align: center;
+  white-space: nowrap;
+}

@@ -14,19 +14,22 @@
 
 .table-section {
   overflow-x: auto;
+  width: 100%;
 }
 
 .table-shell {
-  overflow: hidden;
+  min-width: 100%;
+  width: fit-content;
 }
 
 table {
   width: 100%;
-  min-width: 600px;
+  min-width: 450px;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--panel-border);
   border-radius: 12px;
+  table-layout: auto;
 }
 
 th,
@@ -59,12 +62,40 @@ tbody tr:not(:last-child) td {
   color: var(--text-muted);
 }
 
-.actions {
-  width: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* First column - Technical Requirement Class */
+th:nth-child(1),
+td:nth-child(1) {
+  width: 20%;
+  min-width: 120px;
+}
+
+/* Second column - Component */
+th:nth-child(2),
+td:nth-child(2) {
+  width: 20%;
+  min-width: 120px;
+}
+
+/* Third column - Description (gets most space) */
+th:nth-child(3),
+td:nth-child(3) {
+  width: auto;
+  min-width: 200px;
+}
+
+/* Actions column */
+th:last-child,
+td:last-child {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+td:last-child {
+  padding: 8px;
 }
 
 .link.danger {

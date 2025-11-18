@@ -3,17 +3,12 @@ from typing import Any, List
 
 from docx import Document
 from docx.shared import Pt
-from lxml import html as lxml_html, etree
 
 from .html_converter import append_html_to_document
 
 DESCRIPTION_PLACEHOLDER = (
     "[Provide a detailed description of the product highlighting physical, software, connectivity, user interface, and data processing characteristics.]"
 )
-DESCRIPTION_PAGE_CHAR_LIMIT = 4200
-ARCHITECTURE_PAGE_CHAR_LIMIT = 4200
-MIN_BREAK_RATIO = 0.85
-MIN_BREAK_FLOOR = 2000
 
 
 def append_product_overview_section(document: Document, overview_data: Any):
@@ -50,7 +45,7 @@ def append_product_overview_section(document: Document, overview_data: Any):
 
     description_html = _get_overview_value(overview_data, "product_description_html")
     if description_html:
-        _append_html_with_soft_breaks(document, description_html, DESCRIPTION_PAGE_CHAR_LIMIT)
+        append_html_to_document(document, description_html)
     else:
         placeholder = document.add_paragraph(DESCRIPTION_PLACEHOLDER)
         placeholder.runs[0].font.italic = True
@@ -101,7 +96,7 @@ def _add_architecture_section(document: Document, overview_data: Any):
 
     architecture_html = _get_overview_value(overview_data, "product_architecture_html")
     if architecture_html:
-        _append_html_with_soft_breaks(document, architecture_html, ARCHITECTURE_PAGE_CHAR_LIMIT)
+        append_html_to_document(document, architecture_html)
         return
 
     _add_architecture_placeholder(document)
@@ -264,53 +259,3 @@ def _render_components_table(document: Document, entries: List[dict]):
         row_cells[3].text = entry.get("supplier") or ""
         row_cells[4].text = entry.get("purpose") or ""
         row_cells[5].text = entry.get("license") or ""
-
-
-def _append_html_with_soft_breaks(document: Document, html_content: str, char_limit: int):
-    chunks = _chunk_html_content(html_content, char_limit)
-    if not chunks:
-        return
-
-    for index, chunk in enumerate(chunks):
-        append_html_to_document(document, chunk)
-        if index < len(chunks) - 1:
-            document.add_page_break()
-
-
-def _chunk_html_content(html_content: str, char_limit: int) -> List[str]:
-    if not html_content:
-        return []
-
-    try:
-        fragment = lxml_html.fragment_fromstring(html_content, create_parent=True)
-    except Exception:
-        return [html_content]
-
-    chunks: List[str] = []
-    current: List[str] = []
-    running_length = 0
-    min_chars_before_break = max(int(char_limit * MIN_BREAK_RATIO), MIN_BREAK_FLOOR)
-
-    for child in fragment:
-        serialized = etree.tostring(child, encoding="unicode", with_tail=False)
-        text_content = (child.text_content() or "").strip()
-        text_length = len(text_content)
-
-        if current and running_length >= char_limit and text_length > 0:
-            chunks.append("".join(current))
-            current = [serialized]
-            running_length = text_length
-            continue
-
-        if running_length + text_length > char_limit and running_length >= min_chars_before_break:
-            chunks.append("".join(current))
-            current = [serialized]
-            running_length = text_length
-        else:
-            current.append(serialized)
-            running_length += text_length
-
-    if current:
-        chunks.append("".join(current))
-
-    return chunks or [html_content]
