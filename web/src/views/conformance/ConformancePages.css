@@ -96,19 +96,17 @@
 }
 
 .table-shell {
-  min-width: 100%;
-  width: fit-content;
+  width: 100%;
 }
 
 .standards-table,
 .regulations-table {
   width: 100%;
-  min-width: 450px;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--panel-border);
   border-radius: 12px;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .standards-table th,
@@ -154,13 +152,12 @@
   border-bottom: 1px solid var(--panel-border);
 }
 
-/* Regulation/Standard name column */
+/* Regulation/Standard name column - flexible */
 .standards-table th:first-child,
 .standards-table td:first-child,
 .regulations-table th:first-child,
 .regulations-table td:first-child {
-  width: 25%;
-  min-width: 150px;
+  width: 30%;
 }
 
 /* Description column - gets most space */
@@ -168,18 +165,15 @@
 .standards-table td:nth-child(2),
 .regulations-table th:nth-child(2),
 .regulations-table td:nth-child(2) {
-  width: auto;
-  min-width: 200px;
+  width: 60%;
 }
 
-/* Actions column */
+/* Actions column - fixed narrow width */
 .standards-table th:last-child,
 .standards-table td:last-child,
 .regulations-table th:last-child,
 .regulations-table td:last-child {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 10%;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
