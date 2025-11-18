@@ -1,4 +1,6 @@
 import { sessionService } from './sessionService'
+import type { ConformanceStandardEntry } from '../types/conformance'
+import { buildDefaultPrimaryStandard, buildDefaultRelatedStandards } from '../constants/conformance'
 
 export interface CoverFormState {
   deviceName: string
@@ -47,6 +49,37 @@ export interface ManufacturerInformationState {
 
 export interface ProductOverviewState {
   productDescriptionHtml: string
+  productArchitectureHtml: string
+  thirdPartyComponents: ThirdPartyComponentsState
+}
+
+export interface ThirdPartyComponentEntry {
+  id: string
+  componentName: string
+  componentType: string
+  version: string
+  supplier: string
+  purpose: string
+  license: string
+}
+
+export interface ThirdPartyComponentsState {
+  entries: ThirdPartyComponentEntry[]
+  managementApproachHtml: string
+  evidenceReferenceHtml: string
+}
+
+export interface StandardsConformanceState {
+  primaryStandard: ConformanceStandardEntry
+  relatedStandards: ConformanceStandardEntry[]
+  includeOther: boolean
+  otherNotes: string
+}
+
+export interface ConformanceClaimState {
+  standardsConformance: StandardsConformanceState
+  regulatoryConformanceHtml: string
+  conformanceLevelHtml: string
 }
 
 export interface DocumentWorkspaceState {
@@ -56,6 +89,7 @@ export interface DocumentWorkspaceState {
   productIdentification: ProductIdentificationState
   manufacturerInformation: ManufacturerInformationState
   productOverview: ProductOverviewState
+  conformanceClaim: ConformanceClaimState
   lastUpdated: string
 }
 
@@ -92,14 +126,11 @@ const defaultState: DocumentWorkspaceState = {
     scopeSelections: [],
     assessmentStart: '',
     assessmentEnd: '',
-    methodologyHtml:
-      '<p><em>Describe the methodology used – e.g., document review, interviews, technical testing, code review, penetration testing.</em></p>',
+    methodologyHtml: '',
   },
   productIdentification: {
-    productDescriptionHtml:
-      '<p><em>Summarize the product’s architecture, deployment model, and distinguishing traits.</em></p>',
-    keyFunctionsHtml:
-      '<ol><li><em>Function 1</em></li><li><em>Function 2</em></li><li><em>Function 3</em></li></ol>',
+    productDescriptionHtml: '',
+    keyFunctionsHtml: '',
     targetMarket: '',
   },
   manufacturerInformation: {
@@ -110,18 +141,66 @@ const defaultState: DocumentWorkspaceState = {
     phone: '',
   },
   productOverview: {
-    productDescriptionHtml:
-      '<p><strong>2. Product Overview</strong></p><p><em>Provide a detailed description of the product including hardware, software, connectivity, user interface, and data processing characteristics.</em></p>',
+    productDescriptionHtml: '',
+    productArchitectureHtml: '',
+    thirdPartyComponents: {
+      entries: [],
+      managementApproachHtml: '',
+      evidenceReferenceHtml: '',
+    },
   },
+  conformanceClaim: cloneConformanceClaimState(),
   lastUpdated: new Date(0).toISOString(),
 }
 
-let inMemoryState: DocumentWorkspaceState = { ...defaultState }
+let inMemoryState: DocumentWorkspaceState = cloneState(defaultState)
 
 const hasStorage = () => typeof localStorage !== 'undefined'
 
 type WorkspaceListener = (state: DocumentWorkspaceState) => void
 const listeners = new Set<WorkspaceListener>()
+
+function cloneThirdPartyState(state?: ThirdPartyComponentsState): ThirdPartyComponentsState {
+  const source = state ?? defaultState.productOverview.thirdPartyComponents
+  return {
+    entries: (source.entries ?? []).map((entry) => ({ ...entry })),
+    managementApproachHtml: source.managementApproachHtml ?? '',
+    evidenceReferenceHtml: source.evidenceReferenceHtml ?? '',
+  }
+}
+
+function buildDefaultStandardsConformanceState(): StandardsConformanceState {
+  return {
+    primaryStandard: buildDefaultPrimaryStandard(),
+    relatedStandards: buildDefaultRelatedStandards(),
+    includeOther: false,
+    otherNotes: '',
+  }
+}
+
+function cloneStandardsConformanceState(state?: StandardsConformanceState): StandardsConformanceState {
+  const source = state ?? buildDefaultStandardsConformanceState()
+  return {
+    primaryStandard: { ...source.primaryStandard },
+    relatedStandards: (source.relatedStandards ?? []).map((entry) => ({ ...entry })),
+    includeOther: !!source.includeOther,
+    otherNotes: source.otherNotes ?? '',
+  }
+}
+
+function cloneConformanceClaimState(state?: ConformanceClaimState): ConformanceClaimState {
+  const source =
+    state ?? {
+      standardsConformance: buildDefaultStandardsConformanceState(),
+      regulatoryConformanceHtml: '',
+      conformanceLevelHtml: '',
+    }
+  return {
+    standardsConformance: cloneStandardsConformanceState(source.standardsConformance),
+    regulatoryConformanceHtml: source.regulatoryConformanceHtml ?? '',
+    conformanceLevelHtml: source.conformanceLevelHtml ?? '',
+  }
+}
 
 function cloneState(state: DocumentWorkspaceState): DocumentWorkspaceState {
   return {
@@ -136,7 +215,11 @@ function cloneState(state: DocumentWorkspaceState): DocumentWorkspaceState {
     },
     productIdentification: { ...state.productIdentification },
     manufacturerInformation: { ...state.manufacturerInformation },
-    productOverview: { ...state.productOverview },
+    productOverview: {
+      ...state.productOverview,
+      thirdPartyComponents: cloneThirdPartyState(state.productOverview.thirdPartyComponents),
+    },
+    conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
   }
 }
 
@@ -196,7 +279,9 @@ function readFromStorage(): DocumentWorkspaceState | null {
       productOverview: {
         ...defaultState.productOverview,
         ...parsed.productOverview,
+        thirdPartyComponents: cloneThirdPartyState(parsed.productOverview?.thirdPartyComponents),
       },
+      conformanceClaim: cloneConformanceClaimState(parsed.conformanceClaim),
     }
   } catch (error) {
     console.warn('Failed to parse document workspace state:', error)
@@ -314,12 +399,66 @@ export function updateManufacturerInformationState(
 export function updateProductOverviewState(
   patch: Partial<ProductOverviewState>
 ): DocumentWorkspaceState {
+  const currentThirdParty = inMemoryState.productOverview.thirdPartyComponents
+  const nextThirdParty =
+    patch.thirdPartyComponents !== undefined
+      ? {
+          entries: patch.thirdPartyComponents.entries
+            ? patch.thirdPartyComponents.entries.map((entry) => ({ ...entry }))
+            : currentThirdParty.entries.map((entry) => ({ ...entry })),
+          managementApproachHtml:
+            patch.thirdPartyComponents.managementApproachHtml ?? currentThirdParty.managementApproachHtml,
+          evidenceReferenceHtml:
+            patch.thirdPartyComponents.evidenceReferenceHtml ?? currentThirdParty.evidenceReferenceHtml,
+        }
+      : cloneThirdPartyState(currentThirdParty)
+
   const next: DocumentWorkspaceState = {
     ...inMemoryState,
     productOverview: {
       ...inMemoryState.productOverview,
       ...patch,
+      thirdPartyComponents: nextThirdParty,
     },
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
+export function updateConformanceClaimState(
+  patch: Partial<ConformanceClaimState>
+): DocumentWorkspaceState {
+  const current = inMemoryState.conformanceClaim
+  const baseStandards = current.standardsConformance
+  const patchedStandards = patch.standardsConformance
+    ? {
+        primaryStandard: {
+          ...baseStandards.primaryStandard,
+          ...(patch.standardsConformance.primaryStandard ?? {}),
+        },
+        relatedStandards:
+          patch.standardsConformance.relatedStandards !== undefined
+            ? patch.standardsConformance.relatedStandards.map((entry) => ({ ...entry }))
+            : baseStandards.relatedStandards.map((entry) => ({ ...entry })),
+        includeOther: patch.standardsConformance.includeOther ?? baseStandards.includeOther,
+        otherNotes: patch.standardsConformance.otherNotes ?? baseStandards.otherNotes,
+      }
+    : baseStandards
+
+  const nextClaim: ConformanceClaimState = {
+    standardsConformance:
+      patch.standardsConformance !== undefined
+        ? patchedStandards
+        : cloneStandardsConformanceState(baseStandards),
+    regulatoryConformanceHtml: patch.regulatoryConformanceHtml ?? current.regulatoryConformanceHtml,
+    conformanceLevelHtml: patch.conformanceLevelHtml ?? current.conformanceLevelHtml,
+  }
+
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    conformanceClaim: nextClaim,
     lastUpdated: new Date().toISOString(),
   }
 
@@ -372,7 +511,9 @@ export function importDocumentWorkspace(payload: { state: DocumentWorkspaceState
     productOverview: {
       ...defaultState.productOverview,
       ...state.productOverview,
+      thirdPartyComponents: cloneThirdPartyState(state.productOverview?.thirdPartyComponents),
     },
+    conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
     lastUpdated: new Date().toISOString(),
   }
   persistState(merged)

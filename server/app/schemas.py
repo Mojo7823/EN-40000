@@ -62,9 +62,26 @@ class ProductIdentificationSection(BaseModel):
     target_market: Optional[str] = None
 
 
+class ThirdPartyComponentEntry(BaseModel):
+    component_name: Optional[str] = None
+    component_type: Optional[str] = None
+    version: Optional[str] = None
+    supplier: Optional[str] = None
+    purpose: Optional[str] = None
+    license: Optional[str] = None
+
+
+class ThirdPartyComponentsSection(BaseModel):
+    entries: List[ThirdPartyComponentEntry] = Field(default_factory=list)
+    management_approach_html: Optional[str] = None
+    evidence_reference_html: Optional[str] = None
+
+
 class ProductOverviewSection(BaseModel):
     """Product Overview data for section 2."""
     product_description_html: Optional[str] = None
+    product_architecture_html: Optional[str] = None
+    third_party_components: Optional[ThirdPartyComponentsSection] = None
 
 
 class ManufacturerInformationSection(BaseModel):
@@ -74,6 +91,24 @@ class ManufacturerInformationSection(BaseModel):
     address: Optional[str] = None
     contact_person: Optional[str] = None
     phone: Optional[str] = None
+
+
+class ConformanceStandardEntrySchema(BaseModel):
+    code: Optional[str] = None
+    description: Optional[str] = None
+
+
+class StandardsConformanceSection(BaseModel):
+    primary_standard: Optional[ConformanceStandardEntrySchema] = None
+    related_standards: List[ConformanceStandardEntrySchema] = Field(default_factory=list)
+    include_other: bool = False
+    other_notes: Optional[str] = None
+
+
+class ConformanceClaimSection(BaseModel):
+    standards_conformance: Optional[StandardsConformanceSection] = None
+    regulatory_conformance_html: Optional[str] = None
+    conformance_level_html: Optional[str] = None
 
 
 class CoverPreviewRequest(BaseModel):
@@ -93,6 +128,7 @@ class CoverPreviewRequest(BaseModel):
     product_identification: Optional[ProductIdentificationSection] = None
     product_overview: Optional[ProductOverviewSection] = None
     manufacturer_information: Optional[ManufacturerInformationSection] = None
+    conformance_claim: Optional[ConformanceClaimSection] = None
 
 
 class HtmlPreviewRequest(BaseModel):

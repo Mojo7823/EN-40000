@@ -10,6 +10,7 @@ from docx.shared import Mm, Pt
 from ..utils.formatters import format_cover_date
 from .introduction_sections import IntroductionSectionsRenderer
 from .product_overview_builder import append_product_overview_section
+from .conformance_claim_builder import append_conformance_claim_section
 
 COVER_HEADER_TEXT = "EN 40000-1-2-2025 Conformity Assessment"
 
@@ -33,6 +34,7 @@ def build_cover_document(
         manufacturer_information_payload=getattr(payload, "manufacturer_information", None),
     )
     append_product_overview_section(document, getattr(payload, "product_overview", None))
+    append_conformance_claim_section(document, getattr(payload, "conformance_claim", None))
 
     filename = f"{uuid.uuid4().hex}.docx"
     output_path = output_dir / filename
@@ -124,21 +126,34 @@ class CoverDocumentRenderer:
         self._add_centered_paragraph(f"Revision  : {formatted_revision}", size=14, space_after=Pt(28))
 
     def _add_footer_block(self, data: Any):
-        spacer = self.document.add_paragraph()
-        spacer.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        spacer.paragraph_format.space_before = Pt(200)
+        section = self.document.sections[0]
+        section.different_first_page_header_footer = True
+        footer = section.first_page_footer
 
-        self._add_centered_paragraph("Document Prepared By", size=14, bold=True, space_after=Pt(8))
+        # Remove default empty paragraphs
+        for paragraph in list(footer.paragraphs):
+            p = paragraph._element
+            p.getparent().remove(p)
+
+        def _add_footer_line(text: str, *, bold: bool = False, size: int = 13):
+            paragraph = footer.add_paragraph()
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+            paragraph.space_after = Pt(4)
+            run = paragraph.add_run(text)
+            run.font.size = Pt(size)
+            run.font.bold = bold
+
+        _add_footer_line("Document Prepared By", bold=True, size=14)
 
         manufacturer_lines = self._split_lines(self._get_value(data, "manufacturer"))
         address_lines = self._split_lines(self._get_value(data, "laboratory_address"))
 
         if not manufacturer_lines and not address_lines:
-            self._add_centered_paragraph("—", size=13, space_after=Pt(4))
+            _add_footer_line("—")
             return
 
         for line in manufacturer_lines + address_lines:
-            self._add_centered_paragraph(line, size=13, space_after=Pt(4))
+            _add_footer_line(line)
 
     def _add_centered_paragraph(
         self,

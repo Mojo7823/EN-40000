@@ -82,32 +82,44 @@
     <div v-if="extractedComponents && extractedComponents.length > 0" class="components-section">
       <h3>Extracted Components ({{ extractedComponents.length }})</h3>
       
-      <!-- Simple table instead of DataTable for now -->
-      <div class="simple-table-wrapper">
-        <table class="simple-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Class</th>
-              <th>Family</th>
-              <th>Component</th>
-              <th>Component Name</th>
-              <th>Element</th>
-              <th>Element Item</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(component, index) in extractedComponents" :key="index">
-              <td>{{ component.id }}</td>
-              <td>{{ component.class }}</td>
-              <td>{{ component.family }}</td>
-              <td>{{ component.component }}</td>
-              <td>{{ component.component_name }}</td>
-              <td>{{ component.element }}</td>
-              <td class="element-item-cell">{{ component.element_item }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="data-table-wrapper">
+        <DataTable
+          :value="extractedComponents"
+          :rows="componentsRowsPerPage"
+          :paginator="extractedComponents.length > componentsRowsPerPage"
+          :rowsPerPageOptions="rowsPerPageOptions"
+          paginatorTemplate="RowsPerPageDropdown PrevPageLink PageLinks NextPageLink"
+          scrollable
+          scrollHeight="400px"
+          responsiveLayout="scroll"
+          class="prime-table"
+          stripedRows
+        >
+          <Column header="#" :style="{ width: '70px' }">
+            <template #body="{ index }">
+              <span class="row-index">{{ index + 1 }}</span>
+            </template>
+          </Column>
+          <Column field="id" header="ID" :style="{ width: '100px' }" sortable />
+          <Column field="class" header="Class" :style="{ width: '120px' }" sortable />
+          <Column field="family" header="Family" :style="{ width: '120px' }" sortable />
+          <Column field="component" header="Component" :style="{ width: '150px' }" sortable />
+          <Column field="component_name" header="Component Name" :style="{ width: '260px' }" sortable>
+            <template #body="{ data }">
+              <span class="component-name-cell">{{ data.component_name }}</span>
+            </template>
+          </Column>
+          <Column field="element" header="Element" :style="{ width: '150px' }" sortable />
+          <Column field="element_item" header="Element Item" :style="{ width: '320px' }">
+            <template #body="{ data }">
+              <span class="element-item-cell">{{ data.element_item }}</span>
+            </template>
+          </Column>
+
+          <template #empty>
+            <p>No components were extracted from the selected XML file.</p>
+          </template>
+        </DataTable>
       </div>
       
       <!-- Import Summary -->
@@ -136,9 +148,8 @@
 import { ref } from 'vue'
 import api from '../../services/api'
 import XMLTreeNode from '../XMLTreeNode.vue'
-import type { Header } from 'vue3-easy-data-table'
-import EasyDataTable from 'vue3-easy-data-table'
-import 'vue3-easy-data-table/dist/style.css'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 // Reactive data
 const fileInput = ref<HTMLInputElement>()
@@ -149,6 +160,8 @@ const statusType = ref<'success' | 'error' | 'info'>('info')
 const parsedData = ref<any>(null)
 const extractedComponents = ref<any[]>([])
 const importSummary = ref<any>(null)
+const componentsRowsPerPage = 15
+const rowsPerPageOptions = [10, 25, 50, 100]
 
 // Modal data
 const showModal = ref(false)
@@ -156,16 +169,6 @@ const modalTitle = ref('')
 const modalMessage = ref('')
 const modalDetails = ref('')
 const modalType = ref<'success' | 'error' | 'info'>('info')
-
-// DataTable headers
-const tableHeaders: Header[] = [
-  { text: 'Class', value: 'class_name', sortable: true },
-  { text: 'Family', value: 'family', sortable: true },
-  { text: 'Component', value: 'component', sortable: true },
-  { text: 'Component Name', value: 'component_name', sortable: true, width: 300 },
-  { text: 'Element', value: 'element', sortable: true },
-  { text: 'Element Item', value: 'element_item', sortable: false, width: 400 }
-]
 
 // Methods
 function triggerFileInput() {

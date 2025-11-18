@@ -99,24 +99,51 @@
       <div v-if="loading" class="loading">Loading...</div>
       
       <div v-else class="data-table-wrapper">
-        <EasyDataTable
-          :headers="tableHeaders"
-          :items="items"
-          :rows-per-page="25"
-          :show-index="true"
-          search-field=""
-          search-value=""
-          buttons-pagination
-          :must-sort="false"
-          table-class-name="customize-table"
+        <DataTable
+          :key="selectedTable"
+          :value="items"
           :loading="loading"
+          :rows="rowsPerPage"
+          :paginator="shouldShowPaginator"
+          :rowsPerPageOptions="rowsPerPageOptions"
+          paginatorTemplate="RowsPerPageDropdown PrevPageLink PageLinks NextPageLink"
+          responsiveLayout="scroll"
+          scrollable
+          scrollHeight="520px"
+          dataKey="id"
+          stripedRows
+          showGridlines
+          class="prime-table"
         >
-          <template #empty-message>
-            <p>No data found in {{ selectedTable }} table.
-               <span v-if="selectedTable !== 'components'">Try importing XML data first.</span>
+          <Column header="#" :style="{ width: '70px' }" headerStyle="text-align:center">
+            <template #body="{ index }">
+              <span class="row-index">{{ index + 1 }}</span>
+            </template>
+          </Column>
+
+          <Column field="id" header="ID" sortable :style="{ width: '100px' }" />
+          <Column field="class_display" header="Class" sortable :style="{ width: '140px' }" />
+          <Column field="family" header="Family" sortable :style="{ width: '140px' }" />
+          <Column field="component" header="Component" sortable :style="{ width: '160px' }" />
+          <Column field="component_name" header="Component Name" sortable :style="{ width: '260px' }">
+            <template #body="{ data }">
+              <span class="component-name-cell">{{ data.component_name }}</span>
+            </template>
+          </Column>
+          <Column field="element" header="Element" sortable :style="{ width: '180px' }" />
+          <Column field="element_item" header="Element Item" :style="{ width: '320px' }">
+            <template #body="{ data }">
+              <span class="element-item-cell">{{ data.element_item }}</span>
+            </template>
+          </Column>
+
+          <template #empty>
+            <p>
+              No data found in {{ selectedTable }} table.
+              <span v-if="selectedTable !== 'components'">Try importing XML data first.</span>
             </p>
           </template>
-        </EasyDataTable>
+        </DataTable>
       </div>
     </div>
 
@@ -127,11 +154,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import api from '../../services/api'
-import type { Header } from 'vue3-easy-data-table'
-import EasyDataTable from 'vue3-easy-data-table'
-import 'vue3-easy-data-table/dist/style.css'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 type Item = { 
   id: number, 
@@ -141,7 +167,8 @@ type Item = {
   component?: string, 
   component_name?: string, 
   element?: string, 
-  element_item?: string 
+  element_item?: string,
+  class_display?: string
 }
 
 type Table = {
@@ -155,27 +182,20 @@ type FamilyTables = {
   special?: Table[]
 }
 
-// DataTable headers
-const tableHeaders: Header[] = [
-  { text: 'ID', value: 'id', sortable: true, width: 80 },
-  { text: 'Class', value: 'class_display', sortable: true, width: 120 },
-  { text: 'Family', value: 'family', sortable: true, width: 120 },
-  { text: 'Component', value: 'component', sortable: true, width: 120 },
-  { text: 'Component Name', value: 'component_name', sortable: true, width: 300 },
-  { text: 'Element', value: 'element', sortable: true, width: 150 },
-  { text: 'Element Item', value: 'element_item', sortable: false, width: 400 }
-]
-
 const items = ref<Item[]>([])
 const q = ref('')
 const selectedTable = ref<string>('')
 const familyTables = ref<FamilyTables>({})
 const tableCounts = ref<Record<string, number>>({})
 const loading = ref(false)
-let timer: any
+const rowsPerPage = 25
+const rowsPerPageOptions = [10, 25, 50, 100]
+
+const shouldShowPaginator = computed(() => items.value.length > rowsPerPage)
+let timer: ReturnType<typeof setTimeout> | undefined
 
 function debouncedFetch(){
-  clearTimeout(timer)
+  if (timer) clearTimeout(timer)
   timer = setTimeout(fetchItems, 300)
 }
 

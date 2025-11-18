@@ -124,7 +124,9 @@ End-to-end CRA documentation workspace with dedicated pages for each section.
 - **Product Identification** – Synced metadata + rich-text editors for descriptions and key functions + target-market capture
 - **Manufacturer Information** – Legal entity, registration number, address, contact person, and phone fields
 - **Purpose & Scope** – Lifecycle coverage toggle list, assessment period, and TipTap-based methodology editor
-- **Document Preview** – A4 DOCX preview with zoom/page controls and clickable Section Status links back to each editor
+- **Product Architecture Overview** – Clause 6.2.1.5 narrative with prompts for Key Components, Interactions, Interfaces, RDPS, and Evidence references. Shares state via `documentWorkspace.productOverview.productArchitectureHtml` so section 2.2 renders in previews/DOCX.
+- **Third-Party Components** – SBOM-style table with add/edit/delete workflows (row click to edit, trash icon, bulk delete with confirmation) plus WYSIWYG sections for management approach and evidence references. Data flows through the shared workspace into the DOCX builder for section 2.3.
+- **Document Preview** – Dedicated scrollable viewport with zoom/page controls, active-page highlighting, and clickable Section Status links back to each editor
 - **Load & Save** – JSON export/import/clear tools backed by the shared workspace service
 
 ## 📄 Document Management Workflow
@@ -134,6 +136,7 @@ End-to-end CRA documentation workspace with dedicated pages for each section.
 - **Product Identification** – Shares Product Name/Version/Type fields with the Introduction form and adds two TipTap-powered editors (Product Description + Key Product Functions) plus a large Target Market textarea. Data persists via `documentWorkspace.productIdentification`.
 - **Manufacturer Information** – Captures legal entity, registration number, address, contact person, and phone using standard inputs tied to `documentWorkspace.manufacturerInformation`.
 - **Purpose & Scope** – Provides scope narrative placeholders, lifecycle phase selectors, assessment period dates, and a TipTap methodology editor.
+- **Third-Party Components** – Maintains the Clause 7.11 inventory with clickable table rows, keyboard focus, multi-select deletion, and two TipTap editors (Management Approach + Evidence Reference). Data is persisted in `documentWorkspace.productOverview.thirdPartyComponents` and feeds the DOCX builder for section 2.3. (Earlier iterations used placeholder text and a transparent modal overlay; both issues were fixed by storing blank defaults and adopting the shared modal styling.)
 - **Document Preview** – Aggregates the workspace state (cover, introduction, purpose & scope, product identification). Section Status entries act as router links so you can jump to the relevant page when a section is incomplete. The preview payload now includes `product_identification` so section 1.3 renders in the DOCX output.
 - **Load & Save** – Export/import the entire workspace as JSON, refresh from storage, or clear everything for a clean slate.
 

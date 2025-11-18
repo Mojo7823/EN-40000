@@ -198,6 +198,30 @@ Browser evaluation confirmed:
 
 ---
 
+## February 2025 Addendum – Product Overview & Preview Refresh
+
+**Date:** February 13, 2025  
+**Summary:** Added the new Product Architecture Overview editor, refreshed the preview UX, and tightened DOCX pagination so Section 2 renders predictably.
+
+### Frontend Changes
+- **Product Architecture Overview View:** Added `web/src/views/product/ProductArchitectureOverview.vue` plus a `/product-overview/architecture` route entry so clause 6.2.1.5 has its own TipTap editor. The view uses the same `documentWorkspace.productOverview` slice and `updateProductOverviewState` helper as the Product Description page, ensuring autosave + Section Status updates stay in sync.
+- **Third-Party Components Page:** Introduced `web/src/views/product/ThirdPartyComponents.vue` with a polished SBOM table (row click to edit, trash icon, checkbox multi-select + confirmation) and twin TipTap editors (Management Approach + Evidence Reference). Data persists via `documentWorkspace.productOverview.thirdPartyComponents` so section 2.3 renders in preview + DOCX.
+- **Document Preview Card:** The DOCX renderer now sits inside `.docx-preview-viewport`, a fixed-height scroll container. Zooming or paging no longer scrolls the entire application and the current page indicator stays synced via a passive scroll listener (`scrollToPage` + `updateCurrentPageFromScroll` in `DocumentPreview.vue`).
+- **Page Navigation:** Prev/next buttons call `scrollToPage`, which smoothly scrolls the viewport to the requested page and updates the highlighted thumbnail. Manual scrolling also updates the active page.
+- **Status Payload:** Section Status and preview payloads include both `product_description_html` and `product_architecture_html` so the backend can render section 2.1 and 2.2 independently.
+
+### Backend Changes
+- **Soft Pagination:** `server/app/docx_builder/product_overview_builder.py` now splits the Section 2 HTML only when a subsection exceeds ~2,800 characters. Content is chunked at block boundaries, so very long narratives insert a `document.add_page_break()` without creating half-empty sheets.
+- **Section 2.3 Rendering:** The builder now renders a Clause 7.11 table plus the Management Approach/Evidence blocks based on the new `third_party_components` payload. Missing data falls back to the template placeholders shown in the UI.
+- **Cover Footer:** The “Document Prepared By” block now lives inside the first-page footer (see `_add_footer_block` in `cover_builder.py`). This keeps the lab address pinned to the bottom margin even when the cover body content is short.
+
+### Usage Notes
+- When importing a saved workspace, clear `cover.imagePath` (or re-upload the logo) so `/cover/upload` runs for the current user token; otherwise preview generation fails because the backend can’t resolve the previous user’s upload folder.
+- The scrollable preview viewport means hotkeys like Page Up/Down only move the preview window; use the status list to jump to other form pages.
+- Product Architecture data lives at `documentWorkspace.productOverview.productArchitectureHtml`. Any future Section 2.x pages should follow the same pattern to stay compatible with the backend builder.
+
+---
+
 ## 🔧 Technical Details
 
 ### A4 Page Calculations

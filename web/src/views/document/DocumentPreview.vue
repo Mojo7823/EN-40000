@@ -69,22 +69,24 @@
           </div>
         </div>
       </header>
-      <div class="docx-preview-shell" ref="previewShell">
+      <div class="docx-preview-shell">
         <div v-if="previewLoading" class="modal-status overlay">Rendering…</div>
         <p v-else-if="previewError" class="modal-error">{{ previewError }}</p>
-        <div
-          ref="docxPreviewContainer"
-          class="docx-preview-container"
-          :class="{ hidden: previewLoading || !!previewError || !hasGeneratedDocx }"
-          :style="{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }"
-        ></div>
+        <div class="docx-preview-viewport" ref="previewShell">
+          <div
+            ref="docxPreviewContainer"
+            class="docx-preview-container"
+            :class="{ hidden: previewLoading || !!previewError || !hasGeneratedDocx }"
+            :style="{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }"
+          ></div>
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { renderAsync } from 'docx-preview'
 import api from '../../services/api'
 import { sessionService } from '../../services/sessionService'
@@ -114,6 +116,7 @@ const purposeScope = computed(() => workspaceState.value.purposeScope)
 const productIdentification = computed(() => workspaceState.value.productIdentification)
 const manufacturerInformation = computed(() => workspaceState.value.manufacturerInformation)
 const productOverview = computed(() => workspaceState.value.productOverview)
+const conformanceClaim = computed(() => workspaceState.value.conformanceClaim)
 const previewLoading = ref(false)
 const previewError = ref('')
 const hasGeneratedDocx = ref(false)
@@ -130,6 +133,9 @@ const sectionStatuses = computed(() => buildSectionStatuses())
 const DOCX_PAGE_SELECTOR = '.docx-wrapper > section.docx'
 
 let unsubscribe: (() => void) | null = null
+const previewScrollHandler = () => {
+  updateCurrentPageFromScroll()
+}
 
 onMounted(() => {
   workspaceState.value = loadDocumentWorkspace()
@@ -140,7 +146,16 @@ onMounted(() => {
 
 onUnmounted(() => {
   unsubscribe?.()
+  previewShell.value?.removeEventListener('scroll', previewScrollHandler)
 })
+
+watch(
+  () => previewShell.value,
+  (next, previous) => {
+    previous?.removeEventListener('scroll', previewScrollHandler)
+    next?.addEventListener('scroll', previewScrollHandler, { passive: true })
+  }
+)
 
 function formatDate(value: string | null | undefined, fallbackDash = false) {
   if (!value) {
@@ -281,14 +296,64 @@ function buildSectionStatuses() {
       '/document/manufacturer-information'
     ),
     createStatus(
-      'product-overview',
+      'product-overview-description',
       'Product Description',
       'Narrative covering physical, software, and data-processing characteristics.',
       [stripHtml(productOverview.value.productDescriptionHtml)],
       '/product-overview/description'
     ),
-
-
+    createStatus(
+      'product-overview-architecture',
+      'Product Architecture Overview',
+      'High-level components, interfaces, and remote services.',
+      [stripHtml(productOverview.value.productArchitectureHtml)],
+      '/product-overview/architecture'
+    ),
+    createStatus(
+      'third-party-components',
+      'Third-Party Components',
+      'Component inventory, management approach, and evidence.',
+      [
+        productOverview.value.thirdPartyComponents.entries.length ? 'entries' : '',
+        stripHtml(productOverview.value.thirdPartyComponents.managementApproachHtml),
+        stripHtml(productOverview.value.thirdPartyComponents.evidenceReferenceHtml),
+      ],
+      '/product-overview/third-party-components'
+    ),
+    createStatus(
+      'conformance-standards',
+      'Standards Conformance',
+      'Primary standard plus related standards applied.',
+      [
+        [
+          conformanceClaim.value.standardsConformance.primaryStandard.code,
+          conformanceClaim.value.standardsConformance.primaryStandard.description,
+        ]
+          .filter((value) => !!value && value.trim().length)
+          .join(' '),
+        conformanceClaim.value.standardsConformance.relatedStandards.length
+          ? 'related'
+          : conformanceClaim.value.standardsConformance.includeOther &&
+              conformanceClaim.value.standardsConformance.otherNotes
+            ? conformanceClaim.value.standardsConformance.otherNotes
+            : '',
+      ],
+      '/conformance/standards'
+    ),
+    createStatus(
+      'conformance-regulatory',
+      'Regulatory Conformance',
+      'Narrative covering CRA clauses and other mandates.',
+      [stripHtml(conformanceClaim.value.regulatoryConformanceHtml)],
+      '/conformance/regulatory'
+    ),
+    createStatus(
+      'conformance-level',
+      'Conformance Level',
+      'Claimed assurance tier and supporting evidence.',
+      [stripHtml(conformanceClaim.value.conformanceLevelHtml)],
+      '/conformance/level'
+    ),
   ]
 }
 
@@ -362,6 +427,20 @@ async function generatePreview() {
       const trimmed = value.trim()
       return trimmed.length ? trimmed : undefined
     }
+    const normalizeStandardEntry = (
+      entry?: { code?: string | null; description?: string | null } | null
+    ) => {
+      if (!entry) return undefined
+      const codeValue = normalize(entry.code)
+      const descriptionValue = normalize(entry.description)
+      if (!codeValue && !descriptionValue) {
+        return undefined
+      }
+      return {
+        ...(codeValue ? { code: codeValue } : {}),
+        ...(descriptionValue ? { description: descriptionValue } : {}),
+      }
+    }
 
     const introductionPayload = {
       product_name: normalize(introduction.value.productName),
@@ -390,8 +469,26 @@ async function generatePreview() {
       target_market: normalize(productIdentification.value.targetMarket),
     }
 
+    const thirdPartyState = productOverview.value.thirdPartyComponents
+    const thirdPartyComponentsPayload = {
+      entries: thirdPartyState.entries
+        .map((entry) => ({
+          component_name: normalize(entry.componentName),
+          component_type: normalize(entry.componentType),
+          version: normalize(entry.version),
+          supplier: normalize(entry.supplier),
+          purpose: normalize(entry.purpose),
+          license: normalize(entry.license),
+        }))
+        .filter((entry) => Object.values(entry).some((value) => !!value)),
+      management_approach_html: normalizeHtml(thirdPartyState.managementApproachHtml),
+      evidence_reference_html: normalizeHtml(thirdPartyState.evidenceReferenceHtml),
+    }
+
     const productOverviewPayload = {
       product_description_html: normalizeHtml(productOverview.value.productDescriptionHtml),
+      product_architecture_html: normalizeHtml(productOverview.value.productArchitectureHtml),
+      third_party_components: thirdPartyComponentsPayload,
     }
 
     const manufacturerInformationPayload = {
@@ -401,6 +498,34 @@ async function generatePreview() {
       contact_person: normalize(manufacturerInformation.value.contactPerson),
       phone: normalize(manufacturerInformation.value.phone),
     }
+
+    const standardsState = conformanceClaim.value.standardsConformance
+    const normalizedPrimaryStandard = normalizeStandardEntry(standardsState.primaryStandard)
+    const normalizedRelatedStandards = standardsState.relatedStandards
+      .map((entry) => normalizeStandardEntry(entry))
+      .filter((entry): entry is { code?: string; description?: string } => !!entry)
+    const normalizedOtherNotes = normalize(standardsState.otherNotes)
+    const includeOtherFlag = Boolean(standardsState.includeOther && normalizedOtherNotes)
+    const standardsConformancePayload =
+      normalizedPrimaryStandard || normalizedRelatedStandards.length || includeOtherFlag
+        ? {
+            ...(normalizedPrimaryStandard ? { primary_standard: normalizedPrimaryStandard } : {}),
+            related_standards: normalizedRelatedStandards,
+            include_other: includeOtherFlag,
+            other_notes: includeOtherFlag ? normalizedOtherNotes : undefined,
+          }
+        : undefined
+
+    const regulatoryHtml = normalizeHtml(conformanceClaim.value.regulatoryConformanceHtml)
+    const conformanceLevelHtml = normalizeHtml(conformanceClaim.value.conformanceLevelHtml)
+    const conformanceClaimPayload =
+      standardsConformancePayload || regulatoryHtml || conformanceLevelHtml
+        ? {
+            standards_conformance: standardsConformancePayload,
+            regulatory_conformance_html: regulatoryHtml,
+            conformance_level_html: conformanceLevelHtml,
+          }
+        : undefined
 
     const payload = {
       user_id: userId,
@@ -416,6 +541,7 @@ async function generatePreview() {
       product_identification: productIdentificationPayload,
       product_overview: productOverviewPayload,
       manufacturer_information: manufacturerInformationPayload,
+      conformance_claim: conformanceClaimPayload,
     }
 
     const response = await api.post('/cover/preview', payload)
@@ -464,16 +590,18 @@ function resetZoom() {
 }
 
 function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-    scrollToPage(currentPage.value)
+  if (!hasGeneratedDocx.value) return
+  const next = Math.min(totalPages.value, currentPage.value + 1)
+  if (next !== currentPage.value) {
+    scrollToPage(next)
   }
 }
 
 function previousPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--
-    scrollToPage(currentPage.value)
+  if (!hasGeneratedDocx.value) return
+  const previous = Math.max(1, currentPage.value - 1)
+  if (previous !== currentPage.value) {
+    scrollToPage(previous)
   }
 }
 
@@ -488,6 +616,7 @@ function scrollToPage(pageNumber: number) {
       top: sectionTop - 32,
       behavior: 'smooth',
     })
+    currentPage.value = pageNumber
     highlightActivePage(pageNumber)
   }
 }
@@ -540,6 +669,7 @@ function annotateRenderedPages() {
   currentPage.value = 1
   previewShell.value?.scrollTo({ top: 0 })
   highlightActivePage(1)
+  previewScrollHandler()
 }
 
 function getRenderedPages(): HTMLElement[] {
@@ -556,6 +686,24 @@ function highlightActivePage(pageNumber: number) {
       page.classList.remove('is-active')
     }
   })
+}
+
+function updateCurrentPageFromScroll() {
+  const shell = previewShell.value
+  if (!shell) return
+  const pages = getRenderedPages()
+  if (!pages.length) return
+  const midpoint = shell.scrollTop + shell.clientHeight / 2
+  let activePage = 1
+  pages.forEach((page, index) => {
+    if (midpoint >= page.offsetTop) {
+      activePage = index + 1
+    }
+  })
+  if (activePage !== currentPage.value) {
+    currentPage.value = activePage
+    highlightActivePage(activePage)
+  }
 }
 </script>
 

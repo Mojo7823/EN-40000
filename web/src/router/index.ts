@@ -14,6 +14,11 @@ import ManufacturerInformation from '../views/document/ManufacturerInformation.v
 import DocumentPreview from '../views/document/DocumentPreview.vue'
 import DocumentStorage from '../views/document/DocumentStorage.vue'
 import ProductDescription from '../views/product/ProductDescription.vue'
+import ProductArchitectureOverview from '../views/product/ProductArchitectureOverview.vue'
+import ThirdPartyComponents from '../views/product/ThirdPartyComponents.vue'
+import StandardsConformance from '../views/conformance/StandardsConformance.vue'
+import RegulatoryConformance from '../views/conformance/RegulatoryConformance.vue'
+import ConformanceLevel from '../views/conformance/ConformanceLevel.vue'
 
 const routes = [
   { path: '/', name: 'dashboard', component: Dashboard },
@@ -40,6 +45,31 @@ const routes = [
     path: '/product-overview/description',
     name: 'product-overview-description',
     component: ProductDescription,
+  },
+  {
+    path: '/product-overview/architecture',
+    name: 'product-overview-architecture',
+    component: ProductArchitectureOverview,
+  },
+  {
+    path: '/product-overview/third-party-components',
+    name: 'product-overview-third-party',
+    component: ThirdPartyComponents,
+  },
+  {
+    path: '/conformance/standards',
+    name: 'conformance-standards',
+    component: StandardsConformance,
+  },
+  {
+    path: '/conformance/regulatory',
+    name: 'conformance-regulatory',
+    component: RegulatoryConformance,
+  },
+  {
+    path: '/conformance/level',
+    name: 'conformance-level',
+    component: ConformanceLevel,
   },
   { path: '/document/preview', name: 'document-preview', component: DocumentPreview },
   { path: '/document/load-save', name: 'document-storage', component: DocumentStorage },

@@ -8,25 +8,59 @@ WEB_DIR="$ROOT_DIR/web"
 RUNTIME_DIR="$ROOT_DIR/.devserver"
 BACKEND_PID_FILE="$RUNTIME_DIR/backend.pid"
 FRONTEND_PID_FILE="$RUNTIME_DIR/frontend.pid"
+BACKEND_REQ_HASH_FILE="$RUNTIME_DIR/backend-req.hash"
+FRONTEND_PKG_HASH_FILE="$RUNTIME_DIR/frontend-pkg.hash"
 
 mkdir -p "$RUNTIME_DIR"
+
+hash_file() {
+  local file="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$file" | awk '{print $1}'
+  else
+    shasum -a 256 "$file" | awk '{print $1}'
+  fi
+}
 
 ensure_backend_env() {
   if [[ ! -d "$SERVER_DIR/.venv" ]]; then
     echo "Creating backend virtualenv..."
     python3 -m venv "$SERVER_DIR/.venv"
+    "$SERVER_DIR/.venv/bin/python" -m pip install --upgrade pip >/dev/null
   fi
 
-  if [[ ! -x "$SERVER_DIR/.venv/bin/uvicorn" ]]; then
+  local current_hash
+  current_hash="$(hash_file "$SERVER_DIR/requirements.txt")"
+  local previous_hash=""
+  if [[ -f "$BACKEND_REQ_HASH_FILE" ]]; then
+    previous_hash="$(cat "$BACKEND_REQ_HASH_FILE")"
+  fi
+
+  if [[ ! -x "$SERVER_DIR/.venv/bin/uvicorn" || "$current_hash" != "$previous_hash" ]]; then
     echo "Installing backend dependencies..."
-    "$SERVER_DIR/.venv/bin/pip" install -r "$SERVER_DIR/requirements.txt"
+    "$SERVER_DIR/.venv/bin/python" -m pip install -r "$SERVER_DIR/requirements.txt"
+    echo "$current_hash" > "$BACKEND_REQ_HASH_FILE"
   fi
 }
 
 ensure_frontend_dependencies() {
-  if [[ ! -d "$WEB_DIR/node_modules" ]]; then
+  local lock_file
+  if [[ -f "$WEB_DIR/package-lock.json" ]]; then
+    lock_file="$WEB_DIR/package-lock.json"
+  else
+    lock_file="$WEB_DIR/package.json"
+  fi
+  local current_hash
+  current_hash="$(hash_file "$lock_file")"
+  local previous_hash=""
+  if [[ -f "$FRONTEND_PKG_HASH_FILE" ]]; then
+    previous_hash="$(cat "$FRONTEND_PKG_HASH_FILE")"
+  fi
+
+  if [[ ! -d "$WEB_DIR/node_modules" || "$current_hash" != "$previous_hash" ]]; then
     echo "Installing frontend dependencies..."
     (cd "$WEB_DIR" && npm install)
+    echo "$current_hash" > "$FRONTEND_PKG_HASH_FILE"
   fi
 }
 
@@ -44,6 +78,7 @@ start_backend() {
     uvicorn app.main:app --host 127.0.0.1 --port 8000
   ) >>"$RUNTIME_DIR/backend.log" 2>&1 &
   echo $! > "$BACKEND_PID_FILE"
+  wait_for_url "backend" "http://127.0.0.1:8000/health"
 }
 
 start_frontend() {
@@ -58,6 +93,23 @@ start_frontend() {
     npm run dev -- --host 127.0.0.1 --port 5173
   ) >>"$RUNTIME_DIR/frontend.log" 2>&1 &
   echo $! > "$FRONTEND_PID_FILE"
+  wait_for_url "frontend" "http://127.0.0.1:5173"
+}
+
+wait_for_url() {
+  local name="$1"
+  local url="$2"
+  local attempts=0
+  local max_attempts=40
+  while (( attempts < max_attempts )); do
+    if curl -fsS --max-time 2 "$url" >/dev/null 2>&1; then
+      echo "$name is ready ($url)"
+      return
+    fi
+    sleep 0.5
+    attempts=$((attempts + 1))
+  done
+  echo "Warning: $name did not respond at $url after $((max_attempts/2)) seconds." >&2
 }
 
 ensure_backend_env

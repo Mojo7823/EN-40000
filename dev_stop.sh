@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Stop the background development servers started via dev_start.sh.
+# This script ensures ALL backend and frontend processes are terminated.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNTIME_DIR="$ROOT_DIR/.devserver"
 BACKEND_PID_FILE="$RUNTIME_DIR/backend.pid"
 FRONTEND_PID_FILE="$RUNTIME_DIR/frontend.pid"
+
+echo "🛑 Stopping CRA Tool development servers..."
 
 terminate_tree() {
   local pid="$1"
@@ -28,36 +31,93 @@ terminate_tree() {
   local waited=0
   while kill -0 "$pid" 2>/dev/null && [[ "$waited" -lt 10 ]]; do
     sleep 0.2
-    ((waited++))
+    waited=$((waited + 1))
   done
   if kill -0 "$pid" 2>/dev/null; then
     kill -9 "$pid" 2>/dev/null || true
   fi
-  wait "$pid" 2>/dev/null || true
 }
 
 stop_process() {
   local name="$1"
   local file="$2"
   if [[ ! -f "$file" ]]; then
-    echo "$name not running (no PID file)."
+    echo "  ℹ️  $name not running (no PID file)."
     return
   fi
 
   local pid
   pid="$(cat "$file")"
   if kill -0 "$pid" 2>/dev/null; then
-    echo "Stopping $name (PID $pid and children)..."
+    echo "  🔄 Stopping $name (PID $pid and children)..."
     terminate_tree "$pid"
+    echo "  ✅ $name stopped."
   else
-    echo "$name PID file found but process not running."
+    echo "  ⚠️  $name PID file found but process not running."
   fi
   rm -f "$file"
 }
 
+# Stop processes tracked by PID files
 stop_process "backend" "$BACKEND_PID_FILE"
 stop_process "frontend" "$FRONTEND_PID_FILE"
 
-if [[ -d "$RUNTIME_DIR" ]] && [[ -z "$(ls -A "$RUNTIME_DIR")" ]]; then
-  rmdir "$RUNTIME_DIR"
+# Kill any remaining uvicorn processes (backend)
+echo ""
+echo "🔍 Searching for zombie backend processes..."
+BACKEND_PIDS=$(pgrep -f "uvicorn.*app.main:app" 2>/dev/null || true)
+if [[ -n "$BACKEND_PIDS" ]]; then
+  echo "  ⚠️  Found zombie uvicorn processes: $BACKEND_PIDS"
+  for pid in $BACKEND_PIDS; do
+    echo "  🔄 Killing uvicorn process $pid..."
+    kill -9 "$pid" 2>/dev/null || true
+  done
+  echo "  ✅ All uvicorn processes terminated."
+else
+  echo "  ✅ No zombie uvicorn processes found."
 fi
+
+# Kill any remaining vite processes (frontend)
+echo ""
+echo "🔍 Searching for zombie frontend processes..."
+FRONTEND_PIDS=$(pgrep -f "vite.*--host.*127.0.0.1.*--port.*5173" 2>/dev/null || true)
+if [[ -n "$FRONTEND_PIDS" ]]; then
+  FRONTEND_COUNT=$(echo "$FRONTEND_PIDS" | wc -w)
+  echo "  ⚠️  Found $FRONTEND_COUNT zombie vite processes!"
+  for pid in $FRONTEND_PIDS; do
+    echo "  🔄 Killing vite process $pid..."
+    kill -9 "$pid" 2>/dev/null || true
+  done
+  echo "  ✅ All vite processes terminated."
+else
+  echo "  ✅ No zombie vite processes found."
+fi
+
+# Kill processes by port (belt and suspenders approach)
+echo ""
+echo "🔍 Checking ports 8000 and 5173..."
+for port in 8000 5173; do
+  PORT_PIDS=$(lsof -ti :$port 2>/dev/null || true)
+  if [[ -n "$PORT_PIDS" ]]; then
+    echo "  ⚠️  Found processes on port $port: $PORT_PIDS"
+    for pid in $PORT_PIDS; do
+      echo "  🔄 Killing process $pid on port $port..."
+      kill -9 "$pid" 2>/dev/null || true
+    done
+    echo "  ✅ Port $port cleared."
+  else
+    echo "  ✅ Port $port is free."
+  fi
+done
+
+# Clean up runtime directory
+if [[ -d "$RUNTIME_DIR" ]]; then
+  rm -f "$RUNTIME_DIR"/*.pid 2>/dev/null || true
+  if [[ -z "$(ls -A "$RUNTIME_DIR" 2>/dev/null)" ]]; then
+    rmdir "$RUNTIME_DIR" 2>/dev/null || true
+  fi
+fi
+
+echo ""
+echo "✅ All development servers stopped successfully!"
+echo ""

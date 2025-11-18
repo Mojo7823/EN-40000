@@ -65,6 +65,7 @@ tr:last-child td {
   justify-content: center;
   padding: 24px;
   z-index: 50;
+  backdrop-filter: blur(2px);
 }
 
 .demo-modal {

@@ -123,18 +123,54 @@
   overflow: hidden;
 }
 
-/* DataTable styling */
-.customize-table {
-  --easy-table-body-row-background-color: var(--panel);
-  --easy-table-body-row-hover-background-color: var(--surface-muted);
-  --easy-table-body-item-padding: 12px;
-  --easy-table-header-background-color: var(--bg-soft);
-  --easy-table-header-font-color: var(--text);
-  --easy-table-header-item-padding: 12px;
-  --easy-table-body-font-color: var(--text);
-  --easy-table-border: 1px solid var(--panel-border);
-  --easy-table-scrollbar-track-color: var(--scrollbar-track);
-  --easy-table-scrollbar-color: var(--scrollbar-thumb);
+.data-table-wrapper :deep(.prime-table) {
+  border: none;
+}
+
+.data-table-wrapper :deep(.p-datatable) {
+  background: transparent;
+}
+
+.data-table-wrapper :deep(.p-datatable-wrapper) {
+  background: var(--panel);
+}
+
+.data-table-wrapper :deep(.p-datatable-thead > tr > th) {
+  background: var(--bg-soft);
+  color: var(--text);
+  font-weight: 600;
+  border-color: var(--panel-border);
+}
+
+.data-table-wrapper :deep(.p-datatable-tbody > tr > td) {
+  color: var(--text);
+  border-color: var(--panel-border);
+  vertical-align: top;
+}
+
+.data-table-wrapper :deep(.p-datatable-tbody > tr:hover) {
+  background: var(--surface-muted);
+}
+
+.data-table-wrapper :deep(.p-paginator) {
+  border-top: 1px solid var(--panel-border);
+}
+
+.data-table-wrapper :deep(.p-dropdown) {
+  background: var(--panel);
+  border-color: var(--panel-border);
+  color: var(--text);
+}
+
+.data-table-wrapper :deep(.p-dropdown-label) {
+  color: var(--text);
+}
+
+.row-index {
+  font-weight: 600;
+  display: inline-block;
+  width: 36px;
+  text-align: center;
 }
 
 .element-item-cell {
@@ -184,20 +220,6 @@
   color: var(--text);
 }
 
-/* Simple table styles */
-.simple-table-wrapper {
-  overflow-x: auto;
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  margin-top: 1rem;
-}
-
-.simple-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--panel);
-}
-
 .simple-table th,
 .simple-table td {
   padding: 0.75rem;
@@ -229,11 +251,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(3px);
 }
 
 .modal-content {

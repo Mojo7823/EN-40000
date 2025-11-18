@@ -56,11 +56,13 @@ server/
 │   │   └── preview.py       # Document preview generation
 │   │
 │   ├── docx_builder/        # Document generation
-│   │   ├── html_converter.py    # HTML → DOCX conversion
-│   │   ├── cover_builder.py     # Cover pages (CoverDocumentRenderer orchestrates layout)
-│   │   ├── section_builders.py  # Section helpers
-│   │   ├── st_intro_builder.py  # ST Introduction
-│   │   └── final_builder.py     # Final documents
+│   │   ├── html_converter.py        # HTML → DOCX conversion
+│   │   ├── cover_builder.py         # Cover layout + orchestration
+│   │   ├── introduction_sections.py # 1.1–1.4 Introduction subsections
+│   │   ├── product_overview_builder.py # Section 2 Product Overview renderer
+│   │   ├── section_builders.py      # Section helpers
+│   │   ├── st_intro_builder.py      # ST Introduction
+│   │   └── final_builder.py         # Final documents
 │   │
 │   └── utils/               # Utility functions
 │       ├── validators.py    # User ID validation
@@ -174,20 +176,33 @@ web/
 - Shares the same autosave/documentWorkspace wiring via `manufacturerInformation` slice
 - Simple responsive form layout styled like other introduction forms; data feeds Section Status + DOCX section 1.4
 
+#### Product Overview (`web/src/views/product/ProductDescription.vue`)
+- Dedicated accordion beneath Introduction in the sidebar
+- Guidance block mirrors Clause 6.2 layout (Physical/Software/Connectivity/UI/Data Processing prompts)
+- TipTap editor captures the Section 2.1 Product Description narrative; autosaves to `documentWorkspace.productOverview`
+- **Product Architecture Overview** (`web/src/views/product/ProductArchitectureOverview.vue`) lives on `/product-overview/architecture` and uses the same Rich Text workflow to collect Clause 6.2.1.5 content (Key Components, Interactions, Interfaces, RDPS, Evidence Reference). This view writes to `productOverview.productArchitectureHtml` so both subsections stay in sync with Document Preview + DOCX generation. When creating new Product Overview pages, always use the shared workspace helpers (`loadDocumentWorkspace`, `updateProductOverviewState`, `subscribeDocumentWorkspace`) so autosave + subscriptions continue to work.
+- **Third-Party Components** (`web/src/views/product/ThirdPartyComponents.vue`) covers Clause 7.11. Highlights:
+  - Table UI with row-click editing, keyboard focus, checkbox multi-select, and trash-icon actions. Bulk delete launches a confirmation modal that blocks clicks correctly (early builds had transparent overlays; keep `.tp-modal-overlay` aligned with the shared modal styles to avoid regressions).
+  - Editor modal validates Component Name, exposes Delete from the form, and drives updates through `updateProductOverviewState({ thirdPartyComponents: ... })`.
+  - Two TipTap editors capture “Third-Party Component Management Approach” and “Evidence Reference” text. Defaults are blank so Section Status doesn’t mark the section “Completed” before the user enters real content.
+- Feeds the Section Status card, `/cover/preview` payload, and the new product overview DOCX builder
+
 #### Purpose & Scope (`web/src/views/document/PurposeScope.vue`)
 - Renders a pre-written 1.2 Purpose & Scope narrative with live `[Product Name]` placeholders
 - Interactive lifecycle phase list using checkbox-style buttons stored in workspace state
 - Assessment Period date pickers (start/end) and a TipTap-powered Assessment Methodology editor for rich formatting
 - Data auto-saves via `documentWorkspace` and feeds both Document Preview summaries and DOCX generation
 
-#### Document Preview (`web/src/views/document/DocumentPreview.vue`)
-- Pulls Cover + Introduction + Purpose/Sscope + Product Identification + Manufacturer Information workspace data to call `/cover/preview`
+-#### Document Preview (`web/src/views/document/DocumentPreview.vue`)
+- Pulls Cover + Introduction + Purpose/Sscope + Product Identification + Product Overview + Manufacturer Information workspace data to call `/cover/preview`
 - Enforces presence of Product Name (falls back to Cover Device Name)
-- Section Status card entries double as RouterLink buttons (Cover, Document Information, Purpose & Scope, Product Identification, Manufacturer Information) with hover animations and completion badges
+- Section Status card entries double as RouterLink buttons (Cover, Document Information, Purpose & Scope, Product Identification, Product Overview, Manufacturer Information, Third-Party Components) with hover animations and completion badges
 - Uploads base64 image to backend if needed before generating preview
-- Status card + DOCX pane auto-update via workspace subscriptions; payload now includes `product_identification` and `manufacturer_information` so sections 1.3/1.4 render in DOCX preview/downloads
+- Status card + DOCX pane auto-update via workspace subscriptions; payload now includes `product_identification`, `product_overview`, and `manufacturer_information` so sections 1.3/1.4/2.1 render in DOCX preview/downloads
+- **Preview UX:** The DOCX renderer now sits inside its own scrollable viewport (`.docx-preview-viewport`) so zooming or paging never scrolls the rest of the app. Prev/next buttons scroll the viewport to the selected page, and passive scroll listeners keep the active page indicator synchronized with the user’s scroll position.
+- **Pagination:** Section 2 HTML is split server-side only when a subsection exceeds ~2,800 characters so long narratives auto-map to new Word pages without creating half-empty sheets. The cover footer is written into the first-page footer so lab addresses sit flush with the bottom margin.
 
-> Backend note: `CoverPreviewRequest` accepts `introduction`, `purpose_scope`, `product_identification`, and `manufacturer_information` payloads. `server/app/docx_builder/cover_builder.py` uses a `CoverDocumentRenderer` class to build the cover layout plus sections 1.1–1.4 (Document Information, Purpose & Scope, Product Identification, Manufacturer Information).
+> Backend note: `CoverPreviewRequest` accepts `introduction`, `purpose_scope`, `product_identification`, `product_overview`, and `manufacturer_information` payloads. `cover_builder.py` handles the cover page then delegates sections 1.1–1.4 to `introduction_sections.py` and section 2 to `product_overview_builder.py`.
 
 
 #### Load & Save (`web/src/views/document/DocumentStorage.vue`)
@@ -233,6 +248,7 @@ web/
 - Single-image paragraph detection
 - Three-level image alignment support
 - Suppressed extra line breaks for `<p>` tags nested in `<li>` so DOCX bullets match the editor
+- Cover builder now delegates Introduction subsections to `introduction_sections.py` and renders Product Overview via `product_overview_builder.py`
 
 ### 3. Requirements Table
 **Purpose:** CRUD interface for technical requirements
@@ -253,12 +269,12 @@ web/
 - No XML upload needed
 
 ### 5. Workspace Persistence (Document Management)
-**Purpose:** Synchronize Cover + Introduction + Product Identification state across Document Management pages + allow JSON backup/restore.
+**Purpose:** Synchronize Cover + Introduction + Product Identification + Product Overview state across Document Management pages + allow JSON backup/restore.
 
 **File:** `web/src/services/documentWorkspace.ts`
 
 **Features:**
-- Shared store for cover form fields + image blob/path **and** Introduction/Purpose/Product Identification data (product info, lifecycle scope, methodology, description/functions/market)
+- Shared store for cover form fields + image blob/path **and** Introduction/Purpose/Product Identification/Product Overview data (product info, lifecycle scope, methodology, description/functions/market, section 2 narrative)
 - `load/update/export/import/clear` helpers with localStorage persistence
 - Subscription API so Cover, Preview, Introduction, Purpose & Scope, and Storage views stay in sync (listeners auto-update UIs)
 - Keeps `sessionService` cover cache in sync for legacy backend flows
@@ -678,6 +694,7 @@ grep -r "ComponentName" web/src/
 9. **Product Identification rollout** – Dedicated page with synchronized metadata, dual rich-text editors, and target-market capture feeding DOCX section 1.3.
 10. **Preview + DOCX polish** – Section Status links navigate to editor pages, and DOCX bullet rendering now keeps text inline after HTML converter fixes.
 11. **Manufacturer Information rollout** – New form + workspace state populates section 1.4 and displays in the preview & completion tracker.
+12. **Product Overview rollout** – Sidebar accordion + TipTap editor for Section 2.1 Product Description with dedicated DOCX builder.
 
 ---
 

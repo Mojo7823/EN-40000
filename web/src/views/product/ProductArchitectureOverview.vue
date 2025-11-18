@@ -2,39 +2,43 @@
   <div class="product-overview-page">
     <section class="card title-card">
       <div>
-        <p class="eyebrow">Product Description</p>
+        <p class="eyebrow">Product Architecture</p>
         <h1>Product Overview</h1>
         <p class="muted">
-          Describe how the product is built, deployed, and operated. This content feeds section 2.1 of the CRA
-          documentation.
+          Capture the structure of the product, including key components, interactions, interfaces, and remote services.
+          This content feeds section 2.2 of the CRA documentation.
         </p>
       </div>
       <div class="title-card-actions">
+        <RouterLink class="btn ghost" to="/product-overview/description">Back to Product Description</RouterLink>
         <RouterLink class="btn ghost" to="/document/preview">Go to Document Preview</RouterLink>
       </div>
     </section>
 
     <section class="card form-card">
       <header class="description-header">
-        <p class="section-heading">2.1 Product Description</p>
-        <p class="reference-line">[Reference: Clause 6.2 - Product Context]</p>
+        <p class="section-heading">2.2 Product Architecture Overview</p>
+        <p class="reference-line">[Reference: Clause 6.2.1.5 - Product architecture overview]</p>
         <p class="muted italic">
-          Provide a detailed description of the product, including hardware, software, connectivity, user interface, and
-          data processing characteristics.
+          Provide a high-level architectural description of the product. Include the components, how they interact,
+          external interfaces, and any remote data processing solutions.
         </p>
         <ul class="guidance-list">
-          <li><strong>Physical Characteristics:</strong> Describe hardware components, form factor, interfaces.</li>
-          <li><strong>Software Characteristics:</strong> Describe software architecture, programming languages, frameworks.</li>
-          <li><strong>Network Connectivity:</strong> Outline network capabilities, protocols, communication mechanisms.</li>
-          <li><strong>User Interface:</strong> Explain how users interact with the product (GUI, API, CLI, physical controls).</li>
-          <li><strong>Data Processing:</strong> Describe what types of data the product processes, stores, or transmits.</li>
+          <li><strong>Key Components:</strong> List each major component and its purpose.</li>
+          <li><strong>Component Interactions:</strong> Describe how the components communicate or depend on each other.</li>
+          <li><strong>External Interfaces:</strong> Include network ports, APIs, or physical connectors to external systems.</li>
+          <li>
+            <strong>Remote Data Processing Solutions (RDPS):</strong> Mention cloud services, remote servers, or backend
+            platforms that store or process data.
+          </li>
+          <li><strong>Evidence Reference:</strong> Reference the document or repository where architecture diagrams live.</li>
         </ul>
       </header>
 
       <RichTextEditor
-        v-model="form.productDescriptionHtml"
+        v-model="form.productArchitectureHtml"
         min-height="320px"
-        placeholder="Provide the narrative for section 2.1 Product Description"
+        placeholder="Provide the narrative for section 2.2 Product Architecture Overview"
       />
     </section>
   </div>
