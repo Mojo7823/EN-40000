@@ -55,62 +55,60 @@
         </div>
       </div>
 
-      <div class="table-scroll">
-        <table class="components-table">
-          <thead>
-            <tr>
-              <th aria-label="Select row"></th>
-              <th>Component Name</th>
-              <th>Type</th>
-              <th>Version</th>
-              <th>Supplier</th>
-              <th>Purpose</th>
-              <th>License</th>
-              <th class="actions" aria-label="Row actions"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="entry in paginatedEntries"
-              :key="entry.id"
-              class="table-row"
-              role="button"
-              @click="openEditModal(entry)"
-              @keydown.enter.prevent="openEditModal(entry)"
-              @keydown.space.prevent="openEditModal(entry)"
-              tabindex="0"
-            >
-              <td @click.stop>
-                <input type="checkbox" :checked="isSelected(entry.id)" @change="toggleRowSelection(entry.id)" />
-              </td>
-              <td>{{ entry.componentName || '—' }}</td>
-              <td>{{ entry.componentType || '—' }}</td>
-              <td>{{ entry.version || '—' }}</td>
-              <td>{{ entry.supplier || '—' }}</td>
-              <td>{{ entry.purpose || '—' }}</td>
-              <td>{{ entry.license || '—' }}</td>
-              <td class="actions" @click.stop>
-                <button
-                  class="icon-button"
-                  type="button"
-                  title="Delete entry"
-                  aria-label="Delete entry"
-                  @click="requestSingleDelete(entry.id)"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M9 3h6l1 2h4v2h-1l-1.2 13.2A2 2 0 0 1 15.81 22H8.19a2 2 0 0 1-1.99-1.8L5 7H4V5h4l1-2Zm1.46 6.05-.57 9a.5.5 0 0 0 .5.53h.22a.5.5 0 0 0 .5-.47l.57-9a.5.5 0 0 0-.5-.53h-.22a.5.5 0 0 0-.5.47Zm3.65-.47h-.22a.5.5 0 0 0-.5.53l.57 9a.5.5 0 0 0 .5.47h.22a.5.5 0 0 0 .5-.53l-.57-9a.5.5 0 0 0-.5-.47ZM10.15 5l-.35 1h4.4l-.35-1h-3.7Z"
-                    />
-                  </svg>
-                </button>
-              </td>
-            </tr>
-            <tr v-if="form.entries.length === 0">
-              <td class="empty-state" colspan="8">No components recorded yet.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <section class="table-section">
+        <div class="table-shell">
+          <table class="components-table">
+            <thead>
+              <tr>
+                <th aria-label="Select row"></th>
+                <th>Component Name</th>
+                <th>Type</th>
+                <th>Version</th>
+                <th>Supplier</th>
+                <th>Purpose</th>
+                <th>License</th>
+                <th aria-label="Row actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="entry in paginatedEntries"
+                :key="entry.id"
+                class="table-row"
+                role="button"
+                @click="openEditModal(entry)"
+                @keydown.enter.prevent="openEditModal(entry)"
+                @keydown.space.prevent="openEditModal(entry)"
+                tabindex="0"
+              >
+                <td @click.stop>
+                  <input type="checkbox" :checked="isSelected(entry.id)" @change="toggleRowSelection(entry.id)" />
+                </td>
+                <td>{{ entry.componentName || '—' }}</td>
+                <td>{{ entry.componentType || '—' }}</td>
+                <td>{{ entry.version || '—' }}</td>
+                <td>{{ entry.supplier || '—' }}</td>
+                <td>{{ entry.purpose || '—' }}</td>
+                <td>{{ entry.license || '—' }}</td>
+                <td class="actions" @click.stop>
+                  <button
+                    class="link danger"
+                    type="button"
+                    title="Delete entry"
+                    aria-label="Delete entry"
+                    @click="requestSingleDelete(entry.id)"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="form.entries.length === 0">
+                <td class="empty-state" colspan="8">No components recorded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </section>
 
     <section class="card form-card">

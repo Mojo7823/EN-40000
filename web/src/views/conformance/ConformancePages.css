@@ -67,7 +67,7 @@
 
 .table-toolbar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
@@ -79,9 +79,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  justify-content: flex-end;
-  flex-shrink: 0;
-  order: 2;
+  justify-content: flex-start;
 }
 
 .table-controls {
@@ -90,91 +88,104 @@
   gap: 12px;
   flex-wrap: wrap;
   justify-content: flex-end;
-  flex-shrink: 0;
-  order: 1;
 }
 
-.table-scroll {
+.table-section {
   overflow-x: auto;
-  width: calc(100% + 64px);
-  margin-left: -32px;
-  margin-right: -32px;
-  border: 1px solid var(--panel-border);
-  border-left: none;
-  border-right: none;
-  border-radius: 0;
-  background: var(--surface);
 }
 
-.standards-table {
+.table-shell {
+  overflow: hidden;
+}
+
+.standards-table,
+.regulations-table {
   width: 100%;
-  border-collapse: collapse;
-  min-width: 720px;
-  table-layout: auto;
-  margin: 0;
+  min-width: 640px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
 }
 
 .standards-table th,
-.standards-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--panel-border);
+.standards-table td,
+.regulations-table th,
+.regulations-table td {
+  padding: 12px;
   text-align: left;
-  vertical-align: middle;
+  vertical-align: top;
 }
 
-.standards-table thead tr:first-child th {
-  border-top: none;
+.standards-table th:not(:last-child),
+.standards-table td:not(:last-child),
+.regulations-table th:not(:last-child),
+.regulations-table td:not(:last-child) {
+  border-right: 1px solid var(--panel-border);
 }
 
-.standards-table tbody tr:last-child td {
-  border-bottom: none;
+.standards-table thead tr th,
+.regulations-table thead tr th {
+  border-bottom: 1px solid var(--panel-border);
 }
 
-.standards-table th {
-  font-weight: 600;
-  background: var(--table-header-bg, rgba(148, 163, 184, 0.15));
-}
-
-.standards-table tbody tr.table-row {
-  transition: background 0.15s ease;
+.standards-table tbody tr,
+.regulations-table tbody tr {
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.standards-table tbody tr.table-row:hover {
-  background: rgba(59, 130, 246, 0.08);
+.standards-table tbody tr:hover,
+.regulations-table tbody tr:hover {
+  background: var(--surface-overlay);
+}
+
+.standards-table th,
+.regulations-table th {
+  background: var(--surface-muted);
+  font-weight: 600;
+}
+
+.standards-table tbody tr:not(:last-child) td,
+.regulations-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .standards-table th.actions,
-.standards-table td.actions {
-  width: 80px;
-  min-width: 80px;
-  text-align: right;
-  padding-right: 16px;
+.standards-table td.actions,
+.regulations-table th.actions,
+.regulations-table td.actions {
+  width: 120px;
+  text-align: center;
 }
 
-.icon-button {
+.standards-table td.actions,
+.regulations-table td.actions {
+  display: flex;
+  width: 120px;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.link.danger {
+  color: var(--danger);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease, transform 0.1s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--surface);
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  font-size: 16px;
 }
 
-.icon-button svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-  color: var(--text-muted);
-}
-
-.icon-button:hover {
-  background: rgba(244, 63, 94, 0.12);
-  color: #dc2626;
+.link.danger:hover {
+  background: rgba(220, 38, 38, 0.1);
+  transform: scale(1.1);
 }
 
 .empty-state {
@@ -316,4 +327,57 @@
   gap: 12px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.regulatory-reference-card {
+  gap: 12px;
+}
+
+.regulatory-reference-card .regulatory-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.regulatory-reference-card ul {
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conformance-level-status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.conformance-level-status-grid .status-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--surface-muted);
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.conformance-level-status-grid .status-option input {
+  width: 16px;
+  height: 16px;
+}
+
+.justification-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-subtitle {
+  font-weight: 600;
+  margin: 0;
 }

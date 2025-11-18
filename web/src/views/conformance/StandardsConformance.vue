@@ -17,9 +17,6 @@
     <section class="card form-card primary-standard-card">
       <header class="description-header">
         <p class="section-heading">Primary Standard</p>
-        <p class="muted">
-          This standard anchors the overall claim and cannot be removed. Edit it if the lead reference changes.
-        </p>
       </header>
       <div class="primary-standard-details">
         <div class="detail">
@@ -30,9 +27,6 @@
           <span class="detail-label">Description</span>
           <span class="detail-value">{{ primaryDescriptionDisplay }}</span>
         </div>
-      </div>
-      <div class="primary-standard-actions">
-        <button class="btn secondary" type="button" @click="openPrimaryModal">Edit Primary Standard</button>
       </div>
     </section>
 
@@ -63,44 +57,42 @@
         </div>
       </div>
 
-      <div class="table-scroll">
-        <table class="standards-table">
-          <thead>
-            <tr>
-              <th>Standard</th>
-              <th>Description</th>
-              <th class="actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="entry in paginatedStandards"
-              :key="entry.id"
-              role="button"
-              class="table-row"
-              @click="openEditModal(entry)"
-              @keydown.enter.prevent="openEditModal(entry)"
-              @keydown.space.prevent="openEditModal(entry)"
-              tabindex="0"
-            >
-              <td>{{ entry.code || '—' }}</td>
-              <td>{{ entry.description || '—' }}</td>
-              <td class="actions" @click.stop>
-                <button class="icon-button" type="button" aria-label="Delete standard" @click="removeStandard(entry.id)">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M9 3h6l1 2h4v2h-1l-1.2 13.2A2 2 0 0 1 15.81 22H8.19a2 2 0 0 1-1.99-1.8L5 7H4V5h4l1-2Zm1.46 6.05-.57 9a.5.5 0 0 0 .5.53h.22a.5.5 0 0 0 .5-.47l.57-9a.5.5 0 0 0-.5-.53h-.22a.5.5 0 0 0-.5.47Zm3.65-.47h-.22a.5.5 0 0 0-.5.53l.57 9a.5.5 0 0 0 .5.47h.22a.5.5 0 0 0 .5-.53l-.57-9a.5.5 0 0 0-.5-.47ZM10.15 5l-.35 1h4.4l-.35-1h-3.7Z"
-                    />
-                  </svg>
-                </button>
-              </td>
-            </tr>
-            <tr v-if="form.relatedStandards.length === 0">
-              <td class="empty-state" colspan="3">No related standards recorded yet.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <section class="table-section">
+        <div class="table-shell">
+          <table class="standards-table">
+            <thead>
+              <tr>
+                <th>Standard</th>
+                <th>Description</th>
+                <th class="actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="entry in paginatedStandards"
+                :key="entry.id"
+                role="button"
+                class="table-row"
+                @click="openEditModal(entry)"
+                @keydown.enter.prevent="openEditModal(entry)"
+                @keydown.space.prevent="openEditModal(entry)"
+                tabindex="0"
+              >
+                <td>{{ entry.code || '—' }}</td>
+                <td>{{ entry.description || '—' }}</td>
+                <td class="actions" @click.stop>
+                  <button class="link danger" type="button" aria-label="Delete standard" title="Delete" @click="removeStandard(entry.id)">
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="form.relatedStandards.length === 0">
+                <td class="empty-state" colspan="3">No related standards recorded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </section>
 
     <div v-if="isModalOpen" class="tp-modal-overlay" @click="closeModal">

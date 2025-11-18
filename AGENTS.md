@@ -250,14 +250,68 @@ web/
 - Suppressed extra line breaks for `<p>` tags nested in `<li>` so DOCX bullets match the editor
 - Cover builder now delegates Introduction subsections to `introduction_sections.py` and renders Product Overview via `product_overview_builder.py`
 
-### 3. Requirements Table
-**Purpose:** CRUD interface for technical requirements
+### 3. Requirements Table Demo
+**File:** `web/src/views/demo/RequirementsTableDemo.vue`  
+**Route:** `/demo/table`
+
+**Purpose:** CRUD-style table demo showcasing technical requirements management interface. This serves as a reference implementation for table patterns used throughout the application.
 
 **Features:**
-- Add/edit/delete requirements
-- Search and filter
-- Component classification
-- Export functionality
+- **Add requirements** via modal dialog with validation
+- **Delete requirements** with trash icon button (🗑️)
+- **Professional table styling** with proper borders and alignment
+- **Interactive hover effects** on delete buttons
+- **Persistent storage** via demoStorage service
+- **Empty state handling** with helpful messaging
+
+**Recent Improvements (January 2025):**
+- ✅ Replaced "Remove" text with trash icon (🗑️) for better UX
+- ✅ Fixed table border alignment - borders now span fully to edges
+- ✅ Changed `border-collapse` from `collapse` to `separate` for better border control
+- ✅ Added hover effects on trash icon (background highlight + scale animation)
+- ✅ Proper cell border management (between cells only, not on outer edges)
+- ✅ **Pattern Applied To:** Third-Party Components (`/product-overview/third-party-components`) and Standards Conformance (`/conformance/standards`)
+
+> ⚠️ **Important:** The legacy table-formatting procedure described below is outdated. Follow the live responsive implementations in `web/src/views/product/ThirdPartyComponents.css` and `web/src/views/conformance/ConformancePages.css` (min-width tables inside scrollable shells + centered action columns) until this documentation is fully rewritten.
+
+**Table Styling Pattern:**
+```css
+table {
+  border-collapse: separate;  /* Important for border control */
+  border-spacing: 0;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+}
+
+/* Borders between cells only */
+th:not(:last-child),
+td:not(:last-child) {
+  border-right: 1px solid var(--panel-border);
+}
+
+tbody tr:not(:last-child) td {
+  border-bottom: 1px solid var(--panel-border);
+}
+```
+
+**Delete Button Pattern:**
+```vue
+<button 
+  class="link danger" 
+  type="button" 
+  @click="removeEntry(entry.id)" 
+  aria-label="Remove entry" 
+  title="Remove"
+>
+  🗑️
+</button>
+```
+
+**Use this demo as reference for:**
+- Table layouts in new features
+- Icon-based action buttons
+- Modal forms with validation
+- CRUD operations with local storage
 
 ### 4. XML Tree Viewer
 **Purpose:** Visualize hierarchical security data

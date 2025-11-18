@@ -11,29 +11,33 @@
     </header>
 
     <section class="table-section">
-      <table>
-        <thead>
-          <tr>
-            <th>Technical Requirement Class</th>
-            <th>Component</th>
-            <th>Description</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="entry in sfrEntries" :key="entry.id">
-            <td>{{ entry.classCode }}</td>
-            <td>{{ entry.componentId }}</td>
-            <td>{{ entry.summary }}</td>
-            <td class="actions">
-              <button class="link danger" type="button" @click="removeEntry(entry.id)">Remove</button>
-            </td>
-          </tr>
-          <tr v-if="sfrEntries.length === 0">
-            <td colspan="4" class="empty-state">No entries yet. Click “Add Technical Requirement” to create one.</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>Technical Requirement Class</th>
+              <th>Component</th>
+              <th>Description</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="entry in sfrEntries" :key="entry.id">
+              <td>{{ entry.classCode }}</td>
+              <td>{{ entry.componentId }}</td>
+              <td>{{ entry.summary }}</td>
+              <td class="actions">
+                <button class="link danger" type="button" @click="removeEntry(entry.id)" aria-label="Remove entry" title="Remove">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+            <tr v-if="sfrEntries.length === 0">
+              <td colspan="4" class="empty-state">No entries yet. Click “Add Technical Requirement” to create one.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </div>
 

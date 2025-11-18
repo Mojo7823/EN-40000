@@ -95,8 +95,11 @@ import {
   subscribeDocumentWorkspace,
   updateCoverState,
   type DocumentWorkspaceState,
+  type RegulatoryConformanceState,
 } from '../../services/documentWorkspace'
 import { dataUrlToFile } from '../../utils/dataUrl'
+import { CONFORMANCE_LEVEL_OPTIONS, REGULATORY_PRIMARY_REFERENCES } from '../../constants/conformance'
+import type { ConformanceLevelState } from '../../types/conformance'
 
 const lifecyclePhases = [
   'Concept and planning',
@@ -223,6 +226,55 @@ function formatMultiline(value?: string | null, placeholder = '—') {
   return escapeHtml(trimmed).replace(/\n/g, '<br />')
 }
 
+function summarizeRegulatoryEntries(state?: RegulatoryConformanceState) {
+  if (!state || !Array.isArray(state.additionalRegulations)) return ''
+  return state.additionalRegulations
+    .map((entry) => entry.regulation || entry.description)
+    .map((value) => value?.trim() ?? '')
+    .filter((value) => value.length > 0)
+    .slice(0, 3)
+    .join(', ')
+}
+
+function buildRegulatoryHtml(state?: RegulatoryConformanceState) {
+  const baseList = REGULATORY_PRIMARY_REFERENCES.map((item) => `<li>${escapeHtml(item)}</li>`).join('')
+  const otherEntries = (state?.additionalRegulations ?? [])
+    .map((entry) => {
+      const regulation = entry.regulation?.trim() ?? ''
+      const description = entry.description?.trim() ?? ''
+      if (!regulation && !description) return ''
+      const label = regulation ? `<strong>${escapeHtml(regulation)}</strong>` : ''
+      const detail = description ? `${regulation ? ' — ' : ''}${escapeHtml(description)}` : ''
+      const content = label ? `${label}${detail}` : detail || '—'
+      return `<li>${content}</li>`
+    })
+    .filter(Boolean)
+    .join('')
+  const otherSection = otherEntries ? `<p>Other Applicable Regulations:</p><ul>${otherEntries}</ul>` : ''
+
+  return `<p>[Reference: Annex C - Relationship with CRA]</p>
+<p>This product is intended to conform to the essential cybersecurity requirements of:</p>
+<ul>${baseList}</ul>
+${otherSection}`
+}
+
+function buildConformanceLevelHtml(state?: ConformanceLevelState) {
+  const statuses = state?.statuses ?? []
+  const statusLine = CONFORMANCE_LEVEL_OPTIONS.map((option) => {
+    const symbol = statuses.includes(option.value) ? '☑' : '☐'
+    return `${symbol} ${option.label}`
+  }).join(' ')
+  const justificationHtml =
+    state?.justificationHtml && stripHtml(state.justificationHtml) ? state.justificationHtml : ''
+  const justificationBlock =
+    justificationHtml || '<p>[Explain which requirements are not met and why]</p>'
+
+  return `<p><strong>Overall Conformance Status:</strong></p>
+<p>${statusLine}</p>
+<p><strong>Justification for Partial Conformance (if applicable):</strong></p>
+${justificationBlock}`
+}
+
 function buildSectionStatuses() {
   return [
     createStatus(
@@ -343,15 +395,18 @@ function buildSectionStatuses() {
     createStatus(
       'conformance-regulatory',
       'Regulatory Conformance',
-      'Narrative covering CRA clauses and other mandates.',
-      [stripHtml(conformanceClaim.value.regulatoryConformanceHtml)],
+      'CRA clauses plus other applicable regulations.',
+      [summarizeRegulatoryEntries(conformanceClaim.value.regulatoryConformance)],
       '/conformance/regulatory'
     ),
     createStatus(
       'conformance-level',
       'Conformance Level',
       'Claimed assurance tier and supporting evidence.',
-      [stripHtml(conformanceClaim.value.conformanceLevelHtml)],
+      [
+        conformanceClaim.value.conformanceLevel.statuses.length ? 'status' : '',
+        stripHtml(conformanceClaim.value.conformanceLevel.justificationHtml),
+      ],
       '/conformance/level'
     ),
   ]
@@ -516,8 +571,11 @@ async function generatePreview() {
           }
         : undefined
 
-    const regulatoryHtml = normalizeHtml(conformanceClaim.value.regulatoryConformanceHtml)
-    const conformanceLevelHtml = normalizeHtml(conformanceClaim.value.conformanceLevelHtml)
+    const regulatoryState = conformanceClaim.value.regulatoryConformance
+    const regulatoryHtml = normalizeHtml(buildRegulatoryHtml(regulatoryState))
+    const conformanceLevelHtml = normalizeHtml(
+      buildConformanceLevelHtml(conformanceClaim.value.conformanceLevel)
+    )
     const conformanceClaimPayload =
       standardsConformancePayload || regulatoryHtml || conformanceLevelHtml
         ? {

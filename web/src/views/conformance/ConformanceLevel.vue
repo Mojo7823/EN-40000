@@ -19,21 +19,36 @@
       <header class="description-header">
         <p class="section-heading">3.3 Conformance Level</p>
         <p class="muted italic">
-          Explain the claimed level (e.g., Basic, Substantial, High) and cite the controls or evaluation evidence that
-          justify it.
+          Select the overall status and provide context for partial or non-conformance claims.
         </p>
       </header>
-      <RichTextEditor
-        v-model="editorValue"
-        min-height="260px"
-        placeholder="State the claimed conformance level, supporting evidence, and any constraints or dependencies."
-      />
+
+      <div class="conformance-level-status-grid">
+        <label v-for="option in levelOptions" :key="option.value" class="status-option">
+          <input
+            type="checkbox"
+            :checked="form.statuses.includes(option.value)"
+            @change="onStatusToggle(option.value, $event)"
+          />
+          <span>{{ option.label }}</span>
+        </label>
+      </div>
+      <p class="small-note">Select the status that best represents the overall CRA readiness.</p>
+
+      <div class="justification-editor">
+        <p class="section-subtitle">Justification for Partial Conformance (if applicable)</p>
+        <RichTextEditor
+          v-model="form.justificationHtml"
+          min-height="220px"
+          placeholder="Explain which requirements are not met and why. Cite remediation plans or mitigating controls."
+        />
+      </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import RichTextEditor from '../../components/RichTextEditor.vue'
 import {
   loadDocumentWorkspace,
@@ -41,23 +56,55 @@ import {
   updateConformanceClaimState,
   type DocumentWorkspaceState,
 } from '../../services/documentWorkspace'
+import type { ConformanceLevelState, ConformanceLevelStatus } from '../../types/conformance'
+import { CONFORMANCE_LEVEL_OPTIONS } from '../../constants/conformance'
 
+const levelOptions = CONFORMANCE_LEVEL_OPTIONS
 const initialState = loadDocumentWorkspace()
-const editorValue = ref(initialState.conformanceClaim.conformanceLevelHtml || '')
+const form = reactive<ConformanceLevelState>({
+  statuses: [...initialState.conformanceClaim.conformanceLevel.statuses],
+  justificationHtml: initialState.conformanceClaim.conformanceLevel.justificationHtml ?? '',
+})
+
 const suppressNextSync = ref(false)
 let unsubscribe: (() => void) | null = null
 
-watch(editorValue, (value) => {
-  if (suppressNextSync.value) {
-    suppressNextSync.value = false
-    return
-  }
-  updateConformanceClaimState({ conformanceLevelHtml: value })
-})
+watch(
+  form,
+  () => {
+    if (suppressNextSync.value) {
+      suppressNextSync.value = false
+      return
+    }
+    persistState()
+  },
+  { deep: true }
+)
+
+function persistState() {
+  updateConformanceClaimState({
+    conformanceLevel: {
+      statuses: [...form.statuses],
+      justificationHtml: form.justificationHtml,
+    },
+  })
+}
 
 function applyExternalState(state: DocumentWorkspaceState) {
   suppressNextSync.value = true
-  editorValue.value = state.conformanceClaim.conformanceLevelHtml || ''
+  form.statuses = [...state.conformanceClaim.conformanceLevel.statuses]
+  form.justificationHtml = state.conformanceClaim.conformanceLevel.justificationHtml ?? ''
+}
+
+function onStatusToggle(status: ConformanceLevelStatus, event: Event) {
+  const checked = (event.target as HTMLInputElement).checked
+  if (checked) {
+    if (!form.statuses.includes(status)) {
+      form.statuses = [...form.statuses, status]
+    }
+  } else {
+    form.statuses = form.statuses.filter((value) => value !== status)
+  }
 }
 
 onMounted(() => {
@@ -70,4 +117,3 @@ onUnmounted(() => {
 </script>
 
 <style scoped src="./ConformancePages.css"></style>
-

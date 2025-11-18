@@ -1,6 +1,17 @@
 import { sessionService } from './sessionService'
-import type { ConformanceStandardEntry } from '../types/conformance'
-import { buildDefaultPrimaryStandard, buildDefaultRelatedStandards } from '../constants/conformance'
+import type {
+  ConformanceLevelState,
+  ConformanceLevelStatus,
+  ConformanceStandardEntry,
+  RegulatoryReferenceEntry,
+} from '../types/conformance'
+import {
+  buildDefaultPrimaryStandard,
+  buildDefaultRelatedStandards,
+  buildDefaultRegulatoryEntries,
+  generateRegulationEntryId,
+  CONFORMANCE_LEVEL_OPTIONS,
+} from '../constants/conformance'
 
 export interface CoverFormState {
   deviceName: string
@@ -76,10 +87,14 @@ export interface StandardsConformanceState {
   otherNotes: string
 }
 
+export interface RegulatoryConformanceState {
+  additionalRegulations: RegulatoryReferenceEntry[]
+}
+
 export interface ConformanceClaimState {
   standardsConformance: StandardsConformanceState
-  regulatoryConformanceHtml: string
-  conformanceLevelHtml: string
+  regulatoryConformance: RegulatoryConformanceState
+  conformanceLevel: ConformanceLevelState
 }
 
 export interface DocumentWorkspaceState {
@@ -94,6 +109,9 @@ export interface DocumentWorkspaceState {
 }
 
 const STORAGE_KEY = 'cratool_document_workspace'
+const CONFORMANCE_LEVEL_VALUE_SET = new Set<ConformanceLevelStatus>(
+  CONFORMANCE_LEVEL_OPTIONS.map((option) => option.value)
+)
 
 const defaultCoverState: CoverFormState = {
   deviceName: '',
@@ -188,17 +206,66 @@ function cloneStandardsConformanceState(state?: StandardsConformanceState): Stan
   }
 }
 
-function cloneConformanceClaimState(state?: ConformanceClaimState): ConformanceClaimState {
+function cloneRegulatoryConformanceState(
+  state?: RegulatoryConformanceState,
+  legacyHtml?: string
+): RegulatoryConformanceState {
+  const baseEntries = state?.additionalRegulations?.length
+    ? state.additionalRegulations
+    : buildDefaultRegulatoryEntries()
+  const clonedEntries = baseEntries.map((entry) => ({ ...entry }))
+
+  const legacyText = typeof legacyHtml === 'string' ? legacyHtml.replace(/<[^>]+>/g, '').trim() : ''
+  if (!state?.additionalRegulations?.length && legacyText) {
+    clonedEntries.push({
+      id: generateRegulationEntryId(),
+      regulation: 'Legacy Narrative',
+      description: legacyText,
+      source: 'custom',
+    })
+  }
+
+  return {
+    additionalRegulations: clonedEntries,
+  }
+}
+
+function normalizeConformanceStatuses(statuses?: ConformanceLevelStatus[]): ConformanceLevelStatus[] {
+  if (!Array.isArray(statuses)) {
+    return []
+  }
+  return statuses.filter((status): status is ConformanceLevelStatus => CONFORMANCE_LEVEL_VALUE_SET.has(status))
+}
+
+function cloneConformanceLevelState(
+  state?: ConformanceLevelState,
+  legacyHtml?: string
+): ConformanceLevelState {
+  return {
+    statuses: normalizeConformanceStatuses(state?.statuses),
+    justificationHtml: state?.justificationHtml ?? legacyHtml ?? '',
+  }
+}
+
+function cloneConformanceClaimState(
+  state?: Partial<ConformanceClaimState> & {
+    regulatoryConformanceHtml?: string
+    conformanceLevelHtml?: string
+  }
+): ConformanceClaimState {
   const source =
     state ?? {
       standardsConformance: buildDefaultStandardsConformanceState(),
-      regulatoryConformanceHtml: '',
-      conformanceLevelHtml: '',
+      regulatoryConformance: { additionalRegulations: buildDefaultRegulatoryEntries() },
+      conformanceLevel: { statuses: [], justificationHtml: '' },
     }
   return {
     standardsConformance: cloneStandardsConformanceState(source.standardsConformance),
-    regulatoryConformanceHtml: source.regulatoryConformanceHtml ?? '',
-    conformanceLevelHtml: source.conformanceLevelHtml ?? '',
+    regulatoryConformance: cloneRegulatoryConformanceState(
+      source.regulatoryConformance,
+      source.regulatoryConformanceHtml
+    ),
+    conformanceLevel: cloneConformanceLevelState(source.conformanceLevel, source.conformanceLevelHtml),
   }
 }
 
@@ -432,6 +499,8 @@ export function updateConformanceClaimState(
 ): DocumentWorkspaceState {
   const current = inMemoryState.conformanceClaim
   const baseStandards = current.standardsConformance
+  const baseRegulatory = current.regulatoryConformance
+  const baseConformanceLevel = current.conformanceLevel
   const patchedStandards = patch.standardsConformance
     ? {
         primaryStandard: {
@@ -446,14 +515,37 @@ export function updateConformanceClaimState(
         otherNotes: patch.standardsConformance.otherNotes ?? baseStandards.otherNotes,
       }
     : baseStandards
+  const patchedRegulatory = patch.regulatoryConformance
+    ? {
+        additionalRegulations:
+          patch.regulatoryConformance.additionalRegulations !== undefined
+            ? patch.regulatoryConformance.additionalRegulations.map((entry) => ({ ...entry }))
+            : baseRegulatory.additionalRegulations.map((entry) => ({ ...entry })),
+      }
+    : baseRegulatory
+  const patchedConformanceLevel = patch.conformanceLevel
+    ? {
+        statuses:
+          patch.conformanceLevel.statuses !== undefined
+            ? normalizeConformanceStatuses(patch.conformanceLevel.statuses)
+            : normalizeConformanceStatuses(baseConformanceLevel.statuses),
+        justificationHtml: patch.conformanceLevel.justificationHtml ?? baseConformanceLevel.justificationHtml,
+      }
+    : baseConformanceLevel
 
   const nextClaim: ConformanceClaimState = {
     standardsConformance:
       patch.standardsConformance !== undefined
         ? patchedStandards
         : cloneStandardsConformanceState(baseStandards),
-    regulatoryConformanceHtml: patch.regulatoryConformanceHtml ?? current.regulatoryConformanceHtml,
-    conformanceLevelHtml: patch.conformanceLevelHtml ?? current.conformanceLevelHtml,
+    regulatoryConformance:
+      patch.regulatoryConformance !== undefined
+        ? patchedRegulatory
+        : cloneRegulatoryConformanceState(baseRegulatory),
+    conformanceLevel:
+      patch.conformanceLevel !== undefined
+        ? patchedConformanceLevel
+        : cloneConformanceLevelState(baseConformanceLevel),
   }
 
   const next: DocumentWorkspaceState = {

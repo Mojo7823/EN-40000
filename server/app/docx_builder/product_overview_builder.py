@@ -10,9 +10,10 @@ from .html_converter import append_html_to_document
 DESCRIPTION_PLACEHOLDER = (
     "[Provide a detailed description of the product highlighting physical, software, connectivity, user interface, and data processing characteristics.]"
 )
-DESCRIPTION_PAGE_CHAR_LIMIT = 2800
-ARCHITECTURE_PAGE_CHAR_LIMIT = 2800
-MIN_CHARS_BEFORE_BREAK = 1200
+DESCRIPTION_PAGE_CHAR_LIMIT = 4200
+ARCHITECTURE_PAGE_CHAR_LIMIT = 4200
+MIN_BREAK_RATIO = 0.85
+MIN_BREAK_FLOOR = 2000
 
 
 def append_product_overview_section(document: Document, overview_data: Any):
@@ -288,6 +289,7 @@ def _chunk_html_content(html_content: str, char_limit: int) -> List[str]:
     chunks: List[str] = []
     current: List[str] = []
     running_length = 0
+    min_chars_before_break = max(int(char_limit * MIN_BREAK_RATIO), MIN_BREAK_FLOOR)
 
     for child in fragment:
         serialized = etree.tostring(child, encoding="unicode", with_tail=False)
@@ -300,7 +302,7 @@ def _chunk_html_content(html_content: str, char_limit: int) -> List[str]:
             running_length = text_length
             continue
 
-        if running_length + text_length > char_limit and running_length >= MIN_CHARS_BEFORE_BREAK:
+        if running_length + text_length > char_limit and running_length >= min_chars_before_break:
             chunks.append("".join(current))
             current = [serialized]
             running_length = text_length
