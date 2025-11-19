@@ -210,6 +210,45 @@ web/
 - Refresh button re-reads localStorage; file picker loads saved snapshots (updates other pages)
 - Mirrors demo storage UI but scoped to cover + introduction state
 
+#### Document Convention (`web/src/views/convention/`)
+**Purpose:** Define terminology, evidence notation, requirement notation, and assessment verdicts used throughout the CRA documentation (Section 4).
+
+**Four Subsections:**
+
+1. **Terminology** (`Terminology.vue`)
+   - CRUD table for managing terms and definitions
+   - Click-to-edit rows with modal form
+   - Default entries: Product with digital elements, Cybersecurity, Vulnerability, Risk, RDPS, SBOM, IPRFU
+   - References prEN 40000-1-1 (Vocabulary) and Regulation (EU) 2024/2847
+   - Data persists in `documentWorkspace.documentConvention.terminologyEntries`
+
+2. **Evidence Notation** (`EvidenceNotation.vue`)
+   - Three rich text editors for:
+     - Evidence Reference Format ([EV-XXX], [DOC-XXX], [TEST-XXX], [CODE-XXX])
+     - Evidence Categories (Design Documents, Implementation, Test Evidence, Process Evidence)
+     - Example References
+   - Auto-saves to workspace on change
+
+3. **Requirement Notation** (`RequirementNotation.vue`)
+   - Three rich text editors for:
+     - Requirement Reference Format (Clause X.Y.Z, REQ-XYZ, [Essential], [Conditional])
+     - Requirement Categories (Design, Lifecycle, Risk Management, Vulnerability Management)
+     - Conformance Statement Format (Requirement Statement, Applicability, Implementation, Evidence, Verdict)
+   - Auto-saves to workspace on change
+
+4. **Assessment Verdicts** (`AssessmentVerdicts.vue`)
+   - Three rich text editors for:
+     - Verdict Categories (PASS, FAIL, NOT APPLICABLE, CONDITIONAL PASS)
+     - Assessment Criteria (Evidence Completeness, Implementation Correctness, Test Results, Documentation Quality)
+     - Overall Conformance Determination
+   - Auto-saves to workspace on change
+
+**Backend Integration:**
+- Schema: `DocumentConventionSection` in `server/app/schemas.py`
+- Builder: `document_convention_builder.py` renders Section 4 in DOCX
+- Preview: Included in `/cover/preview` endpoint payload
+- DOCX: Section 4 starts on new page with terminology table and formatted subsections
+
 ### 3. DOCX Preview Engine (Demo)
 **File:** `web/src/views/demo/DocxPreviewDemo.vue`
 
@@ -260,58 +299,223 @@ web/
 - **Add requirements** via modal dialog with validation
 - **Delete requirements** with trash icon button (🗑️)
 - **Professional table styling** with proper borders and alignment
-- **Interactive hover effects** on delete buttons
+- **Interactive hover effects** on table rows
 - **Persistent storage** via demoStorage service
 - **Empty state handling** with helpful messaging
 
-**Recent Improvements (January 2025):**
-- ✅ Replaced "Remove" text with trash icon (🗑️) for better UX
-- ✅ Fixed table border alignment - borders now span fully to edges
-- ✅ Changed `border-collapse` from `collapse` to `separate` for better border control
-- ✅ Added hover effects on trash icon (background highlight + scale animation)
-- ✅ Proper cell border management (between cells only, not on outer edges)
-- ✅ **Pattern Applied To:** Third-Party Components (`/product-overview/third-party-components`) and Standards Conformance (`/conformance/standards`)
+## 🎨 **Unified Table Design System** (Updated February 2025)
 
-> ⚠️ **Important:** The legacy table-formatting procedure described below is outdated. Follow the live responsive implementations in `web/src/views/product/ThirdPartyComponents.css` and `web/src/views/conformance/ConformancePages.css` (min-width tables inside scrollable shells + centered action columns) until this documentation is fully rewritten.
+All tables across the application now follow a **consistent, clean design pattern**. When creating or updating tables, follow these guidelines:
 
-**Table Styling Pattern:**
+### **HTML Structure:**
+
+```vue
+<section class="card content-card">
+  <article class="template-body">
+    <p class="section-heading">Section Title</p>
+    <p class="reference-line">[Reference: Clause X.Y]</p>
+    <p>Description text</p>
+  </article>
+
+  <div class="table-section">
+    <div class="table-wrapper">
+      <table class="your-table-name">
+        <thead>
+          <tr>
+            <th>Column 1</th>
+            <th>Column 2</th>
+            <th class="action-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="entries.length === 0">
+            <td class="empty-state" colspan="3">No entries yet.</td>
+          </tr>
+          <tr 
+            v-for="entry in entries" 
+            :key="entry.id"
+            class="clickable-row"
+            @click="openEditModal(entry)"
+          >
+            <td>{{ entry.field1 }}</td>
+            <td>{{ entry.field2 }}</td>
+            <td class="action-column" @click.stop>
+              <button class="link danger" @click="removeEntry(entry.id)">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn primary" @click="openAddModal">Add Entry</button>
+  </div>
+</section>
+```
+
+### **CSS Styling Pattern:**
+
 ```css
-table {
-  border-collapse: separate;  /* Important for border control */
-  border-spacing: 0;
-  border: 1px solid var(--panel-border);
+/* Card and layout */
+.content-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;  /* Important: proper spacing from edges */
+}
+
+.template-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.6;
+}
+
+.section-heading {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);  /* Plain text, not colored */
+  margin: 0;
+}
+
+.reference-line {
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Table container */
+.table-section {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
   border-radius: 12px;
+  border: 1px solid var(--panel-border);
 }
 
-/* Borders between cells only */
-th:not(:last-child),
-td:not(:last-child) {
-  border-right: 1px solid var(--panel-border);
+/* Table styling */
+.your-table-name {
+  width: 100%;
+  min-width: 700px;  /* Adjust based on content */
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-tbody tr:not(:last-child) td {
+.your-table-name thead {
+  background: var(--surface-alt);
+}
+
+.your-table-name th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.your-table-name td {
+  padding: 12px 16px;
+  text-align: left;
   border-bottom: 1px solid var(--panel-border);
 }
+
+/* Hover effects - only on data rows */
+.your-table-name tbody tr.clickable-row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.your-table-name tbody tr.clickable-row:hover {
+  background: var(--surface-alt);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.your-table-name tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Action column */
+.action-column {
+  width: 100px;
+  text-align: center !important;
+}
+
+.your-table-name .link.danger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 1.2rem;
+  transition: transform 0.2s, background-color 0.2s;
+  border-radius: 6px;
+}
+
+.your-table-name .link.danger:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 59, 48, 0.1);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center !important;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 32px 16px !important;
+}
 ```
 
-**Delete Button Pattern:**
+### **Special Features:**
+
+**For tables with checkboxes (e.g., Third-Party Components):**
+
 ```vue
-<button 
-  class="link danger" 
-  type="button" 
-  @click="removeEntry(entry.id)" 
-  aria-label="Remove entry" 
-  title="Remove"
->
-  🗑️
-</button>
+<th class="checkbox-column"></th>
+<td class="checkbox-column" @click.stop>
+  <input type="checkbox" :checked="isSelected(entry.id)" @change="toggleRowSelection(entry.id)" />
+</td>
 ```
 
-**Use this demo as reference for:**
-- Table layouts in new features
-- Icon-based action buttons
-- Modal forms with validation
-- CRUD operations with local storage
+```css
+.checkbox-column {
+  width: 52px;
+  min-width: 52px;
+  max-width: 52px;
+  text-align: center !important;
+}
+
+.your-table-name input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+```
+
+### **Key Design Principles:**
+
+✅ **Consistent padding:** All cards use `padding: 24px` - content should never touch edges
+✅ **Plain headings:** Section headings use `color: var(--text)`, not blue or other colors
+✅ **Clean borders:** Border only around the table wrapper, bottom borders between rows
+✅ **Smooth hover:** Subtle shadow + 1px lift on hover for clickable rows
+✅ **Centered actions:** Action columns (delete/edit icons) are centered
+✅ **Empty states:** Friendly messages when tables are empty
+✅ **Responsive:** Tables scroll horizontally on smaller screens
+
+### **Pages Using This Pattern:**
+
+✅ Document Convention - Terminology
+✅ Document Convention - Evidence/Requirement/Assessment pages
+✅ Standards Conformance
+✅ Regulatory Conformance
+✅ Third-Party Components (with checkboxes)
+✅ Requirements Table Demo
+
+**Use this pattern for all new table implementations!**
 
 ### 4. XML Tree Viewer
 **Purpose:** Visualize hierarchical security data
@@ -510,6 +714,60 @@ TextAlign.configure({
   types: ['heading', 'paragraph', 'image']  // Important: includes 'image'!
 }),
 ```
+
+### **Modal Pattern**
+
+All modals across the application follow the **ModalDemo pattern** for consistency:
+
+**Reference:** `web/src/views/demo/ModalDemo.vue`
+
+**Structure:**
+```vue
+<div v-if="showModal" class="demo-modal-overlay" @click="closeModal">
+  <div class="demo-modal" role="dialog" aria-modal="true" @click.stop>
+    <header class="demo-modal-header">
+      <h2 id="modalTitle">Modal Title</h2>
+      <button class="modal-close" @click="closeModal" aria-label="Close">×</button>
+    </header>
+    <form class="demo-modal-body" @submit.prevent="saveEntry">
+      <!-- Form fields here -->
+    </form>
+    <footer class="demo-modal-footer">
+      <div class="modal-footer-left">
+        <button v-if="editMode" class="btn danger" @click="deleteEntry">Delete</button>
+      </div>
+      <div class="modal-footer-right">
+        <button class="btn ghost" @click="closeModal">Cancel</button>
+        <button class="btn primary" type="button" @click="saveEntry">Save</button>
+      </div>
+    </footer>
+  </div>
+</div>
+```
+
+**CSS:**
+```css
+.demo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+}
+
+.demo-modal {
+  width: min(600px, 100%);
+  background: var(--panel);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+```
+
+**Used in:**
+- Terminology (add/edit terms)
+- Third-Party Components (add/edit components)
+- Standards/Regulatory Conformance (add/edit entries)
+- Requirements Table Demo (add/edit requirements)
 
 ---
 
@@ -750,6 +1008,20 @@ grep -r "ComponentName" web/src/
 11. **Manufacturer Information rollout** – New form + workspace state populates section 1.4 and displays in the preview & completion tracker.
 12. **Product Overview rollout** – Sidebar accordion + TipTap editor for Section 2.1 Product Description with dedicated DOCX builder.
 13. **Preview refactor (Real Document Approach)** – Removed smart pagination logic from conformance_claim_builder and product_overview_builder. Preview now uses the actual generated DOCX file instead of attempting to predict pagination, ensuring 100% accuracy between preview and export. Word handles natural pagination while we maintain clean section breaks.
+14. **Document Convention section** (February 2025) – Added Section 4 with four subsections:
+    - Terminology (CRUD table with click-to-edit rows)
+    - Evidence Notation (rich text editors for format, categories, examples)
+    - Requirement Notation (rich text editors for format, categories, conformance)
+    - Assessment Verdicts (rich text editors for verdicts, criteria, determination)
+    - Full workspace persistence and DOCX generation with page break
+15. **Unified Table Design System** (February 2025) – Complete standardization of all tables across the application:
+    - Removed nested cards and toolbars for cleaner structure
+    - Consistent `.table-wrapper` with rounded borders
+    - Smooth hover effects (shadow + 1px lift) on clickable rows
+    - Centered action columns with trash icon hover effects
+    - Proper card padding (24px) so content doesn't touch edges
+    - Plain section headings (no colored text)
+    - Applied to: Standards Conformance, Regulatory Conformance, Third-Party Components, Terminology, and all demo tables
 
 ---
 

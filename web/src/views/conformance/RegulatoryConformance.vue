@@ -32,68 +32,38 @@
       </div>
     </section>
 
-    <section class="card form-card standards-table-card">
-      <header class="description-header">
+    <section class="card content-card">
+      <article class="template-body">
         <p class="section-heading">Other Applicable Regulations</p>
-        <p class="muted italic">
+        <p>
           List complementary regulations or directives (e.g., privacy, accessibility, safety) that reinforce the CRA
           conformance claim.
         </p>
-      </header>
+      </article>
 
-      <div class="table-toolbar">
-        <div class="table-actions">
-          <button class="btn primary" type="button" @click="openCreateModal">Add Regulation</button>
-        </div>
-        <div class="table-controls">
-          <div class="table-pagination" v-if="totalPages > 1">
-            <button
-              class="btn-icon"
-              type="button"
-              :disabled="currentPage <= 1"
-              @click="goToPreviousPage"
-              aria-label="Previous page"
-            >
-              ‹
-            </button>
-            <span class="page-label">Page {{ currentPage }} / {{ totalPages }}</span>
-            <button
-              class="btn-icon"
-              type="button"
-              :disabled="currentPage >= totalPages"
-              @click="goToNextPage"
-              aria-label="Next page"
-            >
-              ›
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <section class="table-section">
-        <div class="table-shell">
+      <div class="table-section">
+        <div class="table-wrapper">
           <table class="regulations-table">
             <thead>
               <tr>
                 <th>Regulation</th>
                 <th>Description</th>
-                <th class="actions">Actions</th>
+                <th class="action-column">Actions</th>
               </tr>
             </thead>
             <tbody>
+              <tr v-if="form.additionalRegulations.length === 0">
+                <td class="empty-state" colspan="3">No regulations captured yet.</td>
+              </tr>
               <tr
                 v-for="entry in paginatedEntries"
                 :key="entry.id"
-                role="button"
-                class="table-row"
-                tabindex="0"
+                class="clickable-row"
                 @click="openEditModal(entry)"
-                @keydown.enter.prevent="openEditModal(entry)"
-                @keydown.space.prevent="openEditModal(entry)"
               >
                 <td>{{ entry.regulation || '—' }}</td>
                 <td>{{ entry.description || '—' }}</td>
-                <td class="actions" @click.stop>
+                <td class="action-column" @click.stop>
                   <button
                     class="link danger"
                     type="button"
@@ -105,13 +75,11 @@
                   </button>
                 </td>
               </tr>
-              <tr v-if="form.additionalRegulations.length === 0">
-                <td class="empty-state" colspan="3">No regulations captured yet.</td>
-              </tr>
             </tbody>
           </table>
         </div>
-      </section>
+        <button class="btn primary" type="button" @click="openCreateModal">Add Regulation</button>
+      </div>
     </section>
 
     <div v-if="isModalOpen" class="tp-modal-overlay" @click="closeModal">

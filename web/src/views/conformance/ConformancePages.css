@@ -26,10 +26,41 @@
 }
 
 .form-card {
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.content-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.template-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.6;
+}
+
+.template-body ul {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.section-heading {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.reference-line {
+  font-weight: 600;
+  margin: 0;
 }
 
 .description-header .section-heading {
@@ -95,63 +126,97 @@
   width: 100%;
 }
 
-.table-shell {
-  min-width: 100%;
-  width: fit-content;
+/* Table section wrapper */
+.table-section {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+/* Table wrapper with border and rounded corners */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+}
+
+/* Unified table styling - clean design like Terminology */
 .standards-table,
 .regulations-table {
   width: 100%;
-  min-width: 450px;
+  min-width: 700px;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  table-layout: auto;
 }
 
-.standards-table th,
-.standards-table td,
-.regulations-table th,
-.regulations-table td {
-  padding: 12px;
-  text-align: left;
-  vertical-align: top;
-}
-
-.standards-table th:not(:last-child),
-.standards-table td:not(:last-child),
-.regulations-table th:not(:last-child),
-.regulations-table td:not(:last-child) {
-  border-right: 1px solid var(--panel-border);
-}
-
-.standards-table thead tr th,
-.regulations-table thead tr th {
-  border-bottom: 1px solid var(--panel-border);
-}
-
-.standards-table tbody tr,
-.regulations-table tbody tr {
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.standards-table tbody tr:hover,
-.regulations-table tbody tr:hover {
-  background: var(--surface-overlay);
+.standards-table thead,
+.regulations-table thead {
+  background: var(--surface-alt);
 }
 
 .standards-table th,
 .regulations-table th {
-  background: var(--surface-muted);
-  font-weight: 600;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
 }
 
-.standards-table tbody tr:not(:last-child) td,
-.regulations-table tbody tr:not(:last-child) td {
+.standards-table td,
+.regulations-table td {
+  padding: 12px 16px;
+  text-align: left;
   border-bottom: 1px solid var(--panel-border);
+}
+
+.standards-table tbody tr.clickable-row,
+.regulations-table tbody tr.clickable-row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.standards-table tbody tr.clickable-row:hover,
+.regulations-table tbody tr.clickable-row:hover {
+  background: var(--surface-alt);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.standards-table tbody tr:last-child td,
+.regulations-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.action-column {
+  width: 100px;
+  text-align: center !important;
+}
+
+.standards-table .link.danger,
+.regulations-table .link.danger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 1.2rem;
+  transition: transform 0.2s, background-color 0.2s;
+  border-radius: 6px;
+}
+
+.standards-table .link.danger:hover,
+.regulations-table .link.danger:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 59, 48, 0.1);
+}
+
+.empty-state {
+  text-align: center !important;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 32px 16px !important;
 }
 
 /* Regulation/Standard name column */
@@ -313,6 +378,34 @@
   border-radius: 12px;
 }
 
+/* Primary standard content */
+.primary-standard-content {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Legacy support */
 .primary-standard-details .detail {
   display: flex;
   flex-direction: column;

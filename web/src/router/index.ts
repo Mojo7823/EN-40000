@@ -19,6 +19,10 @@ import ThirdPartyComponents from '../views/product/ThirdPartyComponents.vue'
 import StandardsConformance from '../views/conformance/StandardsConformance.vue'
 import RegulatoryConformance from '../views/conformance/RegulatoryConformance.vue'
 import ConformanceLevel from '../views/conformance/ConformanceLevel.vue'
+import Terminology from '../views/convention/Terminology.vue'
+import EvidenceNotation from '../views/convention/EvidenceNotation.vue'
+import RequirementNotation from '../views/convention/RequirementNotation.vue'
+import AssessmentVerdicts from '../views/convention/AssessmentVerdicts.vue'
 
 const routes = [
   { path: '/', name: 'dashboard', component: Dashboard },
@@ -70,6 +74,30 @@ const routes = [
     path: '/conformance/level',
     name: 'conformance-level',
     component: ConformanceLevel,
+  },
+  {
+    path: '/convention/terminology',
+    name: 'convention-terminology',
+    component: Terminology,
+  },
+  {
+    path: '/convention/evidence-notation',
+    name: 'convention-evidence',
+    component: EvidenceNotation,
+  },
+  {
+    path: '/convention/requirement-notation',
+    name: 'convention-requirement',
+    component: RequirementNotation,
+  },
+  {
+    path: '/convention/assessment-verdicts',
+    name: 'convention-assessment',
+    component: AssessmentVerdicts,
+  },
+  {
+    path: '/convention/notation',
+    redirect: '/convention/evidence-notation',
   },
   { path: '/document/preview', name: 'document-preview', component: DocumentPreview },
   { path: '/document/load-save', name: 'document-storage', component: DocumentStorage },

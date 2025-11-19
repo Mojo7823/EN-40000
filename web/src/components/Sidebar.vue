@@ -53,6 +53,21 @@
     </li>
     <li>
       <div class="accordion">
+        <div class="accordion-header" @click="documentConventionOpen = !documentConventionOpen">
+          <span>Document Convention</span>
+          <span>{{ documentConventionOpen ? '▾' : '▸' }}</span>
+        </div>
+        <div v-if="documentConventionOpen" class="accordion-content">
+          <ul class="menu nested">
+            <li v-for="link in documentConventionLinks" :key="link.to">
+              <RouterLink :to="link.to" active-class="active">{{ link.label }}</RouterLink>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="accordion">
         <div class="accordion-header" @click="documentOpen = !documentOpen">
           <span>Document Management</span>
           <span>{{ documentOpen ? '▾' : '▸' }}</span>
@@ -92,6 +107,7 @@ const productOverviewOpen = ref(true)
 const conformanceOpen = ref(true)
 const documentOpen = ref(true)
 const demoOpen = ref(false)
+const documentConventionOpen = ref(true)
 const introductionLinks = [
   { label: 'Document Information', to: '/document/introduction' },
   { label: 'Purpose and Scope', to: '/document/purpose-scope' },
@@ -107,6 +123,12 @@ const conformanceLinks = [
   { label: 'Standards Conformance', to: '/conformance/standards' },
   { label: 'Regulatory Conformance', to: '/conformance/regulatory' },
   { label: 'Conformance Level', to: '/conformance/level' },
+]
+const documentConventionLinks = [
+  { label: 'Terminology', to: '/convention/terminology' },
+  { label: 'Evidence Notation', to: '/convention/evidence-notation' },
+  { label: 'Requirement Notation', to: '/convention/requirement-notation' },
+  { label: 'Assessment Verdicts', to: '/convention/assessment-verdicts' },
 ]
 const documentLinks = [
   { label: 'Document Preview', to: '/document/preview' },

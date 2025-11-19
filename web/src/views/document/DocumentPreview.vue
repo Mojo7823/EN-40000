@@ -409,6 +409,48 @@ function buildSectionStatuses() {
       ],
       '/conformance/level'
     ),
+    createStatus(
+      'terminology',
+      'Terminology',
+      'Terms and definitions used throughout the document.',
+      [
+        workspaceState.value.documentConvention.terminologyEntries.length ? 'entries' : '',
+      ],
+      '/convention/terminology'
+    ),
+    createStatus(
+      'evidence-notation',
+      'Evidence Notation',
+      'Evidence reference format, categories, and examples.',
+      [
+        stripHtml(workspaceState.value.documentConvention.evidenceFormatHtml),
+        stripHtml(workspaceState.value.documentConvention.evidenceCategoriesHtml),
+        stripHtml(workspaceState.value.documentConvention.exampleReferencesHtml),
+      ],
+      '/convention/evidence-notation'
+    ),
+    createStatus(
+      'requirement-notation',
+      'Requirement Notation',
+      'Requirement reference format and conformance statement structure.',
+      [
+        stripHtml(workspaceState.value.documentConvention.requirementFormatHtml),
+        stripHtml(workspaceState.value.documentConvention.requirementCategoriesHtml),
+        stripHtml(workspaceState.value.documentConvention.conformanceFormatHtml),
+      ],
+      '/convention/requirement-notation'
+    ),
+    createStatus(
+      'assessment-verdicts',
+      'Assessment Verdicts',
+      'Verdict categories, criteria, and conformance determination.',
+      [
+        stripHtml(workspaceState.value.documentConvention.verdictCategoriesHtml),
+        stripHtml(workspaceState.value.documentConvention.assessmentCriteriaHtml),
+        stripHtml(workspaceState.value.documentConvention.overallDeterminationHtml),
+      ],
+      '/convention/assessment-verdicts'
+    ),
   ]
 }
 
@@ -585,6 +627,24 @@ async function generatePreview() {
           }
         : undefined
 
+    const documentConvention = workspaceState.value.documentConvention
+    const documentConventionPayload = {
+      terminology_entries: documentConvention.terminologyEntries.map((entry) => ({
+        term: normalize(entry.term),
+        definition: normalize(entry.definition),
+        reference: normalize(entry.reference),
+      })).filter((entry) => entry.term || entry.definition || entry.reference),
+      evidence_format_html: normalizeHtml(documentConvention.evidenceFormatHtml),
+      evidence_categories_html: normalizeHtml(documentConvention.evidenceCategoriesHtml),
+      example_references_html: normalizeHtml(documentConvention.exampleReferencesHtml),
+      requirement_format_html: normalizeHtml(documentConvention.requirementFormatHtml),
+      requirement_categories_html: normalizeHtml(documentConvention.requirementCategoriesHtml),
+      conformance_format_html: normalizeHtml(documentConvention.conformanceFormatHtml),
+      verdict_categories_html: normalizeHtml(documentConvention.verdictCategoriesHtml),
+      assessment_criteria_html: normalizeHtml(documentConvention.assessmentCriteriaHtml),
+      overall_determination_html: normalizeHtml(documentConvention.overallDeterminationHtml),
+    }
+
     const payload = {
       user_id: userId,
       title: productTitle,
@@ -600,6 +660,7 @@ async function generatePreview() {
       product_overview: productOverviewPayload,
       manufacturer_information: manufacturerInformationPayload,
       conformance_claim: conformanceClaimPayload,
+      document_convention: documentConventionPayload,
     }
 
     const response = await api.post('/cover/preview', payload)

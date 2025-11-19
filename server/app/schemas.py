@@ -111,6 +111,26 @@ class ConformanceClaimSection(BaseModel):
     conformance_level_html: Optional[str] = None
 
 
+class DocumentConventionTerminologyEntry(BaseModel):
+    term: Optional[str] = None
+    definition: Optional[str] = None
+    reference: Optional[str] = None
+
+
+class DocumentConventionSection(BaseModel):
+    """Document Convention data for section 4."""
+    terminology_entries: List[DocumentConventionTerminologyEntry] = Field(default_factory=list)
+    evidence_format_html: Optional[str] = None
+    evidence_categories_html: Optional[str] = None
+    example_references_html: Optional[str] = None
+    requirement_format_html: Optional[str] = None
+    requirement_categories_html: Optional[str] = None
+    conformance_format_html: Optional[str] = None
+    verdict_categories_html: Optional[str] = None
+    assessment_criteria_html: Optional[str] = None
+    overall_determination_html: Optional[str] = None
+
+
 class CoverPreviewRequest(BaseModel):
     """Cover page preview request."""
     model_config = ConfigDict(populate_by_name=True)
@@ -129,6 +149,7 @@ class CoverPreviewRequest(BaseModel):
     product_overview: Optional[ProductOverviewSection] = None
     manufacturer_information: Optional[ManufacturerInformationSection] = None
     conformance_claim: Optional[ConformanceClaimSection] = None
+    document_convention: Optional[DocumentConventionSection] = None
 
 
 class HtmlPreviewRequest(BaseModel):

@@ -97,6 +97,26 @@ export interface ConformanceClaimState {
   conformanceLevel: ConformanceLevelState
 }
 
+export interface DocumentConventionTerminologyEntry {
+  id: string
+  term: string
+  definition: string
+  reference: string
+}
+
+export interface DocumentConventionState {
+  terminologyEntries: DocumentConventionTerminologyEntry[]
+  evidenceFormatHtml: string
+  evidenceCategoriesHtml: string
+  exampleReferencesHtml: string
+  requirementFormatHtml: string
+  requirementCategoriesHtml: string
+  conformanceFormatHtml: string
+  verdictCategoriesHtml: string
+  assessmentCriteriaHtml: string
+  overallDeterminationHtml: string
+}
+
 export interface DocumentWorkspaceState {
   cover: CoverFormState
   introduction: IntroductionFormState
@@ -105,6 +125,7 @@ export interface DocumentWorkspaceState {
   manufacturerInformation: ManufacturerInformationState
   productOverview: ProductOverviewState
   conformanceClaim: ConformanceClaimState
+  documentConvention: DocumentConventionState
   lastUpdated: string
 }
 
@@ -112,6 +133,13 @@ const STORAGE_KEY = 'cratool_document_workspace'
 const CONFORMANCE_LEVEL_VALUE_SET = new Set<ConformanceLevelStatus>(
   CONFORMANCE_LEVEL_OPTIONS.map((option) => option.value)
 )
+const TERMINOLOGY_ID_PREFIX = 'term-'
+
+export function generateTerminologyEntryId() {
+  const random = Math.random().toString(36).slice(2, 8)
+  const timestamp = Date.now().toString(36)
+  return `${TERMINOLOGY_ID_PREFIX}${timestamp}-${random}`
+}
 
 const defaultCoverState: CoverFormState = {
   deviceName: '',
@@ -135,6 +163,79 @@ const defaultIntroductionState: IntroductionFormState = {
   preparedBy: '',
   reviewedBy: '',
   approvedBy: '',
+}
+
+const defaultTerminologyEntries: DocumentConventionTerminologyEntry[] = [
+  {
+    id: 'term-product',
+    term: 'Product with digital elements',
+    definition:
+      'A product or system that contains digital components or software functions which can process, transmit, or store data.',
+    reference: 'Regulation (EU) 2024/2847',
+  },
+  {
+    id: 'term-cybersecurity',
+    term: 'Cybersecurity',
+    definition:
+      'The ability to protect devices, networks, and services from digital attacks that compromise confidentiality, integrity, or availability.',
+    reference: 'prEN 40000-1-1',
+  },
+  {
+    id: 'term-vulnerability',
+    term: 'Vulnerability',
+    definition:
+      'A weakness in design, implementation, or operation that an attacker could exploit to compromise the product.',
+    reference: 'Regulation (EU) 2024/2847',
+  },
+  {
+    id: 'term-risk',
+    term: 'Risk',
+    definition:
+      'The combination of the likelihood of a cybersecurity event occurring and the severity of its impact.',
+    reference: 'prEN 40000-1-1',
+  },
+  {
+    id: 'term-rdps',
+    term: 'RDPS',
+    definition:
+      'Remote Digital Product Support services used to monitor, configure, or update the product post-deployment.',
+    reference: 'EN 40000-1-2',
+  },
+  {
+    id: 'term-sbom',
+    term: 'SBOM',
+    definition: 'Software Bill of Materials describing all software components within the product.',
+    reference: 'ENISA SBOM requirements',
+  },
+  {
+    id: 'term-iprfu',
+    term: 'IPRFU',
+    definition:
+      'Installed Product Release and Field Updates covering deployed versions and corrective maintenance.',
+    reference: 'Internal engineering procedure',
+  },
+]
+
+const defaultDocumentConventionState: DocumentConventionState = {
+  terminologyEntries: defaultTerminologyEntries.map((entry) => ({ ...entry })),
+  evidenceFormatHtml:
+    '<p>Evidence references are presented in <span style="color: #0f9d58"><strong>[EVD-XXX]</strong></span> format and appear inline with the narrative to keep the assessment traceable.</p><p><strong>[DOC-XXX]</strong> refers to supporting documentation, while <strong>[TEST-XXX]</strong> and <strong>[CODE-XXX]</strong> capture verification and implementation evidence.</p>',
+  evidenceCategoriesHtml:
+    '<ul><li><p><strong>Design Documents</strong> – Architecture diagrams, interface specifications, data flows</p></li><li><p><strong>Implementation</strong> – Source code, configuration baselines, SBOM exports</p></li><li><p><strong>Test Evidence</strong> – Functional, security, or penetration test results</p></li><li><p><strong>Process Evidence</strong> – Risk management records, vulnerability intake, maintenance logs</p></li></ul>',
+  exampleReferencesHtml:
+    '<p>[EVD-012] – Secure boot implementation design document</p><p>[TEST-021] – Regression test report for firmware update 1.3.0</p><p>[DOC-105] – Vulnerability handling procedure for cloud service</p>',
+  requirementFormatHtml:
+    '<p>Requirements are cited using their EN 40000 clause number followed by a short identifier.</p><p><em><span style="color: #3b82f6">Clause 6.2.1.1 – Physical Protection Requirements</span></em></p>',
+  requirementCategoriesHtml:
+    '<ul><li><p><strong>Design</strong> – Architecture, interfaces, and security functionality</p></li><li><p><strong>Lifecycle</strong> – Secure development, updates, configuration control</p></li><li><p><strong>Risk Management</strong> – Threat analysis, vulnerability treatment, mitigations</p></li><li><p><strong>Vulnerability Management</strong> – Monitoring, disclosure handling, corrective actions</p></li></ul>',
+  conformanceFormatHtml:
+    '<p>Each requirement statement includes applicability, implementation summary, referenced evidence, and the resulting verdict (PASS/FAIL/PARTIAL/N/A).</p>',
+  verdictCategoriesHtml:
+    '<ul><li><p><strong>PASS</strong> – Requirement satisfied with evidence demonstrating correct implementation</p></li><li><p><strong>FAIL</strong> – Requirement not satisfied or evidence missing</p></li><li><p><strong>NOT APPLICABLE</strong> – Requirement does not apply to the product configuration</p></li><li><p><strong>CONDITIONAL PASS</strong> – Partially satisfied with compensating controls or roadmap actions</p></li></ul>',
+  assessmentCriteriaHtml:
+    '<p>Verdicts consider evidence completeness, correctness of implementation, test coverage, and documentation quality. Deviations or compensating controls are explicitly recorded.</p>',
+  overallDeterminationHtml:
+    '<p>The assessor considers both requirement-level verdicts and systemic cybersecurity posture to determine the overall conformance statement.</p>',
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -168,6 +269,7 @@ const defaultState: DocumentWorkspaceState = {
     },
   },
   conformanceClaim: cloneConformanceClaimState(),
+  documentConvention: cloneDocumentConventionState(defaultDocumentConventionState),
   lastUpdated: new Date(0).toISOString(),
 }
 
@@ -185,6 +287,20 @@ function cloneThirdPartyState(state?: ThirdPartyComponentsState): ThirdPartyComp
     managementApproachHtml: source.managementApproachHtml ?? '',
     evidenceReferenceHtml: source.evidenceReferenceHtml ?? '',
   }
+}
+
+function cloneTerminologyEntries(
+  entries?: DocumentConventionTerminologyEntry[]
+): DocumentConventionTerminologyEntry[] {
+  if (!Array.isArray(entries)) {
+    return defaultTerminologyEntries.map((entry) => ({ ...entry }))
+  }
+  return entries.map((entry) => ({
+    id: entry.id || generateTerminologyEntryId(),
+    term: entry.term ?? '',
+    definition: entry.definition ?? '',
+    reference: entry.reference ?? '',
+  }))
 }
 
 function buildDefaultStandardsConformanceState(): StandardsConformanceState {
@@ -269,6 +385,22 @@ function cloneConformanceClaimState(
   }
 }
 
+function cloneDocumentConventionState(state?: DocumentConventionState): DocumentConventionState {
+  const source = state ?? defaultDocumentConventionState
+  return {
+    terminologyEntries: cloneTerminologyEntries(source.terminologyEntries),
+    evidenceFormatHtml: source.evidenceFormatHtml ?? '',
+    evidenceCategoriesHtml: source.evidenceCategoriesHtml ?? '',
+    exampleReferencesHtml: source.exampleReferencesHtml ?? '',
+    requirementFormatHtml: source.requirementFormatHtml ?? '',
+    requirementCategoriesHtml: source.requirementCategoriesHtml ?? '',
+    conformanceFormatHtml: source.conformanceFormatHtml ?? '',
+    verdictCategoriesHtml: source.verdictCategoriesHtml ?? '',
+    assessmentCriteriaHtml: source.assessmentCriteriaHtml ?? '',
+    overallDeterminationHtml: source.overallDeterminationHtml ?? '',
+  }
+}
+
 function cloneState(state: DocumentWorkspaceState): DocumentWorkspaceState {
   return {
     ...state,
@@ -287,6 +419,7 @@ function cloneState(state: DocumentWorkspaceState): DocumentWorkspaceState {
       thirdPartyComponents: cloneThirdPartyState(state.productOverview.thirdPartyComponents),
     },
     conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
+    documentConvention: cloneDocumentConventionState(state.documentConvention),
   }
 }
 
@@ -349,6 +482,7 @@ function readFromStorage(): DocumentWorkspaceState | null {
         thirdPartyComponents: cloneThirdPartyState(parsed.productOverview?.thirdPartyComponents),
       },
       conformanceClaim: cloneConformanceClaimState(parsed.conformanceClaim),
+      documentConvention: cloneDocumentConventionState(parsed.documentConvention),
     }
   } catch (error) {
     console.warn('Failed to parse document workspace state:', error)
@@ -572,6 +706,37 @@ export function exportDocumentWorkspace() {
   }
 }
 
+export function updateDocumentConventionState(
+  patch: Partial<DocumentConventionState>
+): DocumentWorkspaceState {
+  const current = inMemoryState.documentConvention
+
+  const nextConvention: DocumentConventionState = {
+    terminologyEntries:
+      patch.terminologyEntries !== undefined
+        ? cloneTerminologyEntries(patch.terminologyEntries)
+        : cloneTerminologyEntries(current.terminologyEntries),
+    evidenceFormatHtml: patch.evidenceFormatHtml ?? current.evidenceFormatHtml,
+    evidenceCategoriesHtml: patch.evidenceCategoriesHtml ?? current.evidenceCategoriesHtml,
+    exampleReferencesHtml: patch.exampleReferencesHtml ?? current.exampleReferencesHtml,
+    requirementFormatHtml: patch.requirementFormatHtml ?? current.requirementFormatHtml,
+    requirementCategoriesHtml: patch.requirementCategoriesHtml ?? current.requirementCategoriesHtml,
+    conformanceFormatHtml: patch.conformanceFormatHtml ?? current.conformanceFormatHtml,
+    verdictCategoriesHtml: patch.verdictCategoriesHtml ?? current.verdictCategoriesHtml,
+    assessmentCriteriaHtml: patch.assessmentCriteriaHtml ?? current.assessmentCriteriaHtml,
+    overallDeterminationHtml: patch.overallDeterminationHtml ?? current.overallDeterminationHtml,
+  }
+
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    documentConvention: nextConvention,
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
 export function importDocumentWorkspace(payload: { state: DocumentWorkspaceState } | DocumentWorkspaceState) {
   const state = 'state' in payload ? payload.state : payload
   const merged: DocumentWorkspaceState = {
@@ -606,6 +771,7 @@ export function importDocumentWorkspace(payload: { state: DocumentWorkspaceState
       thirdPartyComponents: cloneThirdPartyState(state.productOverview?.thirdPartyComponents),
     },
     conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
+    documentConvention: cloneDocumentConventionState(state.documentConvention),
     lastUpdated: new Date().toISOString(),
   }
   persistState(merged)

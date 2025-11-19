@@ -12,6 +12,10 @@
   flex-wrap: wrap;
 }
 
+.content-card {
+  padding: 24px;
+}
+
 .title-card-actions {
   display: flex;
   gap: 12px;
@@ -109,66 +113,164 @@
   width: 100%;
 }
 
-.table-shell {
-  min-width: 100%;
-  width: fit-content;
+/* Table section wrapper */
+.table-section {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+/* Table wrapper with border and rounded corners */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+}
+
+/* Unified clean table styling */
 .components-table {
   width: 100%;
-  min-width: 700px;
+  min-width: 900px;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  table-layout: auto;
 }
 
-.components-table th,
-.components-table td {
-  padding: 12px;
-  text-align: left;
-  vertical-align: top;
-}
-
-.components-table th:not(:last-child),
-.components-table td:not(:last-child) {
-  border-right: 1px solid var(--panel-border);
-}
-
-.components-table thead tr th {
-  border-bottom: 1px solid var(--panel-border);
-}
-
-.components-table tbody tr {
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.components-table tbody tr:hover {
-  background: var(--surface-overlay);
+.components-table thead {
+  background: var(--surface-alt);
 }
 
 .components-table th {
-  background: var(--surface-muted);
-  font-weight: 600;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
 }
 
-.components-table tbody tr:not(:last-child) td {
+.components-table td {
+  padding: 12px 16px;
+  text-align: left;
   border-bottom: 1px solid var(--panel-border);
+}
+
+.components-table tbody tr.clickable-row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.components-table tbody tr.clickable-row:hover {
+  background: var(--surface-alt);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.components-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.checkbox-column {
+  width: 52px;
+  min-width: 52px;
+  max-width: 52px;
+  text-align: center !important;
 }
 
 .components-table input[type='checkbox'] {
   width: 16px;
   height: 16px;
+  cursor: pointer;
 }
 
-.components-table th:first-child,
-.components-table td:first-child {
-  width: 52px;
-  min-width: 52px;
-  max-width: 52px;
-  text-align: center;
+.action-column {
+  width: 100px;
+  text-align: center !important;
+}
+
+.components-table .link.danger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 1.2rem;
+  transition: transform 0.2s, background-color 0.2s;
+  border-radius: 6px;
+}
+
+.components-table .link.danger:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 59, 48, 0.1);
+}
+
+.empty-state {
+  text-align: center !important;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 32px 16px !important;
+}
+
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.select-all-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.select-all-checkbox input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-icon {
+  background: var(--surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text);
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--surface-alt);
+  border-color: var(--primary);
+}
+
+.btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 0.95rem;
+  color: var(--text);
+  white-space: nowrap;
 }
 
 /* Component Name column - allow it to expand */

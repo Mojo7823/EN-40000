@@ -14,85 +14,66 @@
       </div>
     </section>
     
-    <section class="card form-card primary-standard-card">
-      <header class="description-header">
+    <section class="card content-card">
+      <article class="template-body">
         <p class="section-heading">Primary Standard</p>
-      </header>
-      <div class="primary-standard-details">
-        <div class="detail">
+      </article>
+      
+      <div class="primary-standard-content">
+        <div class="detail-row">
           <span class="detail-label">Standard Code</span>
           <span class="detail-value">{{ primaryCodeDisplay }}</span>
         </div>
-        <div class="detail">
+        <div class="detail-row">
           <span class="detail-label">Description</span>
           <span class="detail-value">{{ primaryDescriptionDisplay }}</span>
         </div>
       </div>
     </section>
 
-    <section class="card form-card standards-table-card">
-      <header class="description-header">
+    <section class="card content-card">
+      <article class="template-body">
         <p class="section-heading">Related Standards Applied</p>
         <p class="reference-line">3.1 Standards Conformance</p>
-        <p class="muted italic">
+        <p>
           Track supporting standards that broaden the claim, such as vocabulary references or security requirement
           profiles.
         </p>
-      </header>
+      </article>
 
-      <div class="table-toolbar">
-        <div class="table-actions">
-          <button class="btn primary" type="button" @click="openCreateModal">Add Standard</button>
-        </div>
-        <div class="table-controls">
-          <div class="table-pagination" v-if="totalPages > 1">
-            <button class="btn-icon" type="button" :disabled="currentPage <= 1" @click="goToPreviousPage" aria-label="Previous page">
-              ‹
-            </button>
-            <span class="page-label">Page {{ currentPage }} / {{ totalPages }}</span>
-            <button class="btn-icon" type="button" :disabled="currentPage >= totalPages" @click="goToNextPage" aria-label="Next page">
-              ›
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <section class="table-section">
-        <div class="table-shell">
+      <div class="table-section">
+        <div class="table-wrapper">
           <table class="standards-table">
             <thead>
               <tr>
                 <th>Standard</th>
                 <th>Description</th>
-                <th class="actions">Actions</th>
+                <th class="action-column">Actions</th>
               </tr>
             </thead>
             <tbody>
+              <tr v-if="form.relatedStandards.length === 0">
+                <td class="empty-state" colspan="3">No related standards recorded yet.</td>
+              </tr>
               <tr
                 v-for="entry in paginatedStandards"
                 :key="entry.id"
-                role="button"
-                class="table-row"
+                class="clickable-row"
                 @click="openEditModal(entry)"
-                @keydown.enter.prevent="openEditModal(entry)"
-                @keydown.space.prevent="openEditModal(entry)"
-                tabindex="0"
               >
                 <td>{{ entry.code || '—' }}</td>
                 <td>{{ entry.description || '—' }}</td>
-                <td class="actions" @click.stop>
+                <td class="action-column" @click.stop>
                   <button class="link danger" type="button" aria-label="Delete standard" title="Delete" @click="removeStandard(entry.id)">
                     🗑️
                   </button>
                 </td>
               </tr>
-              <tr v-if="form.relatedStandards.length === 0">
-                <td class="empty-state" colspan="3">No related standards recorded yet.</td>
-              </tr>
             </tbody>
           </table>
         </div>
-      </section>
+        <button class="btn primary" type="button" @click="openCreateModal">Add Standard</button>
+      </div>
     </section>
 
     <div v-if="isModalOpen" class="tp-modal-overlay" @click="closeModal">

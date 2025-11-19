@@ -11,6 +11,7 @@ from ..utils.formatters import format_cover_date
 from .introduction_sections import IntroductionSectionsRenderer
 from .product_overview_builder import append_product_overview_section
 from .conformance_claim_builder import append_conformance_claim_section
+from .document_convention_builder import render_document_convention_to_document
 
 COVER_HEADER_TEXT = "EN 40000-1-2-2025 Conformity Assessment"
 
@@ -35,6 +36,24 @@ def build_cover_document(
     )
     append_product_overview_section(document, getattr(payload, "product_overview", None))
     append_conformance_claim_section(document, getattr(payload, "conformance_claim", None))
+    
+    # Add Document Convention section if present
+    convention_payload = getattr(payload, "document_convention", None)
+    if convention_payload:
+        convention_dict = convention_payload.model_dump() if hasattr(convention_payload, 'model_dump') else convention_payload
+        render_document_convention_to_document(
+            document,
+            terminology_entries=convention_dict.get('terminology_entries'),
+            evidence_format_html=convention_dict.get('evidence_format_html'),
+            evidence_categories_html=convention_dict.get('evidence_categories_html'),
+            example_references_html=convention_dict.get('example_references_html'),
+            requirement_format_html=convention_dict.get('requirement_format_html'),
+            requirement_categories_html=convention_dict.get('requirement_categories_html'),
+            conformance_format_html=convention_dict.get('conformance_format_html'),
+            verdict_categories_html=convention_dict.get('verdict_categories_html'),
+            assessment_criteria_html=convention_dict.get('assessment_criteria_html'),
+            overall_determination_html=convention_dict.get('overall_determination_html'),
+        )
 
     filename = f"{uuid.uuid4().hex}.docx"
     output_path = output_dir / filename

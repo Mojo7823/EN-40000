@@ -15,73 +15,42 @@
       </div>
     </section>
 
-    <section class="card form-card">
-      <header class="description-header">
+    <section class="card content-card">
+      <article class="template-body">
         <p class="section-heading">2.3 Third-Party Components</p>
         <p class="reference-line">[Reference: Clause 7.11 - Third-party component cybersecurity management]</p>
-        <p class="muted italic">
+        <p>
           List the hardware/software components integrated into the product. Capture versioning, suppliers, and license
           obligations so the SBOM stays current.
         </p>
-      </header>
+      </article>
 
-      <div class="table-toolbar">
-        <div class="table-actions">
-          <button class="btn primary" type="button" @click="openCreateModal">Add Component</button>
-          <button class="btn danger" type="button" :disabled="!selectedIds.length" @click="requestBulkDelete">
-            Delete Selected
-          </button>
-        </div>
-        <div class="table-controls">
-          <label class="select-all">
-            <input
-              type="checkbox"
-              :checked="allRowsSelected"
-              :indeterminate.prop="someRowsSelected"
-              @change="toggleSelectAll"
-              aria-label="Select all components on page"
-            />
-            <span>Select Page</span>
-          </label>
-          <div class="table-pagination" v-if="totalPages > 1">
-            <button class="btn-icon" type="button" :disabled="currentPage <= 1" @click="goToPreviousPage" aria-label="Previous page">
-              ‹
-            </button>
-            <span class="page-label">Page {{ currentPage }} / {{ totalPages }}</span>
-            <button class="btn-icon" type="button" :disabled="currentPage >= totalPages" @click="goToNextPage" aria-label="Next page">
-              ›
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <section class="table-section">
-        <div class="table-shell">
+      <div class="table-section">
+        <div class="table-wrapper">
           <table class="components-table">
             <thead>
               <tr>
-                <th aria-label="Select row"></th>
+                <th class="checkbox-column"></th>
                 <th>Component Name</th>
                 <th>Type</th>
                 <th>Version</th>
                 <th>Supplier</th>
                 <th>Purpose</th>
                 <th>License</th>
-                <th aria-label="Row actions"></th>
+                <th class="action-column">Actions</th>
               </tr>
             </thead>
             <tbody>
+              <tr v-if="form.entries.length === 0">
+                <td class="empty-state" colspan="8">No components recorded yet.</td>
+              </tr>
               <tr
                 v-for="entry in paginatedEntries"
                 :key="entry.id"
-                class="table-row"
-                role="button"
+                class="clickable-row"
                 @click="openEditModal(entry)"
-                @keydown.enter.prevent="openEditModal(entry)"
-                @keydown.space.prevent="openEditModal(entry)"
-                tabindex="0"
               >
-                <td @click.stop>
+                <td class="checkbox-column" @click.stop>
                   <input type="checkbox" :checked="isSelected(entry.id)" @change="toggleRowSelection(entry.id)" />
                 </td>
                 <td>{{ entry.componentName || '—' }}</td>
@@ -90,7 +59,7 @@
                 <td>{{ entry.supplier || '—' }}</td>
                 <td>{{ entry.purpose || '—' }}</td>
                 <td>{{ entry.license || '—' }}</td>
-                <td class="actions" @click.stop>
+                <td class="action-column" @click.stop>
                   <button
                     class="link danger"
                     type="button"
@@ -102,13 +71,49 @@
                   </button>
                 </td>
               </tr>
-              <tr v-if="form.entries.length === 0">
-                <td class="empty-state" colspan="8">No components recorded yet.</td>
-              </tr>
             </tbody>
           </table>
         </div>
-      </section>
+        <div class="table-footer">
+          <div class="table-actions">
+            <button class="btn primary" type="button" @click="openCreateModal">Add Component</button>
+            <button class="btn danger" type="button" :disabled="!selectedIds.length" @click="requestBulkDelete">
+              Delete Selected
+            </button>
+            <label class="select-all-checkbox">
+              <input
+                type="checkbox"
+                :checked="allRowsSelected"
+                :indeterminate.prop="someRowsSelected"
+                @change="toggleSelectAll"
+                aria-label="Select all on page"
+              />
+              <span>Select Page</span>
+            </label>
+          </div>
+          <div class="pagination-controls" v-if="totalPages > 1">
+            <button 
+              class="btn-icon" 
+              type="button" 
+              :disabled="currentPage <= 1" 
+              @click="goToPreviousPage" 
+              aria-label="Previous page"
+            >
+              ‹
+            </button>
+            <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+            <button 
+              class="btn-icon" 
+              type="button" 
+              :disabled="currentPage >= totalPages" 
+              @click="goToNextPage" 
+              aria-label="Next page"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="card form-card">
