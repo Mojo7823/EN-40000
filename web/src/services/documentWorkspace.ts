@@ -111,6 +111,14 @@ export interface DocumentConventionState {
   assessmentVerdictsHtml: string
 }
 
+export interface RiskManagementState {
+  frameworkHtml: string
+  identificationHtml: string
+  analysisHtml: string
+  treatmentHtml: string
+  monitoringHtml: string
+}
+
 export interface DocumentWorkspaceState {
   cover: CoverFormState
   introduction: IntroductionFormState
@@ -120,6 +128,7 @@ export interface DocumentWorkspaceState {
   productOverview: ProductOverviewState
   conformanceClaim: ConformanceClaimState
   documentConvention: DocumentConventionState
+  riskManagement: RiskManagementState
   lastUpdated: string
 }
 
@@ -220,6 +229,14 @@ const defaultDocumentConventionState: DocumentConventionState = {
     '<p>Each requirement is assessed using the following verdicts:</p><ul><li><strong><span style="color: #16a34a">PASS</span></strong> - Requirement is fully satisfied with adequate evidence</li><li><strong><span style="color: #dc2626">FAIL</span></strong> - Requirement is not satisfied</li><li><strong><span style="color: #f97316">PARTIAL</span></strong> - Requirement is partially satisfied (details provided)</li><li><strong><span style="color: #6b7280">N/A</span></strong> - Requirement is not applicable to this product</li></ul>',
 }
 
+const defaultRiskManagementState: RiskManagementState = {
+  frameworkHtml: '',
+  identificationHtml: '',
+  analysisHtml: '',
+  treatmentHtml: '',
+  monitoringHtml: '',
+}
+
 const defaultState: DocumentWorkspaceState = {
   cover: { ...defaultCoverState },
   introduction: { ...defaultIntroductionState },
@@ -252,6 +269,7 @@ const defaultState: DocumentWorkspaceState = {
   },
   conformanceClaim: cloneConformanceClaimState(),
   documentConvention: cloneDocumentConventionState(defaultDocumentConventionState),
+  riskManagement: { ...defaultRiskManagementState },
   lastUpdated: new Date(0).toISOString(),
 }
 
@@ -396,6 +414,7 @@ function cloneState(state: DocumentWorkspaceState): DocumentWorkspaceState {
     },
     conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
     documentConvention: cloneDocumentConventionState(state.documentConvention),
+    riskManagement: { ...state.riskManagement },
   }
 }
 
@@ -459,6 +478,10 @@ function readFromStorage(): DocumentWorkspaceState | null {
       },
       conformanceClaim: cloneConformanceClaimState(parsed.conformanceClaim),
       documentConvention: cloneDocumentConventionState(parsed.documentConvention),
+      riskManagement: {
+        ...defaultRiskManagementState,
+        ...parsed.riskManagement,
+      },
     }
   } catch (error) {
     console.warn('Failed to parse document workspace state:', error)
@@ -707,6 +730,29 @@ export function updateDocumentConventionState(
   return { ...next }
 }
 
+export function updateRiskManagementState(
+  patch: Partial<RiskManagementState>
+): DocumentWorkspaceState {
+  const current = inMemoryState.riskManagement
+
+  const nextRiskManagement: RiskManagementState = {
+    frameworkHtml: patch.frameworkHtml ?? current.frameworkHtml,
+    identificationHtml: patch.identificationHtml ?? current.identificationHtml,
+    analysisHtml: patch.analysisHtml ?? current.analysisHtml,
+    treatmentHtml: patch.treatmentHtml ?? current.treatmentHtml,
+    monitoringHtml: patch.monitoringHtml ?? current.monitoringHtml,
+  }
+
+  const next: DocumentWorkspaceState = {
+    ...inMemoryState,
+    riskManagement: nextRiskManagement,
+    lastUpdated: new Date().toISOString(),
+  }
+
+  persistState(next)
+  return { ...next }
+}
+
 export function importDocumentWorkspace(payload: { state: DocumentWorkspaceState } | DocumentWorkspaceState) {
   const state = 'state' in payload ? payload.state : payload
   const merged: DocumentWorkspaceState = {
@@ -742,6 +788,10 @@ export function importDocumentWorkspace(payload: { state: DocumentWorkspaceState
     },
     conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
     documentConvention: cloneDocumentConventionState(state.documentConvention),
+    riskManagement: {
+      ...defaultRiskManagementState,
+      ...state.riskManagement,
+    },
     lastUpdated: new Date().toISOString(),
   }
   persistState(merged)

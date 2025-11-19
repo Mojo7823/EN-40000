@@ -249,6 +249,18 @@ web/
 - Preview: Included in `/cover/preview` endpoint payload
 - DOCX: Section 4 starts on new page with terminology table and formatted subsections
 
+#### Risk Management Elements (`web/src/views/risk/GeneralApproach.vue`)
+- Single view right now that captures Clause 5.1 content via five Rich Text Editors (framework, identification, analysis, treatment, monitoring) wired to `documentWorkspace.riskManagement`.
+- Autosaves through `updateRiskManagementState` so the Document Preview payload can assemble a single narrative block.
+- **Formatting Rule:** Section 5 in the DOCX is rendered exclusively by `risk_management_builder.py`. It always starts on a new page with the following order enforced server-side:
+  1. `5. RISK MANAGEMENT ELEMENTS`
+  2. `[Reference: Clause 6.1 - General]`
+  3. `5.1 General Approach to Risk Management`
+  4. `[Reference: Clause 5 - Risk Management Elements]`
+  5. Summary sentence (“The following summarizes …”) before the user-provided HTML.
+- Because the backend controls those headings/references, **do not** inject extra clause references or introductory sentences inside the risk HTML editors. Send only the narrative paragraphs for each subsection and let the backend handle consistent placement/styles.
+- Preview/export payload: `risk_management.general_approach_html` (assembled from the five editors) is optional, but when present the builder appends it right after the standardized summary so formatting matches the earlier sections.
+
 ### 3. DOCX Preview Engine (Demo)
 **File:** `web/src/views/demo/DocxPreviewDemo.vue`
 

@@ -12,6 +12,7 @@ from .introduction_sections import IntroductionSectionsRenderer
 from .product_overview_builder import append_product_overview_section
 from .conformance_claim_builder import append_conformance_claim_section
 from .document_convention_builder import render_document_convention_to_document
+from .risk_management_builder import append_risk_management_section
 
 COVER_HEADER_TEXT = "EN 40000-1-2-2025 Conformity Assessment"
 
@@ -49,6 +50,8 @@ def build_cover_document(
             assessment_verdicts_html=convention_dict.get('assessment_verdicts_html'),
             start_on_new_page=True,
         )
+
+    append_risk_management_section(document, getattr(payload, 'risk_management', None))
 
     filename = f"{uuid.uuid4().hex}.docx"
     output_path = output_dir / filename

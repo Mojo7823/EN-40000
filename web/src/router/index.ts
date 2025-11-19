@@ -21,6 +21,7 @@ import RegulatoryConformance from '../views/conformance/RegulatoryConformance.vu
 import ConformanceLevel from '../views/conformance/ConformanceLevel.vue'
 import Terminology from '../views/convention/Terminology.vue'
 import Notation from '../views/convention/Notation.vue'
+import GeneralApproach from '../views/risk/GeneralApproach.vue'
 
 const routes = [
   { path: '/', name: 'dashboard', component: Dashboard },
@@ -82,6 +83,11 @@ const routes = [
     path: '/convention/notation',
     name: 'convention-notation',
     component: Notation,
+  },
+  {
+    path: '/risk/general-approach',
+    name: 'risk-general-approach',
+    component: GeneralApproach,
   },
   { path: '/document/preview', name: 'document-preview', component: DocumentPreview },
   { path: '/document/load-save', name: 'document-storage', component: DocumentStorage },

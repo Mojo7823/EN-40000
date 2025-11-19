@@ -114,6 +114,7 @@ import {
   updateCoverState,
   type DocumentWorkspaceState,
   type RegulatoryConformanceState,
+  type RiskManagementState,
 } from '../../services/documentWorkspace'
 import { dataUrlToFile } from '../../utils/dataUrl'
 import { CONFORMANCE_LEVEL_OPTIONS, REGULATORY_PRIMARY_REFERENCES } from '../../constants/conformance'
@@ -155,6 +156,12 @@ const STATUS_GROUP_DEFINITIONS = [
     description: 'Terminology and notation settings.',
     children: ['terminology', 'notation'],
   },
+  {
+    key: 'risk-management',
+    title: 'Risk Management Elements',
+    description: 'Clause 6 risk management approach and methodology.',
+    children: ['risk-general'],
+  },
 ]
 
 const workspaceState = ref<DocumentWorkspaceState>(loadDocumentWorkspace())
@@ -165,6 +172,8 @@ const productIdentification = computed(() => workspaceState.value.productIdentif
 const manufacturerInformation = computed(() => workspaceState.value.manufacturerInformation)
 const productOverview = computed(() => workspaceState.value.productOverview)
 const conformanceClaim = computed(() => workspaceState.value.conformanceClaim)
+const riskManagement = computed(() => workspaceState.value.riskManagement)
+const riskManagementNarrative = computed(() => buildRiskManagementHtml(riskManagement.value))
 const previewLoading = ref(false)
 const previewError = ref('')
 const hasGeneratedDocx = ref(false)
@@ -326,6 +335,28 @@ function buildConformanceLevelHtml(state?: ConformanceLevelState) {
 ${justificationBlock}`
 }
 
+function buildRiskManagementHtml(state?: RiskManagementState) {
+  if (!state) return undefined
+  const sections = [
+    { title: 'Risk Management Framework', html: normalizeHtml(state.frameworkHtml) },
+    { title: 'Risk Identification Process', html: normalizeHtml(state.identificationHtml) },
+    { title: 'Risk Analysis and Evaluation', html: normalizeHtml(state.analysisHtml) },
+    { title: 'Risk Treatment Approach', html: normalizeHtml(state.treatmentHtml) },
+    { title: 'Monitoring and Review', html: normalizeHtml(state.monitoringHtml) },
+  ]
+
+  const available = sections.filter(
+    (section): section is { title: string; html: string } => Boolean(section.html)
+  )
+  if (!available.length) return undefined
+
+  const combined = available
+    .map((section) => `<p><strong>${section.title}</strong></p>\n${section.html}`)
+    .join('\n')
+  const result = combined.trim()
+  return stripHtml(result) ? result : undefined
+}
+
 function buildSectionStatuses() {
   return [
     createStatus(
@@ -479,6 +510,13 @@ function buildSectionStatuses() {
         stripHtml(workspaceState.value.documentConvention.assessmentVerdictsHtml),
       ],
       '/convention/notation'
+    ),
+    createStatus(
+      'risk-general',
+      'General Approach to Risk Management',
+      'Lifecycle risk management narrative and references.',
+      [stripHtml(riskManagementNarrative.value)],
+      '/risk/general-approach'
     ),
   ]
 }
@@ -724,7 +762,9 @@ async function generatePreview() {
       assessment_verdicts_html: normalizeHtml(documentConvention.assessmentVerdictsHtml),
     }
 
-    const payload = {
+    const riskManagementHtml = normalizeHtml(riskManagementNarrative.value)
+
+    const payload: Record<string, unknown> = {
       user_id: userId,
       title: productTitle,
       description: cover.value.deviceDescription,
@@ -740,6 +780,10 @@ async function generatePreview() {
       manufacturer_information: manufacturerInformationPayload,
       conformance_claim: conformanceClaimPayload,
       document_convention: documentConventionPayload,
+    }
+
+    if (riskManagementHtml) {
+      ;(payload as any).risk_management = { general_approach_html: riskManagementHtml }
     }
 
     const response = await api.post('/cover/preview', payload)

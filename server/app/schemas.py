@@ -125,6 +125,11 @@ class DocumentConventionSection(BaseModel):
     assessment_verdicts_html: Optional[str] = None
 
 
+class RiskManagementSection(BaseModel):
+    """Risk Management Elements (Section 5)."""
+    general_approach_html: Optional[str] = None
+
+
 class CoverPreviewRequest(BaseModel):
     """Cover page preview request."""
     model_config = ConfigDict(populate_by_name=True)
@@ -144,6 +149,7 @@ class CoverPreviewRequest(BaseModel):
     manufacturer_information: Optional[ManufacturerInformationSection] = None
     conformance_claim: Optional[ConformanceClaimSection] = None
     document_convention: Optional[DocumentConventionSection] = None
+    risk_management: Optional[RiskManagementSection] = None
 
 
 class HtmlPreviewRequest(BaseModel):
