@@ -44,15 +44,10 @@ def build_cover_document(
         render_document_convention_to_document(
             document,
             terminology_entries=convention_dict.get('terminology_entries'),
-            evidence_format_html=convention_dict.get('evidence_format_html'),
-            evidence_categories_html=convention_dict.get('evidence_categories_html'),
-            example_references_html=convention_dict.get('example_references_html'),
-            requirement_format_html=convention_dict.get('requirement_format_html'),
-            requirement_categories_html=convention_dict.get('requirement_categories_html'),
-            conformance_format_html=convention_dict.get('conformance_format_html'),
-            verdict_categories_html=convention_dict.get('verdict_categories_html'),
-            assessment_criteria_html=convention_dict.get('assessment_criteria_html'),
-            overall_determination_html=convention_dict.get('overall_determination_html'),
+            evidence_notation_html=convention_dict.get('evidence_notation_html'),
+            requirement_notation_html=convention_dict.get('requirement_notation_html'),
+            assessment_verdicts_html=convention_dict.get('assessment_verdicts_html'),
+            start_on_new_page=True,
         )
 
     filename = f"{uuid.uuid4().hex}.docx"

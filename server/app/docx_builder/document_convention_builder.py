@@ -49,32 +49,21 @@ DEFAULT_TERMINOLOGY_ENTRIES = [
 
 def build_document_convention_section(
     terminology_entries: Optional[Sequence[dict]] = None,
-    evidence_format_html: Optional[str] = None,
-    evidence_categories_html: Optional[str] = None,
-    example_references_html: Optional[str] = None,
-    requirement_format_html: Optional[str] = None,
-    requirement_categories_html: Optional[str] = None,
-    conformance_format_html: Optional[str] = None,
-    verdict_categories_html: Optional[str] = None,
-    assessment_criteria_html: Optional[str] = None,
-    overall_determination_html: Optional[str] = None,
+    evidence_notation_html: Optional[str] = None,
+    requirement_notation_html: Optional[str] = None,
+    assessment_verdicts_html: Optional[str] = None,
     output_dir: Optional[Path] = None,
     user_id: str = "default",
 ) -> Path:
-    """Build the Document Convention section (Section 4) as a standalone document."""
+    """Build the Document Convention section as a standalone DOCX file."""
     document = create_base_document()
     render_document_convention_to_document(
         document,
         terminology_entries=terminology_entries,
-        evidence_format_html=evidence_format_html,
-        evidence_categories_html=evidence_categories_html,
-        example_references_html=example_references_html,
-        requirement_format_html=requirement_format_html,
-        requirement_categories_html=requirement_categories_html,
-        conformance_format_html=conformance_format_html,
-        verdict_categories_html=verdict_categories_html,
-        assessment_criteria_html=assessment_criteria_html,
-        overall_determination_html=overall_determination_html,
+        evidence_notation_html=evidence_notation_html,
+        requirement_notation_html=requirement_notation_html,
+        assessment_verdicts_html=assessment_verdicts_html,
+        start_on_new_page=False,
     )
 
     if output_dir is None:
@@ -89,26 +78,21 @@ def render_document_convention_to_document(
     document: Document,
     *,
     terminology_entries: Optional[Sequence[dict]] = None,
-    evidence_format_html: Optional[str] = None,
-    evidence_categories_html: Optional[str] = None,
-    example_references_html: Optional[str] = None,
-    requirement_format_html: Optional[str] = None,
-    requirement_categories_html: Optional[str] = None,
-    conformance_format_html: Optional[str] = None,
-    verdict_categories_html: Optional[str] = None,
-    assessment_criteria_html: Optional[str] = None,
-    overall_determination_html: Optional[str] = None,
+    evidence_notation_html: Optional[str] = None,
+    requirement_notation_html: Optional[str] = None,
+    assessment_verdicts_html: Optional[str] = None,
+    start_on_new_page: bool = False,
 ) -> None:
-    """Render the Document Convention section into an existing Document instance."""
+    """Append Section 4 (Document Conventions) to an existing Document."""
     heading = document.add_heading("4. DOCUMENT CONVENTIONS", level=1)
     heading.paragraph_format.space_before = Pt(24)
     heading.paragraph_format.space_after = Pt(12)
-    heading.paragraph_format.page_break_before = True
+    heading.paragraph_format.page_break_before = start_on_new_page
 
     _render_terminology_section(document, terminology_entries)
-    _render_evidence_notation_section(document, evidence_format_html, evidence_categories_html, example_references_html)
-    _render_requirement_notation_section(document, requirement_format_html, requirement_categories_html, conformance_format_html)
-    _render_assessment_verdicts_section(document, verdict_categories_html, assessment_criteria_html, overall_determination_html)
+    _render_evidence_notation_section(document, evidence_notation_html)
+    _render_requirement_notation_section(document, requirement_notation_html)
+    _render_assessment_verdicts_section(document, assessment_verdicts_html)
 
 
 def _render_terminology_section(document: Document, entries: Optional[Sequence[dict]]) -> None:
@@ -116,7 +100,9 @@ def _render_terminology_section(document: Document, entries: Optional[Sequence[d
     subheading.paragraph_format.space_before = Pt(12)
     subheading.paragraph_format.space_after = Pt(6)
 
-    intro = document.add_paragraph("All terminology used in this report aligns with the following authoritative references:")
+    intro = document.add_paragraph(
+        "All terms and definitions used in this report are consistent with:"
+    )
     intro.paragraph_format.space_after = Pt(6)
 
     for reference in ("prEN 40000-1-1 (Vocabulary)", "Regulation (EU) 2024/2847"):
@@ -158,58 +144,31 @@ def _render_terminology_section(document: Document, entries: Optional[Sequence[d
     document.add_paragraph()
 
 
-def _render_evidence_notation_section(
-    document: Document,
-    evidence_format_html: Optional[str],
-    evidence_categories_html: Optional[str],
-    example_references_html: Optional[str],
-) -> None:
+def _render_evidence_notation_section(document: Document, html: Optional[str]) -> None:
     heading = document.add_heading("4.2 Evidence Notation", level=2)
     heading.paragraph_format.space_before = Pt(12)
     heading.paragraph_format.space_after = Pt(6)
 
-    _append_optional_subsection(document, "4.2.1 Evidence Reference Format", evidence_format_html)
-    _append_optional_subsection(document, "4.2.2 Evidence Categories", evidence_categories_html)
-    _append_optional_subsection(document, "4.2.3 Example References", example_references_html)
+    if html:
+        append_html_to_document(document, html)
 
 
-def _render_requirement_notation_section(
-    document: Document,
-    requirement_format_html: Optional[str],
-    requirement_categories_html: Optional[str],
-    conformance_format_html: Optional[str],
-) -> None:
+def _render_requirement_notation_section(document: Document, html: Optional[str]) -> None:
     heading = document.add_heading("4.3 Requirement Notation", level=2)
     heading.paragraph_format.space_before = Pt(12)
     heading.paragraph_format.space_after = Pt(6)
 
-    _append_optional_subsection(document, "4.3.1 Requirement Reference Format", requirement_format_html)
-    _append_optional_subsection(document, "4.3.2 Requirement Categories", requirement_categories_html)
-    _append_optional_subsection(document, "4.3.3 Conformance Statement Format", conformance_format_html)
+    if html:
+        append_html_to_document(document, html)
 
 
-def _render_assessment_verdicts_section(
-    document: Document,
-    verdict_categories_html: Optional[str],
-    assessment_criteria_html: Optional[str],
-    overall_determination_html: Optional[str],
-) -> None:
+def _render_assessment_verdicts_section(document: Document, html: Optional[str]) -> None:
     heading = document.add_heading("4.4 Assessment Verdicts", level=2)
     heading.paragraph_format.space_before = Pt(12)
     heading.paragraph_format.space_after = Pt(6)
 
-    _append_optional_subsection(document, "4.4.1 Verdict Categories", verdict_categories_html)
-    _append_optional_subsection(document, "4.4.2 Assessment Criteria", assessment_criteria_html)
-    _append_optional_subsection(document, "4.4.3 Overall Conformance Determination", overall_determination_html)
-
-
-def _append_optional_subsection(document: Document, title: str, html: Optional[str]) -> None:
-    if not html:
-        return
-    subheading = document.add_heading(title, level=3)
-    subheading.paragraph_format.space_before = Pt(6)
-    subheading.paragraph_format.space_after = Pt(4)
-    append_html_to_document(document, html)
+    if html:
+        append_html_to_document(document, html)
 
 
 def _normalize_terminology_entries(entries: Optional[Sequence[dict]]) -> List[dict]:

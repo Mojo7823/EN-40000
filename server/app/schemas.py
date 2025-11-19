@@ -120,15 +120,9 @@ class DocumentConventionTerminologyEntry(BaseModel):
 class DocumentConventionSection(BaseModel):
     """Document Convention data for section 4."""
     terminology_entries: List[DocumentConventionTerminologyEntry] = Field(default_factory=list)
-    evidence_format_html: Optional[str] = None
-    evidence_categories_html: Optional[str] = None
-    example_references_html: Optional[str] = None
-    requirement_format_html: Optional[str] = None
-    requirement_categories_html: Optional[str] = None
-    conformance_format_html: Optional[str] = None
-    verdict_categories_html: Optional[str] = None
-    assessment_criteria_html: Optional[str] = None
-    overall_determination_html: Optional[str] = None
+    evidence_notation_html: Optional[str] = None
+    requirement_notation_html: Optional[str] = None
+    assessment_verdicts_html: Optional[str] = None
 
 
 class CoverPreviewRequest(BaseModel):

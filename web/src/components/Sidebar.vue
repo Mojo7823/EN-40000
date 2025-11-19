@@ -126,9 +126,7 @@ const conformanceLinks = [
 ]
 const documentConventionLinks = [
   { label: 'Terminology', to: '/convention/terminology' },
-  { label: 'Evidence Notation', to: '/convention/evidence-notation' },
-  { label: 'Requirement Notation', to: '/convention/requirement-notation' },
-  { label: 'Assessment Verdicts', to: '/convention/assessment-verdicts' },
+  { label: 'Notation', to: '/convention/notation' },
 ]
 const documentLinks = [
   { label: 'Document Preview', to: '/document/preview' },

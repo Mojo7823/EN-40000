@@ -106,15 +106,9 @@ export interface DocumentConventionTerminologyEntry {
 
 export interface DocumentConventionState {
   terminologyEntries: DocumentConventionTerminologyEntry[]
-  evidenceFormatHtml: string
-  evidenceCategoriesHtml: string
-  exampleReferencesHtml: string
-  requirementFormatHtml: string
-  requirementCategoriesHtml: string
-  conformanceFormatHtml: string
-  verdictCategoriesHtml: string
-  assessmentCriteriaHtml: string
-  overallDeterminationHtml: string
+  evidenceNotationHtml: string
+  requirementNotationHtml: string
+  assessmentVerdictsHtml: string
 }
 
 export interface DocumentWorkspaceState {
@@ -218,24 +212,12 @@ const defaultTerminologyEntries: DocumentConventionTerminologyEntry[] = [
 
 const defaultDocumentConventionState: DocumentConventionState = {
   terminologyEntries: defaultTerminologyEntries.map((entry) => ({ ...entry })),
-  evidenceFormatHtml:
-    '<p>Evidence references are presented in <span style="color: #0f9d58"><strong>[EVD-XXX]</strong></span> format and appear inline with the narrative to keep the assessment traceable.</p><p><strong>[DOC-XXX]</strong> refers to supporting documentation, while <strong>[TEST-XXX]</strong> and <strong>[CODE-XXX]</strong> capture verification and implementation evidence.</p>',
-  evidenceCategoriesHtml:
-    '<ul><li><p><strong>Design Documents</strong> – Architecture diagrams, interface specifications, data flows</p></li><li><p><strong>Implementation</strong> – Source code, configuration baselines, SBOM exports</p></li><li><p><strong>Test Evidence</strong> – Functional, security, or penetration test results</p></li><li><p><strong>Process Evidence</strong> – Risk management records, vulnerability intake, maintenance logs</p></li></ul>',
-  exampleReferencesHtml:
-    '<p>[EVD-012] – Secure boot implementation design document</p><p>[TEST-021] – Regression test report for firmware update 1.3.0</p><p>[DOC-105] – Vulnerability handling procedure for cloud service</p>',
-  requirementFormatHtml:
-    '<p>Requirements are cited using their EN 40000 clause number followed by a short identifier.</p><p><em><span style="color: #3b82f6">Clause 6.2.1.1 – Physical Protection Requirements</span></em></p>',
-  requirementCategoriesHtml:
-    '<ul><li><p><strong>Design</strong> – Architecture, interfaces, and security functionality</p></li><li><p><strong>Lifecycle</strong> – Secure development, updates, configuration control</p></li><li><p><strong>Risk Management</strong> – Threat analysis, vulnerability treatment, mitigations</p></li><li><p><strong>Vulnerability Management</strong> – Monitoring, disclosure handling, corrective actions</p></li></ul>',
-  conformanceFormatHtml:
-    '<p>Each requirement statement includes applicability, implementation summary, referenced evidence, and the resulting verdict (PASS/FAIL/PARTIAL/N/A).</p>',
-  verdictCategoriesHtml:
-    '<ul><li><p><strong>PASS</strong> – Requirement satisfied with evidence demonstrating correct implementation</p></li><li><p><strong>FAIL</strong> – Requirement not satisfied or evidence missing</p></li><li><p><strong>NOT APPLICABLE</strong> – Requirement does not apply to the product configuration</p></li><li><p><strong>CONDITIONAL PASS</strong> – Partially satisfied with compensating controls or roadmap actions</p></li></ul>',
-  assessmentCriteriaHtml:
-    '<p>Verdicts consider evidence completeness, correctness of implementation, test coverage, and documentation quality. Deviations or compensating controls are explicitly recorded.</p>',
-  overallDeterminationHtml:
-    '<p>The assessor considers both requirement-level verdicts and systemic cybersecurity posture to determine the overall conformance statement.</p>',
+  evidenceNotationHtml:
+    '<p>Throughout this document, evidence is referenced in green using the following notation:</p><p><span style="color: #0f9d58"><strong>[EVD-XXX]</strong></span> - Evidence document reference</p><p><span style="color: #0f9d58"><strong>[DOC-XXX]</strong></span> - Supporting documentation reference</p><p><span style="color: #0f9d58"><strong>[TEST-XXX]</strong></span> - Test report reference</p><p><span style="color: #0f9d58"><strong>[ARCH-XXX]</strong></span> - Architecture documentation reference</p><p>All evidence documents are listed in <strong>Appendix A: Evidence Register</strong>.</p>',
+  requirementNotationHtml:
+    '<p>Requirements from EN 40000-1-2-2025 are presented in blue and italicized to distinguish them from descriptive text.</p><p><strong>Example:</strong></p><p><em><span style="color: #3b82f6">Requirement [Clause X.X.X]:</span></em></p><p><em>"The product shall..."</em></p>',
+  assessmentVerdictsHtml:
+    '<p>Each requirement is assessed using the following verdicts:</p><ul><li><strong><span style="color: #16a34a">PASS</span></strong> - Requirement is fully satisfied with adequate evidence</li><li><strong><span style="color: #dc2626">FAIL</span></strong> - Requirement is not satisfied</li><li><strong><span style="color: #f97316">PARTIAL</span></strong> - Requirement is partially satisfied (details provided)</li><li><strong><span style="color: #6b7280">N/A</span></strong> - Requirement is not applicable to this product</li></ul>',
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -389,15 +371,9 @@ function cloneDocumentConventionState(state?: DocumentConventionState): Document
   const source = state ?? defaultDocumentConventionState
   return {
     terminologyEntries: cloneTerminologyEntries(source.terminologyEntries),
-    evidenceFormatHtml: source.evidenceFormatHtml ?? '',
-    evidenceCategoriesHtml: source.evidenceCategoriesHtml ?? '',
-    exampleReferencesHtml: source.exampleReferencesHtml ?? '',
-    requirementFormatHtml: source.requirementFormatHtml ?? '',
-    requirementCategoriesHtml: source.requirementCategoriesHtml ?? '',
-    conformanceFormatHtml: source.conformanceFormatHtml ?? '',
-    verdictCategoriesHtml: source.verdictCategoriesHtml ?? '',
-    assessmentCriteriaHtml: source.assessmentCriteriaHtml ?? '',
-    overallDeterminationHtml: source.overallDeterminationHtml ?? '',
+    evidenceNotationHtml: source.evidenceNotationHtml ?? '',
+    requirementNotationHtml: source.requirementNotationHtml ?? '',
+    assessmentVerdictsHtml: source.assessmentVerdictsHtml ?? '',
   }
 }
 
@@ -716,15 +692,9 @@ export function updateDocumentConventionState(
       patch.terminologyEntries !== undefined
         ? cloneTerminologyEntries(patch.terminologyEntries)
         : cloneTerminologyEntries(current.terminologyEntries),
-    evidenceFormatHtml: patch.evidenceFormatHtml ?? current.evidenceFormatHtml,
-    evidenceCategoriesHtml: patch.evidenceCategoriesHtml ?? current.evidenceCategoriesHtml,
-    exampleReferencesHtml: patch.exampleReferencesHtml ?? current.exampleReferencesHtml,
-    requirementFormatHtml: patch.requirementFormatHtml ?? current.requirementFormatHtml,
-    requirementCategoriesHtml: patch.requirementCategoriesHtml ?? current.requirementCategoriesHtml,
-    conformanceFormatHtml: patch.conformanceFormatHtml ?? current.conformanceFormatHtml,
-    verdictCategoriesHtml: patch.verdictCategoriesHtml ?? current.verdictCategoriesHtml,
-    assessmentCriteriaHtml: patch.assessmentCriteriaHtml ?? current.assessmentCriteriaHtml,
-    overallDeterminationHtml: patch.overallDeterminationHtml ?? current.overallDeterminationHtml,
+    evidenceNotationHtml: patch.evidenceNotationHtml ?? current.evidenceNotationHtml,
+    requirementNotationHtml: patch.requirementNotationHtml ?? current.requirementNotationHtml,
+    assessmentVerdictsHtml: patch.assessmentVerdictsHtml ?? current.assessmentVerdictsHtml,
   }
 
   const next: DocumentWorkspaceState = {

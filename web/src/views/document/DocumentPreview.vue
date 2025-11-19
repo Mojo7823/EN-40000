@@ -23,18 +23,37 @@
       <header>
         <div>
           <h2>Section Status</h2>
-          <p class="muted">Check the completion status of each document section.</p>
+          <p class="muted">Expand a section to jump into the related document pages.</p>
         </div>
       </header>
-      <ul class="status-list">
-        <li v-for="item in sectionStatuses" :key="item.key">
-          <RouterLink class="status-link" :to="item.to">
-            <div>
-              <p class="status-title">{{ item.title }}</p>
-              <p class="status-hint">{{ item.hint }}</p>
+      <ul class="status-accordion">
+        <li
+          v-for="group in statusGroups"
+          :key="group.key"
+          class="status-accordion-item"
+          :class="{ expanded: expandedGroupKey === group.key }"
+        >
+          <button class="status-trigger" type="button" @click="toggleGroup(group.key)">
+            <div class="status-trigger-main">
+              <p class="status-title">{{ group.title }}</p>
+              <p class="status-hint">{{ group.description }}</p>
             </div>
-            <span :class="['status-pill', item.state]">{{ item.label }}</span>
-          </RouterLink>
+            <span :class="['status-pill', group.state]">{{ group.label }}</span>
+            <span class="status-chevron" :class="{ rotated: expandedGroupKey === group.key }">⌄</span>
+          </button>
+          <div v-if="expandedGroupKey === group.key" class="status-panel">
+            <ul class="status-page-list">
+              <li v-for="item in group.items" :key="item.key">
+                <RouterLink class="status-page-link" :to="item.to">
+                  <div>
+                    <p class="status-subtitle">{{ item.title }}</p>
+                    <p class="status-subhint">{{ item.hint }}</p>
+                  </div>
+                  <span :class="['status-pill', item.state]">{{ item.label }}</span>
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
     </section>
@@ -43,7 +62,6 @@
       <header class="result-header">
         <div>
           <h2>DOCX Preview</h2>
-          <p class="muted">Rendered at true A4 dimensions with zoom and navigation controls.</p>
         </div>
         <div v-if="hasGeneratedDocx && !previewLoading" class="preview-controls">
           <div class="zoom-controls">
@@ -112,6 +130,33 @@ const lifecyclePhases = [
   'Decommissioning',
 ]
 
+const STATUS_GROUP_DEFINITIONS = [
+  {
+    key: 'cover-intro',
+    title: 'Cover & Introduction',
+    description: 'Cover metadata, document information, and purpose/scope.',
+    children: ['cover', 'document-info', 'purpose-scope', 'product-identification', 'manufacturer-information'],
+  },
+  {
+    key: 'product-overview',
+    title: 'Product Overview',
+    description: 'Description, architecture, and third-party components.',
+    children: ['product-overview-description', 'product-overview-architecture', 'third-party-components'],
+  },
+  {
+    key: 'conformance',
+    title: 'Conformance Claim',
+    description: 'Standards, regulatory references, and conformance level.',
+    children: ['conformance-standards', 'conformance-regulatory', 'conformance-level'],
+  },
+  {
+    key: 'document-convention',
+    title: 'Document Convention',
+    description: 'Terminology and notation settings.',
+    children: ['terminology', 'notation'],
+  },
+]
+
 const workspaceState = ref<DocumentWorkspaceState>(loadDocumentWorkspace())
 const cover = computed(() => workspaceState.value.cover)
 const introduction = computed(() => workspaceState.value.introduction)
@@ -130,9 +175,11 @@ const downloading = ref(false)
 const zoomLevel = ref(100)
 const currentPage = ref(1)
 const totalPages = ref(1)
+const expandedGroupKey = ref<string | null>(null)
 
 const lastUpdatedText = computed(() => formatDate(workspaceState.value.lastUpdated, true))
 const sectionStatuses = computed(() => buildSectionStatuses())
+const statusGroups = computed(() => buildStatusGroups(sectionStatuses.value))
 const DOCX_PAGE_SELECTOR = '.docx-wrapper > section.docx'
 
 let unsubscribe: (() => void) | null = null
@@ -159,6 +206,10 @@ watch(
     next?.addEventListener('scroll', previewScrollHandler, { passive: true })
   }
 )
+
+function toggleGroup(key: string) {
+  expandedGroupKey.value = expandedGroupKey.value === key ? null : key
+}
 
 function formatDate(value: string | null | undefined, fallbackDash = false) {
   if (!value) {
@@ -419,39 +470,47 @@ function buildSectionStatuses() {
       '/convention/terminology'
     ),
     createStatus(
-      'evidence-notation',
-      'Evidence Notation',
-      'Evidence reference format, categories, and examples.',
+      'notation',
+      'Notation',
+      'Evidence, requirement, and assessment verdict guidance.',
       [
-        stripHtml(workspaceState.value.documentConvention.evidenceFormatHtml),
-        stripHtml(workspaceState.value.documentConvention.evidenceCategoriesHtml),
-        stripHtml(workspaceState.value.documentConvention.exampleReferencesHtml),
+        stripHtml(workspaceState.value.documentConvention.evidenceNotationHtml),
+        stripHtml(workspaceState.value.documentConvention.requirementNotationHtml),
+        stripHtml(workspaceState.value.documentConvention.assessmentVerdictsHtml),
       ],
-      '/convention/evidence-notation'
-    ),
-    createStatus(
-      'requirement-notation',
-      'Requirement Notation',
-      'Requirement reference format and conformance statement structure.',
-      [
-        stripHtml(workspaceState.value.documentConvention.requirementFormatHtml),
-        stripHtml(workspaceState.value.documentConvention.requirementCategoriesHtml),
-        stripHtml(workspaceState.value.documentConvention.conformanceFormatHtml),
-      ],
-      '/convention/requirement-notation'
-    ),
-    createStatus(
-      'assessment-verdicts',
-      'Assessment Verdicts',
-      'Verdict categories, criteria, and conformance determination.',
-      [
-        stripHtml(workspaceState.value.documentConvention.verdictCategoriesHtml),
-        stripHtml(workspaceState.value.documentConvention.assessmentCriteriaHtml),
-        stripHtml(workspaceState.value.documentConvention.overallDeterminationHtml),
-      ],
-      '/convention/assessment-verdicts'
+      '/convention/notation'
     ),
   ]
+}
+
+function buildStatusGroups(statuses: Array<ReturnType<typeof createStatus>>) {
+  return STATUS_GROUP_DEFINITIONS.map((definition) => {
+    const items = definition.children
+      .map((childKey) => statuses.find((status) => status.key === childKey))
+      .filter((item): item is ReturnType<typeof createStatus> => Boolean(item))
+    if (!items.length) {
+      return null
+    }
+    const total = items.length
+    const completed = items.filter((item) => item.state === 'completed').length
+    const state = completed === total ? 'completed' : completed === 0 ? 'missing' : 'partial'
+    const label = state === 'completed' ? 'Completed' : state === 'partial' ? 'Partial' : 'Missing'
+    return {
+      key: definition.key,
+      title: definition.title,
+      description: definition.description,
+      state,
+      label,
+      items,
+    }
+  }).filter((group): group is {
+    key: string
+    title: string
+    description: string
+    state: string
+    label: string
+    items: Array<ReturnType<typeof createStatus>>
+  } => Boolean(group))
 }
 
 function createStatus(
@@ -461,18 +520,42 @@ function createStatus(
   values: Array<string | undefined | null>,
   to: string
 ) {
-  const state = evaluateCompletion(values)
-  const label = state === 'completed' ? 'Completed' : state === 'partial' ? 'Partial' : 'Missing'
-  return { key, title, hint, state, label, to }
+  const completion = evaluateCompletion(values)
+  const label =
+    completion.state === 'completed' ? 'Completed' : completion.state === 'partial' ? 'Partial' : 'Missing'
+  return {
+    key,
+    title,
+    hint,
+    state: completion.state,
+    label,
+    to,
+    completed: completion.filled,
+    total: completion.total,
+    sampleValues: completion.sampleValues,
+  }
 }
 
 function evaluateCompletion(values: Array<string | undefined | null>) {
-  const normalized = values.map((value) => (typeof value === 'string' ? value.trim() : ''))
+  const normalized = values.map((value) => {
+    if (typeof value === 'string') {
+      return value.trim()
+    }
+    if (value === null || value === undefined) {
+      return ''
+    }
+    return String(value).trim()
+  })
   const total = normalized.length
   const filled = normalized.filter((value) => value.length > 0).length
-  if (filled === 0) return 'missing'
-  if (filled === total) return 'completed'
-  return 'partial'
+  const sampleValues = normalized.filter((value) => value.length > 0).slice(0, 3)
+  if (total === 0 || filled === 0) {
+    return { state: 'missing', filled, total, sampleValues }
+  }
+  if (filled === total) {
+    return { state: 'completed', filled, total, sampleValues }
+  }
+  return { state: 'partial', filled, total, sampleValues }
 }
 
 async function uploadCoverImageIfNeeded(force = false) {
@@ -629,20 +712,16 @@ async function generatePreview() {
 
     const documentConvention = workspaceState.value.documentConvention
     const documentConventionPayload = {
-      terminology_entries: documentConvention.terminologyEntries.map((entry) => ({
-        term: normalize(entry.term),
-        definition: normalize(entry.definition),
-        reference: normalize(entry.reference),
-      })).filter((entry) => entry.term || entry.definition || entry.reference),
-      evidence_format_html: normalizeHtml(documentConvention.evidenceFormatHtml),
-      evidence_categories_html: normalizeHtml(documentConvention.evidenceCategoriesHtml),
-      example_references_html: normalizeHtml(documentConvention.exampleReferencesHtml),
-      requirement_format_html: normalizeHtml(documentConvention.requirementFormatHtml),
-      requirement_categories_html: normalizeHtml(documentConvention.requirementCategoriesHtml),
-      conformance_format_html: normalizeHtml(documentConvention.conformanceFormatHtml),
-      verdict_categories_html: normalizeHtml(documentConvention.verdictCategoriesHtml),
-      assessment_criteria_html: normalizeHtml(documentConvention.assessmentCriteriaHtml),
-      overall_determination_html: normalizeHtml(documentConvention.overallDeterminationHtml),
+      terminology_entries: documentConvention.terminologyEntries
+        .map((entry) => ({
+          term: normalize(entry.term),
+          definition: normalize(entry.definition),
+          reference: normalize(entry.reference),
+        }))
+        .filter((entry) => entry.term || entry.definition || entry.reference),
+      evidence_notation_html: normalizeHtml(documentConvention.evidenceNotationHtml),
+      requirement_notation_html: normalizeHtml(documentConvention.requirementNotationHtml),
+      assessment_verdicts_html: normalizeHtml(documentConvention.assessmentVerdictsHtml),
     }
 
     const payload = {

@@ -37,7 +37,7 @@
   flex-wrap: wrap;
 }
 
-.status-list {
+.status-accordion {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -46,33 +46,48 @@
   gap: 12px;
 }
 
-.status-list li {
-  margin: 0;
+.status-accordion-item {
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: var(--panel-bg);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.status-link {
-  border: 1px solid var(--panel-border);
-  border-radius: 14px;
-  background: var(--panel-bg);
-  padding: 14px 18px;
+.status-accordion-item.expanded {
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+}
+
+.status-trigger {
+  width: 100%;
+  border: none;
+  background: transparent;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 12px;
-  text-decoration: none;
+  padding: 16px 20px;
+  cursor: pointer;
+  text-align: left;
   color: inherit;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.status-link:hover {
-  transform: translateY(-1px);
-  border-color: var(--primary);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
-}
-
-.status-link:focus-visible {
+.status-trigger:focus-visible {
   outline: 2px solid var(--primary);
-  outline-offset: 3px;
+  outline-offset: 2px;
+}
+
+.status-trigger-main {
+  flex: 1;
+}
+
+.status-chevron {
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.status-chevron.rotated {
+  transform: rotate(180deg);
 }
 
 .status-title {
@@ -109,6 +124,51 @@
 .status-pill.missing {
   background: rgba(255, 99, 71, 0.18);
   color: #a5271f;
+}
+
+.status-panel {
+  border-top: 1px solid var(--panel-border);
+  background: var(--surface);
+  padding: 18px 20px;
+}
+
+.status-page-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-page-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.status-page-link:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.status-subtitle {
+  margin: 0;
+  font-weight: 600;
+}
+
+.status-subhint {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .result-header {
