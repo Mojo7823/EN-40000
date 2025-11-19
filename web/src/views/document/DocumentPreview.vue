@@ -356,11 +356,11 @@ function buildRiskManagementPayload(state?: RiskManagementState) {
   if (!state) return undefined
   const generalHtml = normalizeHtml(state.generalApproachHtml)
   const productContext = state.productContext
-  const scopeHtml = normalizeHtml(productContext?.scopeDefinitionHtml)
-  const environmentHtml = normalizeHtml(productContext?.operationalEnvironmentHtml)
-  const stakeholderHtml = normalizeHtml(productContext?.stakeholderProfilesHtml)
+  const intendedPurposeHtml = normalizeHtml(productContext?.intendedPurposeHtml)
+  const specificUsesHtml = normalizeHtml(productContext?.specificIntendedUsesHtml)
+  const foreseeableUseHtml = normalizeHtml(productContext?.foreseeableUseHtml)
   const evidenceEntries = normalizeEvidencePayload(productContext?.evidenceEntries)
-  const hasProductContext = scopeHtml || environmentHtml || stakeholderHtml || evidenceEntries.length
+  const hasProductContext = intendedPurposeHtml || specificUsesHtml || foreseeableUseHtml || evidenceEntries.length
 
   if (!generalHtml && !hasProductContext) {
     return undefined
@@ -377,9 +377,9 @@ function buildRiskManagementPayload(state?: RiskManagementState) {
 
   if (hasProductContext) {
     payload.product_context = {
-      scope_definition_html: scopeHtml,
-      operational_environment_html: environmentHtml,
-      stakeholder_profiles_html: stakeholderHtml,
+      intended_purpose_html: intendedPurposeHtml,
+      specific_intended_uses_html: specificUsesHtml,
+      foreseeable_use_html: foreseeableUseHtml,
       evidence_entries: evidenceEntries,
     }
   }
@@ -592,12 +592,12 @@ function buildSectionStatuses() {
     ),
     createStatus(
       'risk-product-context',
-      'Product Context Establishment',
-      'Scope, environment, stakeholders, and evidence tracker.',
+      'Product Context (Section 5.2)',
+      'Intended purpose, foreseeable use, and supporting evidence.',
       [
-        stripHtml(productContextState.value?.scopeDefinitionHtml || ''),
-        stripHtml(productContextState.value?.operationalEnvironmentHtml || ''),
-        stripHtml(productContextState.value?.stakeholderProfilesHtml || ''),
+        stripHtml(productContextState.value?.intendedPurposeHtml || ''),
+        stripHtml(productContextState.value?.specificIntendedUsesHtml || ''),
+        stripHtml(productContextState.value?.foreseeableUseHtml || ''),
         evidenceSummary.value.total
           ? evidenceSummary.value.state === 'completed'
             ? 'complete'
@@ -606,7 +606,7 @@ function buildSectionStatuses() {
               : ''
           : '',
       ],
-      '/risk/product-context'
+      '/pcontext/intended-purpose'
     ),
     createStatus(
       'evidence-tracker',

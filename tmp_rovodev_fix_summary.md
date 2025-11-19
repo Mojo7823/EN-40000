@@ -1,7 +1,7 @@
 # Product Context WYSIWYG Editor Click Fix - Summary
 
 ## Problem
-The WYSIWYG text boxes on `/risk/product-context` were intermittently unclickable. Users reported that sometimes the editors worked, sometimes they didn't respond to clicks.
+The WYSIWYG text boxes on `/pcontext/intended-purpose` were intermittently unclickable. Users reported that sometimes the editors worked, sometimes they didn't respond to clicks.
 
 ## Root Cause
 **CSS Stacking Context Issues:**
@@ -77,7 +77,7 @@ The fix should now provide:
 
 ## Manual Test Steps
 
-1. Navigate to http://127.0.0.1:5173/risk/product-context
+1. Navigate to http://127.0.0.1:5173/pcontext/intended-purpose
 2. Try clicking in each of the three editor areas:
    - Scope & Intended Use
    - Operational Environment & Dependencies

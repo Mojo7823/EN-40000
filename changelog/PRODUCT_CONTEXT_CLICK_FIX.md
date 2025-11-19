@@ -1,7 +1,7 @@
 # Product Context Editor Clickability Fix
 
 **Date:** February 2025  
-**Issue:** WYSIWYG text editors on `/risk/product-context` page were hard to click  
+**Issue:** WYSIWYG text editors on `/pcontext/intended-purpose` page were hard to click  
 **Status:** ✅ Fixed
 
 ---
@@ -141,7 +141,7 @@ The issue was caused by **CSS stacking context and layout problems**:
 
 ## Testing Checklist
 
-- [x] Navigate to `/risk/product-context`
+- [x] Navigate to `/pcontext/intended-purpose`
 - [x] Click on each of the three editor areas:
   - Scope & Intended Use
   - Operational Environment & Dependencies
@@ -168,7 +168,7 @@ The issue was caused by **CSS stacking context and layout problems**:
 ## Impact
 
 This fix applies to:
-- `/risk/product-context` (immediate fix)
+- `/pcontext/intended-purpose` (immediate fix)
 - Any other pages using `.risk-editor-card` class
 - General pattern for stacked editor sections
 

@@ -94,7 +94,7 @@ const routes = [
   { path: '/document/preview', name: 'document-preview', component: DocumentPreview },
   { path: '/document/load-save', name: 'document-storage', component: DocumentStorage },
   { path: '/document/evidence', name: 'document-evidence', component: EvidenceList },
-  { path: '/risk/product-context', name: 'risk-product-context', component: ProductContext },
+{ path: '/pcontext/intended-purpose', name: 'risk-product-context', component: ProductContext },
 ]
 
 const router = createRouter({

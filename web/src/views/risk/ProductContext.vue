@@ -16,60 +16,82 @@
 
     <section class="card content-card">
       <article class="template-body">
-        <p class="section-heading">5.1.1 Product Context Establishment</p>
-        <p class="reference-line">[Reference: Clause 6.1.1 - Product Context]</p>
+        <p class="section-heading">5.2 Product Context</p>
+        <p class="reference-line">[Reference: Clause 6.2 - Product context]</p>
         <p>
-          Capture the scope, operational environment, and stakeholder ecosystem that define the cybersecurity
-          expectations for this product. Use the templates below to quickly insert clause-compliant starter content.
+          The product context provides the foundation for all risk management activities. It captures the product's
+          intended purpose, market positioning, operational environments, and the user communities who interact with it.
         </p>
       </article>
 
-      <div class="risk-editor-card">
-        <div class="risk-editor-header">
-          <div>
-            <p class="subheading">Scope &amp; Intended Use</p>
-            <p class="guidance-text">
-              Summarize what the product is designed to do, primary variants, and lifecycle assumptions.
-            </p>
-          </div>
-          <button class="btn primary" type="button" @click="insertScopeTemplate">
-            <span style="margin-right: 8px">📝</span>
-            Insert Template
-          </button>
-        </div>
-        <RichTextEditor v-model="form.scopeDefinitionHtml" min-height="280px" />
+      <article class="template-body">
+        <p class="section-heading">5.2.1 Intended Purpose and Reasonably Foreseeable Use</p>
+        <p class="reference-line">[Reference: Clause 6.2.1.2 - Product intended purpose and reasonable foreseeable use]</p>
+        <p>
+          Describe the formal purpose of {{ productName || '[Product Name]' }}, catalogue its specific intended uses, and
+          document reasonably foreseeable uses or misuses that must be considered in the risk assessment.
+        </p>
+      </article>
+
+      <div class="requirement-callout">
+        <p class="callout-heading">Requirement [Clause 6.2.3]</p>
+        <p>The product context shall be identified and recorded based on:</p>
+        <ul>
+          <li>the product's <strong>PRFU</strong> (Product Rules and Functional Use),</li>
+          <li>the product's <strong>functions</strong>,</li>
+          <li>the product's <strong>operational environment of use</strong>,</li>
+          <li>the product's <strong>architecture overview</strong>,</li>
+          <li>the product's <strong>user descriptions</strong>.</li>
+        </ul>
       </div>
 
       <div class="risk-editor-card">
         <div class="risk-editor-header">
           <div>
-            <p class="subheading">Operational Environment &amp; Dependencies</p>
+            <p class="subheading">Intended Purpose Narrative</p>
             <p class="guidance-text">
-              Detail deployment locations, connectivity, safety constraints, and external services relied upon.
+              Detail what the product is designed and marketed to do, including the environments and users it targets.
             </p>
           </div>
-          <button class="btn primary" type="button" @click="insertEnvironmentTemplate">
+          <button class="btn primary" type="button" @click="insertIntendedPurposeTemplate">
             <span style="margin-right: 8px">📝</span>
             Insert Template
           </button>
         </div>
-        <RichTextEditor v-model="form.operationalEnvironmentHtml" min-height="280px" />
+        <RichTextEditor v-model="form.intendedPurposeHtml" min-height="280px" />
       </div>
 
       <div class="risk-editor-card">
         <div class="risk-editor-header">
           <div>
-            <p class="subheading">Stakeholders &amp; User Profiles</p>
+            <p class="subheading">Specific Intended Uses</p>
             <p class="guidance-text">
-              Identify operator roles, privileged users, supply-chain partners, and remote support parties.
+              List the discrete business or mission use cases that define success for the product.
             </p>
           </div>
-          <button class="btn primary" type="button" @click="insertStakeholderTemplate">
+          <button class="btn primary" type="button" @click="insertSpecificUsesTemplate">
             <span style="margin-right: 8px">📝</span>
             Insert Template
           </button>
         </div>
-        <RichTextEditor v-model="form.stakeholderProfilesHtml" min-height="280px" />
+        <RichTextEditor v-model="form.specificIntendedUsesHtml" min-height="220px" />
+      </div>
+
+      <div class="risk-editor-card">
+        <div class="risk-editor-header">
+          <div>
+            <p class="subheading">Reasonably Foreseeable Use &amp; Misuse</p>
+            <p class="guidance-text">
+              Identify foreseeable uses (even if unintended) and note any misuse considerations captured in the risk
+              assessment.
+            </p>
+          </div>
+          <button class="btn primary" type="button" @click="insertForeseeableUseTemplate">
+            <span style="margin-right: 8px">📝</span>
+            Insert Template
+          </button>
+        </div>
+        <RichTextEditor v-model="form.foreseeableUseHtml" min-height="280px" />
       </div>
     </section>
 
@@ -100,9 +122,9 @@ import {
 const workspaceState = ref<DocumentWorkspaceState>(loadDocumentWorkspace())
 const hydrating = ref(false)
 const form = reactive({
-  scopeDefinitionHtml: '',
-  operationalEnvironmentHtml: '',
-  stakeholderProfilesHtml: '',
+  intendedPurposeHtml: '',
+  specificIntendedUsesHtml: '',
+  foreseeableUseHtml: '',
 })
 const evidenceEntries = ref<RiskEvidenceEntry[]>([])
 let unsubscribe: (() => void) | null = null
@@ -114,19 +136,19 @@ const productName = computed(() => {
 function hydrate(state: DocumentWorkspaceState) {
   hydrating.value = true
   const productContext = state.riskManagement?.productContext
-  const nextScope = productContext?.scopeDefinitionHtml || ''
-  const nextEnvironment = productContext?.operationalEnvironmentHtml || ''
-  const nextStakeholders = productContext?.stakeholderProfilesHtml || ''
+  const nextIntendedPurpose = productContext?.intendedPurposeHtml || ''
+  const nextSpecificUses = productContext?.specificIntendedUsesHtml || ''
+  const nextForeseeableUse = productContext?.foreseeableUseHtml || ''
   const nextEvidence = normalizeEvidenceEntries(productContext?.evidenceEntries)
 
-  if (form.scopeDefinitionHtml !== nextScope) {
-    form.scopeDefinitionHtml = nextScope
+  if (form.intendedPurposeHtml !== nextIntendedPurpose) {
+    form.intendedPurposeHtml = nextIntendedPurpose
   }
-  if (form.operationalEnvironmentHtml !== nextEnvironment) {
-    form.operationalEnvironmentHtml = nextEnvironment
+  if (form.specificIntendedUsesHtml !== nextSpecificUses) {
+    form.specificIntendedUsesHtml = nextSpecificUses
   }
-  if (form.stakeholderProfilesHtml !== nextStakeholders) {
-    form.stakeholderProfilesHtml = nextStakeholders
+  if (form.foreseeableUseHtml !== nextForeseeableUse) {
+    form.foreseeableUseHtml = nextForeseeableUse
   }
   if (!areEvidenceEntriesEqual(evidenceEntries.value, nextEvidence)) {
     evidenceEntries.value = nextEvidence
@@ -176,7 +198,7 @@ function handleEvidenceChange(entries: RiskEvidenceEntry[]) {
 }
 
 function getCurrentFieldValue(
-  field: 'scopeDefinitionHtml' | 'operationalEnvironmentHtml' | 'stakeholderProfilesHtml'
+  field: 'intendedPurposeHtml' | 'specificIntendedUsesHtml' | 'foreseeableUseHtml'
 ) {
   const productContext = workspaceState.value.riskManagement?.productContext
   return productContext?.[field] ?? ''
@@ -186,52 +208,50 @@ function normalizeRichTextValue(value?: string) {
   return value ?? ''
 }
 
-function insertScopeTemplate() {
+function insertIntendedPurposeTemplate() {
   const productLabel = productName.value || '[Product Name]'
   const template = `
-<p><span style="color: #7c3aed"><strong>[Template]</strong> Use this block to describe the scope and intent of the product.</span></p>
-<p>The ${productLabel} is intended for deployment within <em>[operational domain]</em> and enables <em>[primary business capability]</em>.</p>
+<p><strong>Intended Purpose:</strong></p>
+<p>${productLabel} is intended to <em>[describe primary purpose]</em>. The product is designed for use in <em>[describe intended environments]</em> by <em>[describe intended users]</em>.</p>
+<p><strong>Marketing Positioning:</strong></p>
+<p>It addresses the following problem statements and value propositions:</p>
 <ul>
-  <li><strong>Primary variants:</strong> [Model numbers or firmware branches]</li>
-  <li><strong>Lifecycle assumptions:</strong> Development → Deployment → Support as defined in Clause 6.1.1</li>
-  <li><strong>Safety or regulatory boundaries:</strong> [List mandatory standards or jurisdictions]</li>
+  <li>[Value proposition 1]</li>
+  <li>[Value proposition 2]</li>
+  <li>[Value proposition 3]</li>
 </ul>
-<p><span style="color: #7c3aed">[Replace purple guidance text with the final narrative.]</span></p>
 `.trim()
-  form.scopeDefinitionHtml = template
-  updateRiskManagementState({ productContext: { scopeDefinitionHtml: template } })
+  form.intendedPurposeHtml = template
+  updateRiskManagementState({ productContext: { intendedPurposeHtml: template } })
 }
 
-function insertEnvironmentTemplate() {
-  const productLabel = productName.value || '[Product Name]'
+function insertSpecificUsesTemplate() {
   const template = `
-<p><span style="color: #7c3aed"><strong>[Template]</strong> Document hosting environments, connectivity, and dependencies.</span></p>
-<p>${productLabel} operates within <em>[cloud/on-prem/embedded]</em> environments and relies on the following:</p>
-<ul>
-  <li><strong>Connectivity:</strong> [LAN/WAN/Cellular protocols, remote access requirements]</li>
-  <li><strong>External services:</strong> [Identity providers, telemetry pipelines, OTA platforms]</li>
-  <li><strong>Environmental constraints:</strong> [Temperature, safety zones, redundancy expectations]</li>
-</ul>
-<p><span style="color: #7c3aed">[Note any constrained interfaces or zero-trust patterns mandated by Clause 6.1.1.]</span></p>
-`.trim()
-  form.operationalEnvironmentHtml = template
-  updateRiskManagementState({ productContext: { operationalEnvironmentHtml: template } })
-}
-
-function insertStakeholderTemplate() {
-  const productLabel = productName.value || '[Product Name]'
-  const template = `
-<p><span style="color: #7c3aed"><strong>[Template]</strong> Identify the people that can influence risk posture.</span></p>
-<p>The following stakeholder groups interact with ${productLabel}:</p>
+<p><strong>Specific Intended Uses</strong></p>
 <ol>
-  <li><strong>Primary operators:</strong> [e.g., clinical staff, field engineers] with privileges limited to [controls].</li>
-  <li><strong>Privileged maintainers:</strong> [e.g., manufacturer DevSecOps] responsible for secure updates and diagnostics.</li>
-  <li><strong>External parties:</strong> [Supply-chain partners, managed service providers, regulators] receiving curated data.</li>
+  <li>[Intended use 1]</li>
+  <li>[Intended use 2]</li>
+  <li>[Intended use 3]</li>
 </ol>
-<p><span style="color: #7c3aed">[Reference stakeholder communication plans or SLAs backing this section.]</span></p>
 `.trim()
-  form.stakeholderProfilesHtml = template
-  updateRiskManagementState({ productContext: { stakeholderProfilesHtml: template } })
+  form.specificIntendedUsesHtml = template
+  updateRiskManagementState({ productContext: { specificIntendedUsesHtml: template } })
+}
+
+function insertForeseeableUseTemplate() {
+  const template = `
+<p><strong>Reasonably Foreseeable Use:</strong></p>
+<p>Based on analysis of similar products and market conditions, the following uses are reasonably foreseeable:</p>
+<ol>
+  <li>[Foreseeable use 1 - e.g., "Users may share access credentials with family members."]</li>
+  <li>[Foreseeable use 2 - e.g., "The product may be used in environments with different security requirements than intended."]</li>
+  <li>[Foreseeable use 3 - e.g., "Users may integrate the product with third-party systems not contemplated by the manufacturer."]</li>
+</ol>
+<p><strong>Misuse Considerations:</strong></p>
+<p>[Describe any misuse patterns that have been considered in the risk assessment.]</p>
+`.trim()
+  form.foreseeableUseHtml = template
+  updateRiskManagementState({ productContext: { foreseeableUseHtml: template } })
 }
 
 onMounted(() => {
@@ -247,40 +267,40 @@ onUnmounted(() => {
 })
 
 watch(
-  () => form.scopeDefinitionHtml,
+  () => form.intendedPurposeHtml,
   (value) => {
     if (hydrating.value) return
     const normalizedValue = normalizeRichTextValue(value)
-    if (normalizedValue === getCurrentFieldValue('scopeDefinitionHtml')) {
+    if (normalizedValue === getCurrentFieldValue('intendedPurposeHtml')) {
       return
     }
-    updateRiskManagementState({ productContext: { scopeDefinitionHtml: normalizedValue } })
+    updateRiskManagementState({ productContext: { intendedPurposeHtml: normalizedValue } })
   },
   { flush: 'sync' }
 )
 
 watch(
-  () => form.operationalEnvironmentHtml,
+  () => form.specificIntendedUsesHtml,
   (value) => {
     if (hydrating.value) return
     const normalizedValue = normalizeRichTextValue(value)
-    if (normalizedValue === getCurrentFieldValue('operationalEnvironmentHtml')) {
+    if (normalizedValue === getCurrentFieldValue('specificIntendedUsesHtml')) {
       return
     }
-    updateRiskManagementState({ productContext: { operationalEnvironmentHtml: normalizedValue } })
+    updateRiskManagementState({ productContext: { specificIntendedUsesHtml: normalizedValue } })
   },
   { flush: 'sync' }
 )
 
 watch(
-  () => form.stakeholderProfilesHtml,
+  () => form.foreseeableUseHtml,
   (value) => {
     if (hydrating.value) return
     const normalizedValue = normalizeRichTextValue(value)
-    if (normalizedValue === getCurrentFieldValue('stakeholderProfilesHtml')) {
+    if (normalizedValue === getCurrentFieldValue('foreseeableUseHtml')) {
       return
     }
-    updateRiskManagementState({ productContext: { stakeholderProfilesHtml: normalizedValue } })
+    updateRiskManagementState({ productContext: { foreseeableUseHtml: normalizedValue } })
   },
   { flush: 'sync' }
 )

@@ -145,7 +145,7 @@ const conformanceLinks = [
 ]
 const riskLinks = [
   { label: 'General Approach to Risk Management', to: '/risk/general-approach', disabled: false },
-  { label: 'Product Context', to: '/risk/product-context', disabled: false },
+  { label: 'Product Context (Section 5.2)', to: '/pcontext/intended-purpose', disabled: false },
   { label: 'Risk Acceptance Criteria and Risk Management', to: '', disabled: true },
   { label: 'Risk Assessment', to: '', disabled: true },
   { label: 'Risk Treatment', to: '', disabled: true },

@@ -10,14 +10,14 @@
         </p>
       </div>
       <div class="title-card-actions">
-        <RouterLink class="btn ghost" to="/risk/product-context">Go to Product Context</RouterLink>
+        <RouterLink class="btn ghost" to="/pcontext/intended-purpose">Go to Product Context</RouterLink>
       </div>
     </section>
 
     <section class="card content-card">
       <article class="template-body">
         <p class="section-heading">Evidence Tracker Overview</p>
-        <p class="reference-line">[Reference: Clause 6.1 - Risk Management Elements]</p>
+        <p class="reference-line">[Reference: Clause 6.2 - Product context]</p>
         <p>
           Evidence entries listed here are shared with Document Preview and DOCX export. Each entry should include a
           reference identifier, status, and short description.
@@ -98,9 +98,9 @@ function buildEvidenceRows(state: DocumentWorkspaceState) {
     productContext.evidenceEntries.forEach((entry) => {
       rows.push({
         ...entry,
-        sectionLabel: 'Product Context Establishment',
-        referenceLine: '[Reference: Clause 6.1.1]',
-        route: '/risk/product-context',
+        sectionLabel: 'Product Context (Section 5.2)',
+        referenceLine: '[Reference: Clause 6.2.1.2]',
+        route: '/pcontext/intended-purpose',
       })
     })
   }

@@ -134,9 +134,9 @@ class RiskEvidenceEntry(BaseModel):
 
 
 class ProductContextSection(BaseModel):
-    scope_definition_html: Optional[str] = None
-    operational_environment_html: Optional[str] = None
-    stakeholder_profiles_html: Optional[str] = None
+    intended_purpose_html: Optional[str] = None
+    specific_intended_uses_html: Optional[str] = None
+    foreseeable_use_html: Optional[str] = None
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 

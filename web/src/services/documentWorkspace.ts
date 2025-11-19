@@ -123,9 +123,9 @@ export interface RiskEvidenceEntry {
 }
 
 export interface ProductContextState {
-  scopeDefinitionHtml: string
-  operationalEnvironmentHtml: string
-  stakeholderProfilesHtml: string
+  intendedPurposeHtml: string
+  specificIntendedUsesHtml: string
+  foreseeableUseHtml: string
   evidenceEntries: RiskEvidenceEntry[]
 }
 
@@ -261,9 +261,9 @@ const defaultDocumentConventionState: DocumentConventionState = {
 }
 
 const defaultProductContextState: ProductContextState = {
-  scopeDefinitionHtml: '',
-  operationalEnvironmentHtml: '',
-  stakeholderProfilesHtml: '',
+  intendedPurposeHtml: '',
+  specificIntendedUsesHtml: '',
+  foreseeableUseHtml: '',
   evidenceEntries: [
     {
       id: `${RISK_PRODUCT_CONTEXT_SECTION_KEY}-evidence`,
@@ -350,16 +350,31 @@ function cloneEvidenceEntries(
   }))
 }
 
-function cloneProductContextState(state?: ProductContextState): ProductContextState {
+type LegacyProductContextState = {
+  scopeDefinitionHtml?: string
+  operationalEnvironmentHtml?: string
+  stakeholderProfilesHtml?: string
+  evidenceEntries?: RiskEvidenceEntry[]
+}
+
+function cloneProductContextState(state?: ProductContextState | LegacyProductContextState): ProductContextState {
   const source = state ?? defaultProductContextState
+  const typedSource = source as ProductContextState
+  const legacy = source as LegacyProductContextState | undefined
   const evidenceSource =
-    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
-      ? source.evidenceEntries
-      : defaultProductContextState.evidenceEntries
+    (Array.isArray(typedSource.evidenceEntries) && typedSource.evidenceEntries.length
+      ? typedSource.evidenceEntries
+      : undefined) ??
+    (Array.isArray(legacy?.evidenceEntries) && legacy?.evidenceEntries?.length
+      ? legacy?.evidenceEntries
+      : undefined) ??
+    defaultProductContextState.evidenceEntries
+
   return {
-    scopeDefinitionHtml: source.scopeDefinitionHtml ?? '',
-    operationalEnvironmentHtml: source.operationalEnvironmentHtml ?? '',
-    stakeholderProfilesHtml: source.stakeholderProfilesHtml ?? '',
+    intendedPurposeHtml: typedSource.intendedPurposeHtml ?? legacy?.scopeDefinitionHtml ?? '',
+    specificIntendedUsesHtml:
+      typedSource.specificIntendedUsesHtml ?? legacy?.operationalEnvironmentHtml ?? '',
+    foreseeableUseHtml: typedSource.foreseeableUseHtml ?? legacy?.stakeholderProfilesHtml ?? '',
     evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_PRODUCT_CONTEXT_SECTION_KEY),
   }
 }
@@ -827,11 +842,12 @@ export function updateRiskManagementState(
         : cloneEvidenceEntries(currentProductContext.evidenceEntries, RISK_PRODUCT_CONTEXT_SECTION_KEY)
 
     nextProductContext = {
-      scopeDefinitionHtml: productContextPatch.scopeDefinitionHtml ?? currentProductContext.scopeDefinitionHtml,
-      operationalEnvironmentHtml:
-        productContextPatch.operationalEnvironmentHtml ?? currentProductContext.operationalEnvironmentHtml,
-      stakeholderProfilesHtml:
-        productContextPatch.stakeholderProfilesHtml ?? currentProductContext.stakeholderProfilesHtml,
+      intendedPurposeHtml:
+        productContextPatch.intendedPurposeHtml ?? currentProductContext.intendedPurposeHtml,
+      specificIntendedUsesHtml:
+        productContextPatch.specificIntendedUsesHtml ?? currentProductContext.specificIntendedUsesHtml,
+      foreseeableUseHtml:
+        productContextPatch.foreseeableUseHtml ?? currentProductContext.foreseeableUseHtml,
       evidenceEntries: patchedEvidence,
     }
   } else {

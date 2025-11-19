@@ -58,35 +58,48 @@ def append_risk_management_section(document: Document, payload: Optional[object]
 
 def _append_product_context_section(document: Document, payload: Optional[object]) -> None:
     heading = document.add_paragraph()
-    heading_run = heading.add_run("5.1.1 Product Context Establishment")
-    heading_run.font.size = Pt(16)
+    heading_run = heading.add_run("5.2 Product Context")
+    heading_run.font.size = Pt(18)
     heading_run.font.bold = True
-    heading.space_before = Pt(10)
-    heading.space_after = Pt(4)
+    heading.space_before = Pt(12)
+    heading.space_after = Pt(6)
 
-    reference = document.add_paragraph("[Reference: Clause 6.1.1 - Product Context]")
+    reference = document.add_paragraph("[Reference: Clause 6.2 - Product Context]")
     reference.runs[0].font.bold = True
-    reference.space_after = Pt(8)
+    reference.space_after = Pt(10)
+
+    subsection = document.add_paragraph()
+    subsection_run = subsection.add_run("5.2.1 Intended Purpose and Reasonably Foreseeable Use")
+    subsection_run.font.size = Pt(16)
+    subsection_run.font.bold = True
+    subsection.space_before = Pt(6)
+    subsection.space_after = Pt(4)
+
+    clause_reference = document.add_paragraph(
+        "[Reference: Clause 6.2.1.2 - Product intended purpose and reasonable foreseeable use]"
+    )
+    clause_reference.runs[0].font.bold = True
+    clause_reference.space_after = Pt(8)
 
     intro = document.add_paragraph(
-        "Summarize the intended use, operating environment, and stakeholder ecosystem that frames cybersecurity risks."
+        "The product context provides the foundation for all risk management activities. It describes the product's intended purpose, functions, operational environment, architecture, and users."
     )
     intro.paragraph_format.space_after = Pt(12)
 
     _append_product_context_block(
         document,
-        "Scope and Intended Use",
-        _extract_value(payload, "scope_definition_html"),
+        "Intended Purpose",
+        _extract_value(payload, "intended_purpose_html"),
     )
     _append_product_context_block(
         document,
-        "Operational Environment and Dependencies",
-        _extract_value(payload, "operational_environment_html"),
+        "Specific Intended Uses",
+        _extract_value(payload, "specific_intended_uses_html"),
     )
     _append_product_context_block(
         document,
-        "Stakeholders and User Profiles",
-        _extract_value(payload, "stakeholder_profiles_html"),
+        "Reasonably Foreseeable Use and Misuse Considerations",
+        _extract_value(payload, "foreseeable_use_html"),
     )
 
     _append_evidence_tracker(document, getattr(payload, "evidence_entries", None))
@@ -160,9 +173,9 @@ def _product_context_has_content(payload: Optional[object]) -> bool:
         return False
     return any(
         [
-            bool(_extract_value(payload, "scope_definition_html")),
-            bool(_extract_value(payload, "operational_environment_html")),
-            bool(_extract_value(payload, "stakeholder_profiles_html")),
+            bool(_extract_value(payload, "intended_purpose_html")),
+            bool(_extract_value(payload, "specific_intended_uses_html")),
+            bool(_extract_value(payload, "foreseeable_use_html")),
             bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
         ]
     )
