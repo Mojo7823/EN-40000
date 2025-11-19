@@ -44,6 +44,9 @@
   flex-direction: column;
   gap: 24px;
   padding: 24px;
+  position: relative;
+  z-index: auto;
+  isolation: isolate;
 }
 
 .template-body {
@@ -99,4 +102,38 @@
   line-height: 1.6;
   margin: 0;
   font-style: italic;
+}
+
+.risk-product-context-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.risk-editor-card {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  isolation: isolate;
+}
+
+.risk-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 10;
+  min-height: 60px;
+}
+
+.risk-editor-header button {
+  flex-shrink: 0;
+  margin-top: 0;
+  white-space: nowrap;
 }

@@ -114,6 +114,7 @@ import {
   updateCoverState,
   type DocumentWorkspaceState,
   type RegulatoryConformanceState,
+  type RiskEvidenceEntry,
   type RiskManagementState,
 } from '../../services/documentWorkspace'
 import { dataUrlToFile } from '../../utils/dataUrl'
@@ -157,10 +158,16 @@ const STATUS_GROUP_DEFINITIONS = [
     children: ['terminology', 'notation'],
   },
   {
+    key: 'evidence-management',
+    title: 'Evidence Tracking',
+    description: 'Supporting documentation readiness.',
+    children: ['evidence-tracker'],
+  },
+    {
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general'],
+    children: ['risk-general', 'risk-product-context'],
   },
 ]
 
@@ -173,7 +180,11 @@ const manufacturerInformation = computed(() => workspaceState.value.manufacturer
 const productOverview = computed(() => workspaceState.value.productOverview)
 const conformanceClaim = computed(() => workspaceState.value.conformanceClaim)
 const riskManagement = computed(() => workspaceState.value.riskManagement)
-const riskManagementNarrative = computed(() => buildRiskManagementHtml(riskManagement.value))
+const riskManagementPayload = computed(() => buildRiskManagementPayload(riskManagement.value))
+const riskManagementNarrative = computed(() => riskManagementPayload.value?.general_approach_html)
+const productContextState = computed(() => riskManagement.value.productContext)
+const productContextEvidence = computed(() => productContextState.value?.evidenceEntries ?? [])
+const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextEvidence.value))
 const previewLoading = ref(false)
 const previewError = ref('')
 const hasGeneratedDocx = ref(false)
@@ -249,6 +260,12 @@ function normalizeHtml(value?: string | null) {
   const trimmed = value.trim()
   if (!trimmed) return undefined
   return stripHtml(trimmed) ? trimmed : undefined
+}
+
+function normalizePlainText(value?: string | null) {
+  if (!value) return undefined
+  const trimmed = value.trim()
+  return trimmed.length ? trimmed : undefined
 }
 
 function formatAssessmentPeriod(start?: string | null, end?: string | null) {
@@ -335,9 +352,81 @@ function buildConformanceLevelHtml(state?: ConformanceLevelState) {
 ${justificationBlock}`
 }
 
-function buildRiskManagementHtml(state?: RiskManagementState) {
+function buildRiskManagementPayload(state?: RiskManagementState) {
   if (!state) return undefined
-  return normalizeHtml(state.generalApproachHtml)
+  const generalHtml = normalizeHtml(state.generalApproachHtml)
+  const productContext = state.productContext
+  const scopeHtml = normalizeHtml(productContext?.scopeDefinitionHtml)
+  const environmentHtml = normalizeHtml(productContext?.operationalEnvironmentHtml)
+  const stakeholderHtml = normalizeHtml(productContext?.stakeholderProfilesHtml)
+  const evidenceEntries = normalizeEvidencePayload(productContext?.evidenceEntries)
+  const hasProductContext = scopeHtml || environmentHtml || stakeholderHtml || evidenceEntries.length
+
+  if (!generalHtml && !hasProductContext) {
+    return undefined
+  }
+
+  const payload: {
+    general_approach_html?: string
+    product_context?: Record<string, unknown>
+  } = {}
+
+  if (generalHtml) {
+    payload.general_approach_html = generalHtml
+  }
+
+  if (hasProductContext) {
+    payload.product_context = {
+      scope_definition_html: scopeHtml,
+      operational_environment_html: environmentHtml,
+      stakeholder_profiles_html: stakeholderHtml,
+      evidence_entries: evidenceEntries,
+    }
+  }
+
+  return payload
+}
+
+function normalizeEvidencePayload(entries?: RiskEvidenceEntry[]) {
+  if (!entries) return []
+  return entries
+    .map((entry) => {
+      const reference = normalizePlainText(entry.referenceId)
+      const title = normalizePlainText(entry.title)
+      const notesHtml = normalizeHtml(entry.descriptionHtml)
+      if (!reference && !title && !notesHtml) {
+        return null
+      }
+      return {
+        section_key: entry.sectionKey || 'risk-product-context',
+        reference_id: reference,
+        title,
+        status: entry.status,
+        notes_html: notesHtml,
+      }
+    })
+    .filter((entry): entry is {
+      section_key: string
+      reference_id?: string
+      title?: string
+      status: string
+      notes_html?: string
+    } => Boolean(entry))
+}
+
+function summarizeEvidenceEntries(entries: RiskEvidenceEntry[]) {
+  if (!entries.length) {
+    return { total: 0, completed: 0, state: 'missing' as const }
+  }
+  const completed = entries.filter((entry) => entry.status === 'complete').length
+  const inProgress = entries.filter((entry) => entry.status === 'in_progress').length
+  const state =
+    completed === entries.length
+      ? ('completed' as const)
+      : completed > 0 || inProgress > 0
+        ? ('partial' as const)
+        : ('missing' as const)
+  return { total: entries.length, completed, state }
 }
 
 function buildSectionStatuses() {
@@ -501,6 +590,38 @@ function buildSectionStatuses() {
       [stripHtml(riskManagementNarrative.value)],
       '/risk/general-approach'
     ),
+    createStatus(
+      'risk-product-context',
+      'Product Context Establishment',
+      'Scope, environment, stakeholders, and evidence tracker.',
+      [
+        stripHtml(productContextState.value?.scopeDefinitionHtml || ''),
+        stripHtml(productContextState.value?.operationalEnvironmentHtml || ''),
+        stripHtml(productContextState.value?.stakeholderProfilesHtml || ''),
+        evidenceSummary.value.total
+          ? evidenceSummary.value.state === 'completed'
+            ? 'complete'
+            : evidenceSummary.value.state === 'partial'
+              ? 'progress'
+              : ''
+          : '',
+      ],
+      '/risk/product-context'
+    ),
+    createStatus(
+      'evidence-tracker',
+      'Evidence List',
+      'Central record of supporting documentation.',
+      [
+        evidenceSummary.value.total ? String(evidenceSummary.value.total) : '',
+        evidenceSummary.value.state === 'completed'
+          ? 'complete'
+          : evidenceSummary.value.state === 'partial'
+            ? 'progress'
+            : '',
+      ],
+      '/document/evidence'
+    ),
   ]
 }
 
@@ -623,11 +744,7 @@ async function generatePreview() {
   try {
     const userId = sessionService.getUserToken()
     const imagePath = await uploadCoverImageIfNeeded()
-    const normalize = (value?: string | null) => {
-      if (!value) return undefined
-      const trimmed = value.trim()
-      return trimmed.length ? trimmed : undefined
-    }
+    const normalize = normalizePlainText
     const normalizeStandardEntry = (
       entry?: { code?: string | null; description?: string | null } | null
     ) => {
@@ -745,7 +862,7 @@ async function generatePreview() {
       assessment_verdicts_html: normalizeHtml(documentConvention.assessmentVerdictsHtml),
     }
 
-    const riskManagementHtml = normalizeHtml(riskManagementNarrative.value)
+    const riskManagementSection = buildRiskManagementPayload(riskManagement.value)
 
     const payload: Record<string, unknown> = {
       user_id: userId,
@@ -765,8 +882,8 @@ async function generatePreview() {
       document_convention: documentConventionPayload,
     }
 
-    if (riskManagementHtml) {
-      ;(payload as any).risk_management = { general_approach_html: riskManagementHtml }
+    if (riskManagementSection) {
+      ;(payload as any).risk_management = riskManagementSection
     }
 
     const response = await api.post('/cover/preview', payload)

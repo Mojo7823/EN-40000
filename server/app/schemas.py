@@ -125,9 +125,25 @@ class DocumentConventionSection(BaseModel):
     assessment_verdicts_html: Optional[str] = None
 
 
+class RiskEvidenceEntry(BaseModel):
+    section_key: Optional[str] = None
+    title: Optional[str] = None
+    reference_id: Optional[str] = None
+    status: Optional[str] = None
+    notes_html: Optional[str] = None
+
+
+class ProductContextSection(BaseModel):
+    scope_definition_html: Optional[str] = None
+    operational_environment_html: Optional[str] = None
+    stakeholder_profiles_html: Optional[str] = None
+    evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
+    product_context: Optional[ProductContextSection] = None
 
 
 class CoverPreviewRequest(BaseModel):

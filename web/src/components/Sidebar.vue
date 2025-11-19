@@ -145,7 +145,7 @@ const conformanceLinks = [
 ]
 const riskLinks = [
   { label: 'General Approach to Risk Management', to: '/risk/general-approach', disabled: false },
-  { label: 'Product Context', to: '', disabled: true },
+  { label: 'Product Context', to: '/risk/product-context', disabled: false },
   { label: 'Risk Acceptance Criteria and Risk Management', to: '', disabled: true },
   { label: 'Risk Assessment', to: '', disabled: true },
   { label: 'Risk Treatment', to: '', disabled: true },
@@ -159,6 +159,7 @@ const documentConventionLinks = [
 const documentLinks = [
   { label: 'Document Preview', to: '/document/preview' },
   { label: 'Load & Save', to: '/document/load-save' },
+  { label: 'Evidence List', to: '/document/evidence' },
 ]
 const demoLinks = [
   { label: 'Modal', to: '/demo/modal' },

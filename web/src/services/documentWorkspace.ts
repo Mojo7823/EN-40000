@@ -111,8 +111,27 @@ export interface DocumentConventionState {
   assessmentVerdictsHtml: string
 }
 
+export type RiskEvidenceStatus = 'not_started' | 'in_progress' | 'complete'
+
+export interface RiskEvidenceEntry {
+  id: string
+  sectionKey: string
+  title: string
+  referenceId: string
+  descriptionHtml: string
+  status: RiskEvidenceStatus
+}
+
+export interface ProductContextState {
+  scopeDefinitionHtml: string
+  operationalEnvironmentHtml: string
+  stakeholderProfilesHtml: string
+  evidenceEntries: RiskEvidenceEntry[]
+}
+
 export interface RiskManagementState {
   generalApproachHtml: string
+  productContext: ProductContextState
 }
 
 export interface DocumentWorkspaceState {
@@ -133,6 +152,22 @@ const CONFORMANCE_LEVEL_VALUE_SET = new Set<ConformanceLevelStatus>(
   CONFORMANCE_LEVEL_OPTIONS.map((option) => option.value)
 )
 const TERMINOLOGY_ID_PREFIX = 'term-'
+
+export const RISK_PRODUCT_CONTEXT_SECTION_KEY = 'risk-product-context'
+
+export const RISK_EVIDENCE_STATUS_OPTIONS = [
+  { value: 'not_started', label: 'Not Started' },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'complete', label: 'Complete' },
+] as const
+
+const EVIDENCE_ID_PREFIX = 'evidence-'
+
+export function generateEvidenceEntryId(sectionKey = RISK_PRODUCT_CONTEXT_SECTION_KEY) {
+  const random = Math.random().toString(36).slice(2, 8)
+  const timestamp = Date.now().toString(36)
+  return `${EVIDENCE_ID_PREFIX}${sectionKey}-${timestamp}-${random}`
+}
 
 export function generateTerminologyEntryId() {
   const random = Math.random().toString(36).slice(2, 8)
@@ -225,8 +260,25 @@ const defaultDocumentConventionState: DocumentConventionState = {
     '<p>Each requirement is assessed using the following verdicts:</p><ul><li><strong><span style="color: #16a34a">PASS</span></strong> - Requirement is fully satisfied with adequate evidence</li><li><strong><span style="color: #dc2626">FAIL</span></strong> - Requirement is not satisfied</li><li><strong><span style="color: #f97316">PARTIAL</span></strong> - Requirement is partially satisfied (details provided)</li><li><strong><span style="color: #6b7280">N/A</span></strong> - Requirement is not applicable to this product</li></ul>',
 }
 
+const defaultProductContextState: ProductContextState = {
+  scopeDefinitionHtml: '',
+  operationalEnvironmentHtml: '',
+  stakeholderProfilesHtml: '',
+  evidenceEntries: [
+    {
+      id: `${RISK_PRODUCT_CONTEXT_SECTION_KEY}-evidence`,
+      sectionKey: RISK_PRODUCT_CONTEXT_SECTION_KEY,
+      title: 'Product Context Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ],
+}
+
 const defaultRiskManagementState: RiskManagementState = {
   generalApproachHtml: '',
+  productContext: cloneProductContextState(defaultProductContextState),
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -261,7 +313,7 @@ const defaultState: DocumentWorkspaceState = {
   },
   conformanceClaim: cloneConformanceClaimState(),
   documentConvention: cloneDocumentConventionState(defaultDocumentConventionState),
-  riskManagement: { ...defaultRiskManagementState },
+  riskManagement: cloneRiskManagementState(defaultRiskManagementState),
   lastUpdated: new Date(0).toISOString(),
 }
 
@@ -278,6 +330,45 @@ function cloneThirdPartyState(state?: ThirdPartyComponentsState): ThirdPartyComp
     entries: (source.entries ?? []).map((entry) => ({ ...entry })),
     managementApproachHtml: source.managementApproachHtml ?? '',
     evidenceReferenceHtml: source.evidenceReferenceHtml ?? '',
+  }
+}
+
+function cloneEvidenceEntries(
+  entries?: RiskEvidenceEntry[],
+  fallbackSectionKey = RISK_PRODUCT_CONTEXT_SECTION_KEY
+): RiskEvidenceEntry[] {
+  if (!Array.isArray(entries)) {
+    return []
+  }
+  return entries.map((entry, index) => ({
+    id: entry.id || generateEvidenceEntryId(`${fallbackSectionKey}-${index}`),
+    sectionKey: entry.sectionKey || fallbackSectionKey,
+    title: entry.title ?? '',
+    referenceId: entry.referenceId ?? '',
+    descriptionHtml: entry.descriptionHtml ?? '',
+    status: entry.status ?? 'not_started',
+  }))
+}
+
+function cloneProductContextState(state?: ProductContextState): ProductContextState {
+  const source = state ?? defaultProductContextState
+  const evidenceSource =
+    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
+      ? source.evidenceEntries
+      : defaultProductContextState.evidenceEntries
+  return {
+    scopeDefinitionHtml: source.scopeDefinitionHtml ?? '',
+    operationalEnvironmentHtml: source.operationalEnvironmentHtml ?? '',
+    stakeholderProfilesHtml: source.stakeholderProfilesHtml ?? '',
+    evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_PRODUCT_CONTEXT_SECTION_KEY),
+  }
+}
+
+function cloneRiskManagementState(state?: RiskManagementState): RiskManagementState {
+  const source = state ?? defaultRiskManagementState
+  return {
+    generalApproachHtml: source.generalApproachHtml ?? '',
+    productContext: cloneProductContextState(source.productContext),
   }
 }
 
@@ -406,7 +497,7 @@ function cloneState(state: DocumentWorkspaceState): DocumentWorkspaceState {
     },
     conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
     documentConvention: cloneDocumentConventionState(state.documentConvention),
-    riskManagement: { ...state.riskManagement },
+    riskManagement: cloneRiskManagementState(state.riskManagement),
   }
 }
 
@@ -470,10 +561,7 @@ function readFromStorage(): DocumentWorkspaceState | null {
       },
       conformanceClaim: cloneConformanceClaimState(parsed.conformanceClaim),
       documentConvention: cloneDocumentConventionState(parsed.documentConvention),
-      riskManagement: {
-        ...defaultRiskManagementState,
-        ...parsed.riskManagement,
-      },
+      riskManagement: cloneRiskManagementState(parsed.riskManagement),
     }
   } catch (error) {
     console.warn('Failed to parse document workspace state:', error)
@@ -726,9 +814,40 @@ export function updateRiskManagementState(
   patch: Partial<RiskManagementState>
 ): DocumentWorkspaceState {
   const current = inMemoryState.riskManagement
+  const currentProductContext = current.productContext || cloneProductContextState()
+
+  let nextProductContext: ProductContextState
+  if (patch.productContext) {
+    const productContextPatch = patch.productContext
+    const patchedEvidence =
+      productContextPatch.evidenceEntries !== undefined
+        ? productContextPatch.evidenceEntries.length
+          ? cloneEvidenceEntries(productContextPatch.evidenceEntries, RISK_PRODUCT_CONTEXT_SECTION_KEY)
+          : cloneEvidenceEntries(defaultProductContextState.evidenceEntries, RISK_PRODUCT_CONTEXT_SECTION_KEY)
+        : cloneEvidenceEntries(currentProductContext.evidenceEntries, RISK_PRODUCT_CONTEXT_SECTION_KEY)
+
+    nextProductContext = {
+      scopeDefinitionHtml: productContextPatch.scopeDefinitionHtml ?? currentProductContext.scopeDefinitionHtml,
+      operationalEnvironmentHtml:
+        productContextPatch.operationalEnvironmentHtml ?? currentProductContext.operationalEnvironmentHtml,
+      stakeholderProfilesHtml:
+        productContextPatch.stakeholderProfilesHtml ?? currentProductContext.stakeholderProfilesHtml,
+      evidenceEntries: patchedEvidence,
+    }
+  } else {
+    nextProductContext = cloneProductContextState(currentProductContext)
+  }
+
+  if (!nextProductContext.evidenceEntries.length) {
+    nextProductContext.evidenceEntries = cloneEvidenceEntries(
+      defaultProductContextState.evidenceEntries,
+      RISK_PRODUCT_CONTEXT_SECTION_KEY
+    )
+  }
 
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
+    productContext: nextProductContext,
   }
 
   const next: DocumentWorkspaceState = {
@@ -776,10 +895,7 @@ export function importDocumentWorkspace(payload: { state: DocumentWorkspaceState
     },
     conformanceClaim: cloneConformanceClaimState(state.conformanceClaim),
     documentConvention: cloneDocumentConventionState(state.documentConvention),
-    riskManagement: {
-      ...defaultRiskManagementState,
-      ...state.riskManagement,
-    },
+    riskManagement: cloneRiskManagementState(state.riskManagement),
     lastUpdated: new Date().toISOString(),
   }
   persistState(merged)

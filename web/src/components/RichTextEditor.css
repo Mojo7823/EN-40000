@@ -2,6 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
 }
 
 .toolbar {
@@ -13,6 +16,8 @@
   border: 1px solid var(--panel-border);
   border-radius: 10px;
   padding: 12px;
+  position: relative;
+  z-index: 2;
 }
 
 .toolbar-group {
@@ -111,6 +116,8 @@
   line-height: 1.6;
   width: 100%;
   cursor: text;
+  position: relative;
+  z-index: 1;
 }
 
 .editor :deep(img) {

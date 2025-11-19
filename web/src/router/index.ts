@@ -13,6 +13,7 @@ import ProductIdentification from '../views/document/ProductIdentification.vue'
 import ManufacturerInformation from '../views/document/ManufacturerInformation.vue'
 import DocumentPreview from '../views/document/DocumentPreview.vue'
 import DocumentStorage from '../views/document/DocumentStorage.vue'
+import EvidenceList from '../views/document/EvidenceList.vue'
 import ProductDescription from '../views/product/ProductDescription.vue'
 import ProductArchitectureOverview from '../views/product/ProductArchitectureOverview.vue'
 import ThirdPartyComponents from '../views/product/ThirdPartyComponents.vue'
@@ -22,6 +23,7 @@ import ConformanceLevel from '../views/conformance/ConformanceLevel.vue'
 import Terminology from '../views/convention/Terminology.vue'
 import Notation from '../views/convention/Notation.vue'
 import GeneralApproach from '../views/risk/GeneralApproach.vue'
+import ProductContext from '../views/risk/ProductContext.vue'
 
 const routes = [
   { path: '/', name: 'dashboard', component: Dashboard },
@@ -91,6 +93,8 @@ const routes = [
   },
   { path: '/document/preview', name: 'document-preview', component: DocumentPreview },
   { path: '/document/load-save', name: 'document-storage', component: DocumentStorage },
+  { path: '/document/evidence', name: 'document-evidence', component: EvidenceList },
+  { path: '/risk/product-context', name: 'risk-product-context', component: ProductContext },
 ]
 
 const router = createRouter({
