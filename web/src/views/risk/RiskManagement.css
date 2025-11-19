@@ -73,6 +73,20 @@
   gap: 12px;
 }
 
+.editor-section {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 .subheading {
   font-weight: 700;
   font-size: 1.1rem;

@@ -337,24 +337,7 @@ ${justificationBlock}`
 
 function buildRiskManagementHtml(state?: RiskManagementState) {
   if (!state) return undefined
-  const sections = [
-    { title: 'Risk Management Framework', html: normalizeHtml(state.frameworkHtml) },
-    { title: 'Risk Identification Process', html: normalizeHtml(state.identificationHtml) },
-    { title: 'Risk Analysis and Evaluation', html: normalizeHtml(state.analysisHtml) },
-    { title: 'Risk Treatment Approach', html: normalizeHtml(state.treatmentHtml) },
-    { title: 'Monitoring and Review', html: normalizeHtml(state.monitoringHtml) },
-  ]
-
-  const available = sections.filter(
-    (section): section is { title: string; html: string } => Boolean(section.html)
-  )
-  if (!available.length) return undefined
-
-  const combined = available
-    .map((section) => `<p><strong>${section.title}</strong></p>\n${section.html}`)
-    .join('\n')
-  const result = combined.trim()
-  return stripHtml(result) ? result : undefined
+  return normalizeHtml(state.generalApproachHtml)
 }
 
 function buildSectionStatuses() {

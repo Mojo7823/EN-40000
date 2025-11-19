@@ -120,33 +120,20 @@ def _render_terminology_section(document: Document, entries: Optional[Sequence[d
     document.add_paragraph()
 
     table = document.add_table(rows=1, cols=3)
-    table.style = "Light Grid Accent 1"
-    table.autofit = False
-    table.allow_autofit = False
-    widths = [Inches(2.0), Inches(3.7), Inches(1.3)]
-    for index, width in enumerate(widths):
-        for cell in table.columns[index].cells:
-            cell.width = width
+    table.style = "Table Grid"
 
     header_cells = table.rows[0].cells
     for label, cell in zip(["Term", "Definition", "Reference"], header_cells):
-        cell.text = label
-        for paragraph in cell.paragraphs:
-            for run in paragraph.runs:
-                run.font.bold = True
-                run.font.size = Pt(11)
+        paragraph = cell.paragraphs[0]
+        run = paragraph.add_run(label)
+        run.font.bold = True
 
     normalized_entries = _normalize_terminology_entries(entries)
     for entry in normalized_entries:
-        row = table.add_row().cells
-        row[0].text = entry["term"]
-        row[1].text = entry["definition"]
-        row[2].text = entry["reference"]
-        for cell in row:
-            for paragraph in cell.paragraphs:
-                for run in paragraph.runs:
-                    run.font.size = Pt(10)
-                paragraph.paragraph_format.space_after = Pt(0)
+        row_cells = table.add_row().cells
+        row_cells[0].text = entry["term"]
+        row_cells[1].text = entry["definition"]
+        row_cells[2].text = entry["reference"]
 
     document.add_paragraph()
 

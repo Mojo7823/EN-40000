@@ -250,16 +250,22 @@ web/
 - DOCX: Section 4 starts on new page with terminology table and formatted subsections
 
 #### Risk Management Elements (`web/src/views/risk/GeneralApproach.vue`)
-- Single view right now that captures Clause 5.1 content via five Rich Text Editors (framework, identification, analysis, treatment, monitoring) wired to `documentWorkspace.riskManagement`.
-- Autosaves through `updateRiskManagementState` so the Document Preview payload can assemble a single narrative block.
+- **Single WYSIWYG editor** captures all Section 5.1 content in one unified rich text field (`general_approach_html`)
+- **"Insert Template" button** pre-fills the editor with a structured template that includes:
+  - Risk Management Framework Applied heading with guidance text
+  - Six-element numbered list (Product Context, Risk Acceptance, Risk Assessment, Risk Treatment, Risk Communication, Monitoring & Review)
+  - Placeholders for Risk Management Process Diagram and Evidence Reference
+  - Risk Management Methodology section with example text
+  - Template automatically inserts `[Product Name]` from workspace or uses placeholder
+- Autosaves through `updateRiskManagementState` to `documentWorkspace.riskManagement.generalApproachHtml`
 - **Formatting Rule:** Section 5 in the DOCX is rendered exclusively by `risk_management_builder.py`. It always starts on a new page with the following order enforced server-side:
   1. `5. RISK MANAGEMENT ELEMENTS`
   2. `[Reference: Clause 6.1 - General]`
   3. `5.1 General Approach to Risk Management`
   4. `[Reference: Clause 5 - Risk Management Elements]`
-  5. Summary sentence (“The following summarizes …”) before the user-provided HTML.
-- Because the backend controls those headings/references, **do not** inject extra clause references or introductory sentences inside the risk HTML editors. Send only the narrative paragraphs for each subsection and let the backend handle consistent placement/styles.
-- Preview/export payload: `risk_management.general_approach_html` (assembled from the five editors) is optional, but when present the builder appends it right after the standardized summary so formatting matches the earlier sections.
+  5. User-provided HTML content directly (no summary paragraph added by backend)
+- Because the backend controls those headings/references, **do not** inject extra section numbers or duplicate references inside the editor. The template provides all necessary structure within the content area.
+- Preview/export payload: `risk_management.general_approach_html` field containing the complete formatted content from the single editor.
 
 ### 3. DOCX Preview Engine (Demo)
 **File:** `web/src/views/demo/DocxPreviewDemo.vue`
@@ -300,6 +306,230 @@ web/
 - Three-level image alignment support
 - Suppressed extra line breaks for `<p>` tags nested in `<li>` so DOCX bullets match the editor
 - Cover builder now delegates Introduction subsections to `introduction_sections.py` and renders Product Overview via `product_overview_builder.py`
+
+### 📊 **DOCX Table Export Handling** (CRITICAL!)
+
+**All tables exported to DOCX MUST use the standardized "Table Grid" style to prevent formatting issues.**
+
+#### **Standard Table Pattern:**
+
+```python
+def _render_table(document: Document, entries: List[dict]):
+    """Standard table rendering pattern for DOCX export."""
+    # Define column headers
+    headers = ["Column 1", "Column 2", "Column 3"]
+    
+    # Create table with header row
+    table = document.add_table(rows=1, cols=len(headers))
+    table.style = "Table Grid"  # ← CRITICAL: Always use "Table Grid"
+    
+    # Populate header row
+    header_cells = table.rows[0].cells
+    for idx, label in enumerate(headers):
+        paragraph = header_cells[idx].paragraphs[0]
+        run = paragraph.add_run(label)
+        run.font.bold = True
+    
+    # Add data rows
+    for entry in entries:
+        row_cells = table.add_row().cells
+        row_cells[0].text = entry.get("field1") or ""
+        row_cells[1].text = entry.get("field2") or ""
+        row_cells[2].text = entry.get("field3") or ""
+```
+
+#### **Why "Table Grid" Style?**
+
+✅ **DO use `"Table Grid"`:**
+- Automatic column width adjustment
+- Fits content within page margins
+- Professional appearance
+- Consistent with Word defaults
+- Works across all document sections
+
+❌ **DON'T use:**
+- `"Light Grid Accent 1"` - Can cause width issues
+- Fixed widths (`table.autofit = False`) - Tables span across pages
+- Manual width settings (`cell.width = Inches(x)`) - Breaks on different page sizes
+
+#### **Implementation Examples:**
+
+**✅ Correct Implementation (Third-Party Components):**
+```python
+# server/app/docx_builder/product_overview_builder.py
+def _render_components_table(document: Document, entries: List[dict]):
+    headers = ["Component Name", "Type", "Version", "Supplier", "Purpose", "License"]
+    table = document.add_table(rows=1, cols=len(headers))
+    table.style = "Table Grid"  # ← Correct!
+    
+    header_cells = table.rows[0].cells
+    for idx, label in enumerate(headers):
+        paragraph = header_cells[idx].paragraphs[0]
+        run = paragraph.add_run(label)
+        run.font.bold = True
+    
+    for entry in entries:
+        row_cells = table.add_row().cells
+        row_cells[0].text = entry.get("component_name") or ""
+        row_cells[1].text = entry.get("component_type") or ""
+        # ... etc
+```
+
+**✅ Correct Implementation (Terminology):**
+```python
+# server/app/docx_builder/document_convention_builder.py
+def _render_terminology_section(document: Document, entries: Optional[Sequence[dict]]):
+    table = document.add_table(rows=1, cols=3)
+    table.style = "Table Grid"  # ← Correct!
+    
+    header_cells = table.rows[0].cells
+    for label, cell in zip(["Term", "Definition", "Reference"], header_cells):
+        paragraph = cell.paragraphs[0]
+        run = paragraph.add_run(label)
+        run.font.bold = True
+    
+    for entry in normalized_entries:
+        row_cells = table.add_row().cells
+        row_cells[0].text = entry["term"]
+        row_cells[1].text = entry["definition"]
+        row_cells[2].text = entry["reference"]
+```
+
+#### **Files Using Correct Pattern:**
+
+✅ `product_overview_builder.py` - Third-Party Components table (6 columns)
+✅ `document_convention_builder.py` - Terminology table (3 columns)
+
+#### **Common Mistakes to Avoid:**
+
+❌ **Mistake 1: Fixed Widths**
+```python
+# DON'T DO THIS
+table.autofit = False
+table.allow_autofit = False
+widths = [Inches(2.0), Inches(3.7), Inches(1.3)]
+for index, width in enumerate(widths):
+    for cell in table.columns[index].cells:
+        cell.width = width
+```
+
+❌ **Mistake 2: Wrong Style**
+```python
+# DON'T DO THIS
+table.style = "Light Grid Accent 1"  # Can cause width issues
+```
+
+❌ **Mistake 3: Manual Formatting**
+```python
+# DON'T DO THIS - Overly complex
+for cell in row:
+    for paragraph in cell.paragraphs:
+        for run in paragraph.runs:
+            run.font.size = Pt(10)
+        paragraph.paragraph_format.space_after = Pt(0)
+```
+
+#### **When Creating New Tables:**
+
+1. Always use `table.style = "Table Grid"`
+2. Let Word handle column widths automatically
+3. Use simple bold headers: `run.font.bold = True`
+4. Use `row_cells[i].text = value` for data
+5. Test export with various content lengths
+6. Verify table fits within page margins
+
+### 🎯 **Standardized DOCX Section Formatting** (CRITICAL!)
+
+**All section builders MUST follow this consistent pattern for professional document generation.**
+
+#### **Standard Section Structure:**
+
+```python
+def append_section_to_document(document: Document, payload: Optional[object]) -> None:
+    """Append Section X to the document."""
+    if not payload:
+        return
+    
+    # Extract content
+    content_html = _extract_value(payload, "content_field_name")
+    if not content_html:
+        return
+    
+    # 1. Add page break before section (for major sections)
+    document.add_page_break()
+    
+    # 2. Main section heading (Level 1)
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("X. SECTION TITLE")
+    heading_run.font.size = Pt(20)
+    heading_run.font.bold = True
+    heading.space_after = Pt(8)
+    
+    # 3. Reference right after main heading
+    reference = document.add_paragraph("[Reference: Clause X.Y - Description]")
+    reference.runs[0].font.bold = True
+    reference.space_after = Pt(10)
+    
+    # 4. Subsection heading (Level 2)
+    subheading = document.add_paragraph()
+    subheading_run = subheading.add_run("X.Y Subsection Title")
+    subheading_run.font.size = Pt(18)
+    subheading_run.font.bold = True
+    subheading.space_before = Pt(6)
+    subheading.space_after = Pt(6)
+    
+    # 5. Reference for subsection
+    sub_reference = document.add_paragraph("[Reference: Clause X.Y.Z - Details]")
+    sub_reference.runs[0].font.bold = True
+    sub_reference.space_after = Pt(10)
+    
+    # 6. Introductory paragraph (optional)
+    intro = document.add_paragraph("Introductory text explaining the section...")
+    intro.paragraph_format.space_after = Pt(12)
+    
+    # 7. Append user-provided HTML content
+    append_html_to_document(document, content_html)
+```
+
+#### **Key Formatting Rules:**
+
+1. **Page Breaks:** Major sections (2, 4, 5, etc.) start on a new page using `document.add_page_break()`
+2. **Heading Hierarchy:**
+   - Main section (X.): 20pt, bold
+   - Subsection (X.Y): 18pt, bold
+3. **References:**
+   - Always appear immediately after their corresponding heading
+   - Use bold font, not Quote style
+   - Main section reference comes BEFORE subsection heading
+4. **Spacing:**
+   - Main heading: `space_after = Pt(8)`
+   - Reference: `space_after = Pt(10)`
+   - Subsection: `space_before = Pt(6)`, `space_after = Pt(6)`
+   - Intro paragraph: `space_after = Pt(12)`
+
+#### **Correct Order Example (Section 5):**
+
+```
+5. RISK MANAGEMENT ELEMENTS                    ← Main heading (20pt, bold)
+[Reference: Clause 6.1 - General]             ← Main reference (bold)
+5.1 General Approach to Risk Management        ← Subsection heading (18pt, bold)
+[Reference: Clause 5 - Risk Management Elements] ← Subsection reference (bold)
+[User-provided HTML content]                   ← Rich text from editor (template includes all structure)
+```
+
+#### **Implementation Files:**
+
+✅ **Correct Implementations:**
+- `product_overview_builder.py` - Section 2
+- `document_convention_builder.py` - Section 4
+- `risk_management_builder.py` - Section 5 (updated February 2025)
+
+**When creating new section builders:**
+1. Copy the pattern from `risk_management_builder.py`
+2. Use `document.add_paragraph()` with manual font sizing, NOT `document.add_heading()`
+3. Never use Quote style for references (use bold font instead)
+4. Always place main section reference BEFORE subsection heading
+5. Keep user HTML separate - let backend control all structural elements
 
 ### 3. Requirements Table Demo
 **File:** `web/src/views/demo/RequirementsTableDemo.vue`  
@@ -1034,6 +1264,26 @@ grep -r "ComponentName" web/src/
     - Proper card padding (24px) so content doesn't touch edges
     - Plain section headings (no colored text)
     - Applied to: Standards Conformance, Regulatory Conformance, Third-Party Components, Terminology, and all demo tables
+16. **Standardized DOCX Section Formatting** (February 2025) – Established uniform formatting pattern for all section builders:
+    - Fixed Section 5 (Risk Management) to follow standard heading/reference order
+    - Main section reference now appears BEFORE subsection heading (not after)
+    - All sections use manual paragraph formatting (20pt/18pt) instead of built-in heading styles
+    - References use bold font instead of Quote style for consistency
+    - Page breaks added to major sections (2, 4, 5, etc.)
+    - Documentation added to AGENTS.md with code template and formatting rules
+17. **Risk Management Simplification** (February 2025) – Streamlined Section 5 from five editors to one:
+    - Replaced five separate WYSIWYG editors with single unified editor for all Section 5.1 content
+    - Added "Insert Template" button that pre-fills structured content with product name placeholder
+    - Template includes Risk Management Framework, 6-element list, process diagram placeholder, evidence reference, and methodology section
+    - Updated `RiskManagementState` interface to use single `generalApproachHtml` field
+    - Removed backend summary paragraph - template provides all content structure
+    - Simplified data flow: single field in workspace, schema, and builder
+18. **DOCX Table Export Standardization** (February 2025) – Fixed table formatting issues in exported documents:
+    - Changed Document Convention terminology table from "Light Grid Accent 1" to "Table Grid" style
+    - Removed fixed column widths that caused tables to span across pages
+    - Simplified table rendering to match Third-Party Components pattern
+    - Added comprehensive documentation for DOCX table export handling
+    - All tables now use consistent "Table Grid" style with automatic width adjustment
 
 ---
 

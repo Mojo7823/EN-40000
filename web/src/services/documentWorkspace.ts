@@ -112,11 +112,7 @@ export interface DocumentConventionState {
 }
 
 export interface RiskManagementState {
-  frameworkHtml: string
-  identificationHtml: string
-  analysisHtml: string
-  treatmentHtml: string
-  monitoringHtml: string
+  generalApproachHtml: string
 }
 
 export interface DocumentWorkspaceState {
@@ -230,11 +226,7 @@ const defaultDocumentConventionState: DocumentConventionState = {
 }
 
 const defaultRiskManagementState: RiskManagementState = {
-  frameworkHtml: '',
-  identificationHtml: '',
-  analysisHtml: '',
-  treatmentHtml: '',
-  monitoringHtml: '',
+  generalApproachHtml: '',
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -736,11 +728,7 @@ export function updateRiskManagementState(
   const current = inMemoryState.riskManagement
 
   const nextRiskManagement: RiskManagementState = {
-    frameworkHtml: patch.frameworkHtml ?? current.frameworkHtml,
-    identificationHtml: patch.identificationHtml ?? current.identificationHtml,
-    analysisHtml: patch.analysisHtml ?? current.analysisHtml,
-    treatmentHtml: patch.treatmentHtml ?? current.treatmentHtml,
-    monitoringHtml: patch.monitoringHtml ?? current.monitoringHtml,
+    generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
   }
 
   const next: DocumentWorkspaceState = {
