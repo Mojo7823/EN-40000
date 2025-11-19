@@ -4,6 +4,7 @@
       <div>
         <p class="eyebrow">Document Convention</p>
         <h1>Terminology</h1>
+        <p class="reference-line">[Reference: Clause 4.1 - Terminology]</p>
         <p class="muted">
           Maintain the glossary used throughout the CRA documentation. Entries feed Section 4.1 of the DOCX builder and
           preview.

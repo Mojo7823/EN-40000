@@ -84,10 +84,14 @@ def render_document_convention_to_document(
     start_on_new_page: bool = False,
 ) -> None:
     """Append Section 4 (Document Conventions) to an existing Document."""
-    heading = document.add_heading("4. DOCUMENT CONVENTIONS", level=1)
-    heading.paragraph_format.space_before = Pt(24)
-    heading.paragraph_format.space_after = Pt(12)
-    heading.paragraph_format.page_break_before = start_on_new_page
+    if start_on_new_page:
+        document.add_page_break()
+    
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("4. Document Conventions")
+    heading_run.font.size = Pt(20)
+    heading_run.font.bold = True
+    heading.space_after = Pt(8)
 
     _render_terminology_section(document, terminology_entries)
     _render_evidence_notation_section(document, evidence_notation_html)
@@ -96,9 +100,12 @@ def render_document_convention_to_document(
 
 
 def _render_terminology_section(document: Document, entries: Optional[Sequence[dict]]) -> None:
-    subheading = document.add_heading("4.1 Terminology", level=2)
-    subheading.paragraph_format.space_before = Pt(12)
-    subheading.paragraph_format.space_after = Pt(6)
+    subheading = document.add_paragraph()
+    subheading_run = subheading.add_run("4.1 Terminology")
+    subheading_run.font.size = Pt(18)
+    subheading_run.font.bold = True
+    subheading.space_before = Pt(6)
+    subheading.space_after = Pt(6)
 
     intro = document.add_paragraph(
         "All terms and definitions used in this report are consistent with:"
@@ -145,27 +152,36 @@ def _render_terminology_section(document: Document, entries: Optional[Sequence[d
 
 
 def _render_evidence_notation_section(document: Document, html: Optional[str]) -> None:
-    heading = document.add_heading("4.2 Evidence Notation", level=2)
-    heading.paragraph_format.space_before = Pt(12)
-    heading.paragraph_format.space_after = Pt(6)
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("4.2 Evidence Notation")
+    heading_run.font.size = Pt(18)
+    heading_run.font.bold = True
+    heading.space_before = Pt(6)
+    heading.space_after = Pt(6)
 
     if html:
         append_html_to_document(document, html)
 
 
 def _render_requirement_notation_section(document: Document, html: Optional[str]) -> None:
-    heading = document.add_heading("4.3 Requirement Notation", level=2)
-    heading.paragraph_format.space_before = Pt(12)
-    heading.paragraph_format.space_after = Pt(6)
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("4.3 Requirement Notation")
+    heading_run.font.size = Pt(18)
+    heading_run.font.bold = True
+    heading.space_before = Pt(6)
+    heading.space_after = Pt(6)
 
     if html:
         append_html_to_document(document, html)
 
 
 def _render_assessment_verdicts_section(document: Document, html: Optional[str]) -> None:
-    heading = document.add_heading("4.4 Assessment Verdicts", level=2)
-    heading.paragraph_format.space_before = Pt(12)
-    heading.paragraph_format.space_after = Pt(6)
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("4.4 Assessment Verdicts")
+    heading_run.font.size = Pt(18)
+    heading_run.font.bold = True
+    heading.space_before = Pt(6)
+    heading.space_after = Pt(6)
 
     if html:
         append_html_to_document(document, html)

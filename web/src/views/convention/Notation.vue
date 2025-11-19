@@ -4,6 +4,7 @@
       <div>
         <p class="eyebrow">Document Convention</p>
         <h1>Notation</h1>
+        <p class="reference-line">[Reference: Clause 4.2 – 4.4]</p>
         <p class="muted">
           Capture evidence notation, requirement notation, and assessment verdict guidance for Section 4 of the CRA documentation.
         </p>
@@ -15,7 +16,7 @@
 
     <section class="card content-card">
       <article class="template-body">
-        <p class="section-heading">Evidence Notation</p>
+        <p class="section-heading">4.2 Evidence Notation</p>
         <p class="reference-line">[Reference: Clause 4.2]</p>
         <p>Describe how evidence references are formatted, highlighted, and catalogued.</p>
       </article>
@@ -24,7 +25,7 @@
       </div>
 
       <article class="template-body" style="margin-top: 32px;">
-        <p class="section-heading">Requirement Notation</p>
+        <p class="section-heading">4.3 Requirement Notation</p>
         <p class="reference-line">[Reference: Clause 4.3]</p>
         <p>Explain how EN 40000 requirements are cited and distinguish user guidance from normative text.</p>
       </article>
@@ -33,7 +34,7 @@
       </div>
 
       <article class="template-body" style="margin-top: 32px;">
-        <p class="section-heading">Assessment Verdicts</p>
+        <p class="section-heading">4.4 Assessment Verdicts</p>
         <p class="reference-line">[Reference: Clause 4.4]</p>
         <p>Outline the verdict categories and criteria for determining conformance.</p>
       </article>
