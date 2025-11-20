@@ -77,26 +77,26 @@ else
   echo "  ✅ No zombie uvicorn processes found."
 fi
 
-# Kill any remaining vite processes (frontend)
+# Kill any remaining Nuxt processes (frontend)
 echo ""
 echo "🔍 Searching for zombie frontend processes..."
-FRONTEND_PIDS=$(pgrep -f "node_modules/.bin/vite" 2>/dev/null || true)
+FRONTEND_PIDS=$(pgrep -f "nuxt dev" 2>/dev/null || true)
 if [[ -n "$FRONTEND_PIDS" ]]; then
   FRONTEND_COUNT=$(echo "$FRONTEND_PIDS" | wc -w)
-  echo "  ⚠️  Found $FRONTEND_COUNT zombie vite processes!"
+  echo "  ⚠️  Found $FRONTEND_COUNT zombie Nuxt processes!"
   for pid in $FRONTEND_PIDS; do
-    echo "  🔄 Killing vite process $pid..."
+    echo "  🔄 Killing Nuxt process $pid..."
     kill -9 "$pid" 2>/dev/null || true
   done
-  echo "  ✅ All vite processes terminated."
+  echo "  ✅ All Nuxt processes terminated."
 else
-  echo "  ✅ No zombie vite processes found."
+  echo "  ✅ No zombie Nuxt processes found."
 fi
 
 # Kill processes by port (belt and suspenders approach)
 echo ""
-echo "🔍 Checking ports 8000, 5173, and 5174..."
-for port in 8000 5173 5174; do
+echo "🔍 Checking ports 8000 and 3000..."
+for port in 8000 3000; do
   PORT_PIDS=$(lsof -ti :$port 2>/dev/null || true)
   if [[ -n "$PORT_PIDS" ]]; then
     echo "  ⚠️  Found processes on port $port: $PORT_PIDS"

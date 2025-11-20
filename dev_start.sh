@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Helper to launch the FastAPI backend and Vite frontend together.
+# Helper to launch the FastAPI backend and Nuxt 3 frontend together.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -87,13 +87,13 @@ start_frontend() {
     return
   fi
 
-  echo "Starting frontend on http://127.0.0.1:5173..."
+  echo "Starting Nuxt frontend on http://localhost:3000..."
   (
     cd "$WEB_DIR"
-    npm run dev -- --host 127.0.0.1 --port 5173
+    npm run dev
   ) >>"$RUNTIME_DIR/frontend.log" 2>&1 &
   echo $! > "$FRONTEND_PID_FILE"
-  wait_for_url "frontend" "http://127.0.0.1:5173"
+  wait_for_url "frontend" "http://localhost:3000"
 }
 
 wait_for_url() {

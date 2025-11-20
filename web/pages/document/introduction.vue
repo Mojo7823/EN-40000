@@ -1,0 +1,333 @@
+<template>
+  <div class="introduction-page">
+    <section class="card title-card">
+      <div>
+        <p class="eyebrow">Introduction</p>
+        <h1>Document Information</h1>
+        <p class="muted">
+          Capture the product-identification details that populate section 1.1 of the CRA documentation.
+        </p>
+      </div>
+      <div class="title-card-actions">
+        <RouterLink class="btn ghost" to="/document/preview">Go to Document Preview</RouterLink>
+      </div>
+    </section>
+
+    <section class="card form-card">
+      <form class="introduction-form" @submit.prevent>
+        <label class="field">
+          <span>Product Name</span>
+          <input v-model="form.productName" type="text" placeholder="Product Name" />
+        </label>
+
+        <label class="field">
+          <span>Product Version</span>
+          <input v-model="form.productVersion" type="text" placeholder="Version" />
+        </label>
+
+        <label class="field">
+          <span>Product Type / Category</span>
+          <input v-model="form.productType" type="text" placeholder="Type or category" />
+        </label>
+
+        <label class="field">
+          <span>Manufacturer</span>
+          <input v-model="form.manufacturerName" type="text" placeholder="Manufacturer" />
+        </label>
+
+        <label class="field">
+          <span>Manufacturer Address</span>
+          <textarea
+            v-model="form.manufacturerAddress"
+            rows="2"
+            placeholder="Street, City, Country"
+          ></textarea>
+        </label>
+
+        <label class="field">
+          <span>Status</span>
+          <select v-model="selectedStatus">
+            <option v-for="option in statusOptions" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Prepared By</span>
+          <textarea v-model="form.preparedBy" rows="3" placeholder="Name(s)"></textarea>
+        </label>
+
+        <label class="field">
+          <span>Reviewed By</span>
+          <textarea v-model="form.reviewedBy" rows="3" placeholder="Name(s)"></textarea>
+        </label>
+
+        <label class="field">
+          <span>Approved By</span>
+          <input v-model="form.approvedBy" type="text" placeholder="Name" />
+        </label>
+      </form>
+    </section>
+
+    <div v-if="showStatusModal" class="status-modal-overlay" @click="closeStatusModal(false)">
+      <div
+        class="status-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="statusModalTitle"
+        @click.stop
+      >
+        <header class="status-modal-header">
+          <h2 id="statusModalTitle">Custom Status</h2>
+          <button class="modal-close" type="button" aria-label="Close dialog" @click="closeStatusModal(false)">
+            ×
+          </button>
+        </header>
+        <div class="status-modal-body">
+          <p class="muted">Enter a custom status label for this documentation phase.</p>
+          <input v-model="customStatus" type="text" placeholder="e.g., Pilot Review" />
+        </div>
+        <footer class="status-modal-footer">
+          <button class="btn" type="button" @click="closeStatusModal(false)">Cancel</button>
+          <button class="btn primary" type="button" @click="closeStatusModal(true)">Save</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import type {
+  DocumentWorkspaceState,
+  IntroductionFormState
+} from '../../services/documentWorkspace'
+
+const workspace = useDocumentWorkspace()
+
+const initialState = workspace.loadDocumentWorkspace()
+const form = reactive<IntroductionFormState>({ ...initialState.introduction })
+const suppressNextSync = ref(false)
+let unsubscribe: (() => void) | null = null
+const statusOptions = ['Draft', 'Final', 'Revision', 'Custom Status'] as const
+const showStatusModal = ref(false)
+const customStatus = ref('')
+const selectedStatus = ref(getInitialStatus())
+let suppressStatusReaction = true
+if (!form.status) {
+  form.status = selectedStatus.value
+}
+setTimeout(() => {
+  suppressStatusReaction = false
+}, 0)
+
+function getInitialStatus() {
+  const value = form.status?.trim()
+  if (!value) {
+    return statusOptions[0]
+  }
+  if (statusOptions.includes(value as typeof statusOptions[number])) {
+    return value as typeof statusOptions[number]
+  }
+  customStatus.value = value
+  return 'Custom Status'
+}
+
+watch(
+  form,
+  (value) => {
+    if (suppressNextSync.value) {
+      suppressNextSync.value = false
+      return
+    }
+    workspace.updateIntroductionState({ ...value })
+  },
+  { deep: true }
+)
+
+watch(selectedStatus, (value) => {
+  if (suppressStatusReaction) {
+    return
+  }
+  if (value === 'Custom Status') {
+    customStatus.value = form.status && !statusOptions.includes(form.status as any) ? form.status : ''
+    showStatusModal.value = true
+    return
+  }
+  form.status = value
+})
+
+function applyExternalState(state: DocumentWorkspaceState) {
+  suppressNextSync.value = true
+  Object.assign(form, state.introduction)
+  safelySetSelectedStatus(getInitialStatus())
+}
+
+onMounted(() => {
+  unsubscribe = workspace.subscribeDocumentWorkspace(applyExternalState)
+})
+
+onUnmounted(() => {
+  unsubscribe?.()
+})
+
+function closeStatusModal(save: boolean) {
+  if (save) {
+    const value = customStatus.value.trim()
+    if (!value) {
+      return
+    }
+    form.status = value
+    safelySetSelectedStatus('Custom Status')
+    showStatusModal.value = false
+    return
+  }
+
+  if (form.status && !statusOptions.includes(form.status as any)) {
+    safelySetSelectedStatus('Custom Status')
+  } else if (form.status) {
+    safelySetSelectedStatus(form.status as typeof statusOptions[number])
+  } else {
+    form.status = statusOptions[0]
+    safelySetSelectedStatus(statusOptions[0])
+  }
+  showStatusModal.value = false
+}
+
+function safelySetSelectedStatus(value: (typeof statusOptions)[number]) {
+  suppressStatusReaction = true
+  selectedStatus.value = value
+  setTimeout(() => {
+    suppressStatusReaction = false
+  }, 0)
+}
+</script>
+
+<style scoped>
+.introduction-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.title-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title-card-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.introduction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field span {
+  font-weight: 600;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: var(--surface);
+  font: inherit;
+}
+
+.field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.field select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.status-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.status-modal {
+  width: min(440px, 100%);
+  background: var(--panel);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+  border: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.status-modal-header,
+.status-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.status-modal-footer {
+  border-bottom: none;
+  border-top: 1px solid var(--panel-border);
+}
+
+.status-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-modal-body input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: var(--surface);
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.title-card-actions :deep(a) {
+  text-decoration: none;
+}
+</style>
