@@ -112,16 +112,16 @@ async function generatePreview() {
 
   try {
     const userId = sessionService.getUserToken()
-    const response: any = await api.post('/security/sfr/preview', {
+    const response = await api.post('/security/sfr/preview', {
       user_id: userId,
       html_content: docxHtml.value,
     })
-    const path: string = response.path
-    const buffer: any = await api.get(path, { responseType: 'arraybuffer' })
+    const path: string = (response as any).path
+    const buffer = await api.get(path, { responseType: 'arrayBuffer' })
 
     if (docxPreviewContainer.value) {
       docxPreviewContainer.value.innerHTML = ''
-      await renderAsync(buffer, docxPreviewContainer.value, undefined, {
+      await renderAsync(buffer as ArrayBuffer, docxPreviewContainer.value, undefined, {
         inWrapper: true,
         ignoreWidth: false,
         ignoreHeight: false,
@@ -197,13 +197,10 @@ async function downloadDocx() {
   if (!latestDocPath.value) return
   downloading.value = true
   try {
-    const response: any = await api.get(latestDocPath.value, {
+    const blob = await api.get(latestDocPath.value, {
       responseType: 'blob',
     })
-    const blob = new Blob([response], {
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    })
-    const url = URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob as Blob)
     const link = document.createElement('a')
     link.href = url
     link.download = 'CRA Tool_Demo.docx'

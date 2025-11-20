@@ -41,16 +41,21 @@ export async function ensureCoverImageUploaded(
     formData.append('file', file)
 
     const config = useRuntimeConfig()
-    const baseURL = config.public.apiBase
+    let baseURL = config.public.apiBase
 
-    const response: any = await $fetch('/cover/upload', {
+    // In dev, use Vite proxy at /api to avoid CORS if using default local address
+    if (import.meta.dev && baseURL === 'http://127.0.0.1:8000') {
+      baseURL = '/api'
+    }
+
+    const response = await $fetch('/cover/upload', {
       method: 'POST',
       baseURL,
       body: formData,
       params: { user_id: userToken },
     })
 
-    const newPath: string | null = response.path ?? null
+    const newPath: string | null = (response as any)?.path ?? null
     sessionService.saveCoverData(context.form, newPath, context.uploadedImageData)
 
     return newPath

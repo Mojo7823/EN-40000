@@ -77,9 +77,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import api from '../../services/api'
-
-type Item = { 
+type Item = {
   id: number, 
   class?: string, 
   class_field?: string,
@@ -102,6 +100,7 @@ type FamilyTables = {
   special?: Table[]
 }
 
+const api = useApi()
 const form = reactive({ class: '', family: '', component: '', component_name: '', element: '', element_item: '' })
 const items = ref<Item[]>([])
 const selectedTable = ref<string>('')
@@ -109,8 +108,8 @@ const familyTables = ref<FamilyTables>({})
 
 async function fetchFamilyTables() {
   try {
-    const res: any = await api.get('/families')
-    familyTables.value = res
+    const res = await api.get('/families')
+    familyTables.value = (res as any)
   } catch (error) {
     console.error('Error fetching family tables:', error)
   }
@@ -128,14 +127,14 @@ async function load(){
   if (!selectedTable.value) return
   
   try {
-    let res: any
+    let res
     if (selectedTable.value === 'components') {
       res = await api.get('/components')
     } else {
       res = await api.get(`/families/${selectedTable.value}`)
     }
     // Process items to add class_display field
-    items.value = res.map((item: Item) => ({
+    items.value = (res as any).map((item: Item) => ({
       ...item,
       class_display: item.class || item.class_field || ''
     }))
