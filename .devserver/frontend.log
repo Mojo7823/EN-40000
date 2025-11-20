@@ -1,0 +1,491 @@
+
+> cra-tool-web@0.1.0 dev
+> vite --host 0.0.0.0 --port 4173
+
+error when starting dev server:
+Error: listen EPERM: operation not permitted 0.0.0.0:4173
+    at Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    at listenInCluster (node:net:1997:12)
+    at node:net:2206:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+
+> cra-tool-web@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+
+  VITE v5.4.8  ready in 163 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+
+> cra-tool-web@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+
+  VITE v5.4.8  ready in 185 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+9:27:17 PM [vite] hmr update /src/views/document/DocumentPreview.vue
+9:27:53 PM [vite] hmr update /src/views/document/DocumentPreview.css?vue&type=style&index=0&src=91122d2d&scoped=91122d2d&lang.css
+9:28:32 PM [vite] hmr update /src/views/document/DocumentPreview.css?vue&type=style&index=0&src=91122d2d&scoped=91122d2d&lang.css
+9:29:15 PM [vite] hmr update /src/views/document/DocumentPreview.css?vue&type=style&index=0&src=91122d2d&scoped=91122d2d&lang.css
+9:31:46 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:31:51 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:31:56 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:02 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:07 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:12 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:17 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:22 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:27 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:32 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:37 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:42 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:47 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:52 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:32:57 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:02 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:07 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:12 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:17 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:22 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:27 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:32 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:37 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:42 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:47 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:52 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:33:57 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:02 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:07 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:12 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:17 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:22 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:27 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:32 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:37 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:42 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:47 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:52 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+9:34:57 PM [vite] http proxy error: /health
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+
+> cra-tool-web@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+Port 5173 is in use, trying another one...
+
+  VITE v5.4.8  ready in 173 ms
+
+  ➜  Local:   http://127.0.0.1:5174/
+10:06:12 PM [vite] hmr update /src/views/document/DocumentPreview.vue
+10:06:40 PM [vite] hmr update /src/views/document/DocumentPreview.vue
+10:07:18 PM [vite] hmr update /src/views/document/DocumentPreview.vue
+10:09:15 PM [vite] hmr update /src/views/document/DocumentPreview.vue
+
+> cra-tool-web@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+Re-optimizing dependencies because lockfile has changed
+
+  VITE v5.4.8  ready in 198 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+
+> cra-tool-web@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+
+  VITE v5.4.8  ready in 160 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+9:33:55 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:33:55 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:33:55 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:241:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:33:55 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:531:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:33:55 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:513:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:33:55 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:133:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:598:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:43 PM [vite] Pre-transform error: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:133:9: Unknown word ours
+9:35:43 PM [vite] Pre-transform error: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:122:9: Unknown word ours
+9:35:43 PM [vite] Pre-transform error: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:122:9: Unknown word ours
+9:35:43 PM [vite] Pre-transform error: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:122:9: Unknown word ours
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:531:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:133:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:598:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:513:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:241:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:133:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:598:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:531:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:513:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:35:44 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:241:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:14 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:133:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:598:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:14 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:531:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:14 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:241:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:14 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:513:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:15 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:133:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/product/ThirdPartyComponents.vue:598:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:15 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/RegulatoryConformance.vue:513:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:15 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/ConformanceLevel.vue:241:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+9:36:15 PM [vite] Internal server error: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:122:9: Unknown word ours
+  Plugin: vite:vue
+  File: /home/lilydev/EN-40000/web/src/views/conformance/StandardsConformance.vue:531:9
+      at Input.error (/home/lilydev/EN-40000/web/node_modules/postcss/lib/input.js:135:16)
+      at Parser.unknownWord (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:595:22)
+      at Parser.decl (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:236:16)
+      at Parser.other (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:401:18)
+      at Parser.parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parser.js:472:16)
+      at parse (/home/lilydev/EN-40000/web/node_modules/postcss/lib/parse.js:11:12)
+      at new LazyResult (/home/lilydev/EN-40000/web/node_modules/postcss/lib/lazy-result.js:165:16)
+      at Processor.process (/home/lilydev/EN-40000/web/node_modules/postcss/lib/processor.js:53:14)
+      at doCompileStyle (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15514:36)
+      at Object.compileStyleAsync (/home/lilydev/EN-40000/web/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:15434:10)
+
+> cra-tool-web@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+
+  VITE v5.4.8  ready in 160 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+9:38:59 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:38:59 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:02 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:02 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:39:14 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:39:14 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:17 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:17 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:39:23 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:39:23 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:39 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:39 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:39:44 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:39:44 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:49 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:39:49 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:44:24 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+9:44:36 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:51:50 PM [vite] hmr update /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=a173bd30&scoped=a173bd30&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2e0628a5&scoped=2e0628a5&lang.css, /src/views/conformance/ConformancePages.css?vue&type=style&index=0&src=2ed0043d&scoped=2ed0043d&lang.css
+9:51:50 PM [vite] hmr update /src/views/product/ThirdPartyComponents.css?vue&type=style&index=0&src=8e60e606&scoped=8e60e606&lang.css
+
+> dev
+> nuxt dev --host 127.0.0.1 --port 5173
+
+[nuxi] Nuxt 4.2.1 (with Nitro 2.12.9, Vite 7.2.2 and Vue 3.5.24)
+
+  ➜ Local:    http://127.0.0.1:5173/
+  ➜ Network:  use --host to expose
+
+[nuxt:tailwindcss] ℹ Using default Tailwind CSS file
+  ➜ DevTools: press Shift + Alt + D in the browser (v3.1.0)
+
+ℹ Nuxt Icon server bundle mode is set to local
+✔ Vite client built in 24ms
+✔ Vite server built in 44ms
+[nitro] ✔ Nuxt Nitro server built in 481ms
+ℹ Vite client warmed up in 1ms
+ℹ ✨ new dependencies optimized: @vue/devtools-core, @vue/devtools-kit, pinia
+ℹ ✨ new dependencies optimized: axios
+ℹ ✨ optimized dependencies changed. reloading
