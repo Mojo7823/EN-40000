@@ -36,8 +36,8 @@ import { ref } from 'vue'
 interface TreeNode {
   label: string
   data?: string | null
-  attributes: Record<string, string>
-  children: TreeNode[]
+  attributes?: Record<string, string>
+  children?: TreeNode[]
 }
 
 interface Props {
@@ -68,7 +68,7 @@ function getNodeClass() {
     return 'node-element'
   } else if (label.includes('eal')) {
     return 'node-eal'
-  } else if (props.node.children.length === 0 && props.node.label.length > 50) {
+  } else if ((!props.node.children || props.node.children.length === 0) && props.node.label.length > 50) {
     return 'node-text'
   }
   

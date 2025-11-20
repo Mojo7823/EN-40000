@@ -405,13 +405,7 @@ function normalizeEvidencePayload(entries?: RiskEvidenceEntry[]) {
         notes_html: notesHtml,
       }
     })
-    .filter((entry): entry is {
-      section_key: string
-      reference_id?: string
-      title?: string
-      status: string
-      notes_html?: string
-    } => Boolean(entry))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
 }
 
 function summarizeEvidenceEntries(entries: RiskEvidenceEntry[]) {

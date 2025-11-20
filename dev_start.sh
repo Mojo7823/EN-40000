@@ -59,7 +59,7 @@ ensure_frontend_dependencies() {
 
   if [[ ! -d "$WEB_DIR/node_modules" || "$current_hash" != "$previous_hash" ]]; then
     echo "Installing frontend dependencies..."
-    (cd "$WEB_DIR" && npm install)
+    (cd "$WEB_DIR" && npm install --legacy-peer-deps)
     echo "$current_hash" > "$FRONTEND_PKG_HASH_FILE"
   fi
 }

@@ -76,8 +76,37 @@
         <div v-if="riskOpen" class="accordion-content">
           <ul class="menu nested">
             <li v-for="link in riskLinks" :key="link.label">
-              <RouterLink v-if="!link.disabled" :to="link.to" active-class="active">{{ link.label }}</RouterLink>
-              <span v-else class="menu-disabled">{{ link.label }}</span>
+              <!-- Simple link without children -->
+              <RouterLink 
+                v-if="!link.disabled && !link.children" 
+                :to="link.to" 
+                active-class="active"
+              >
+                {{ link.label }}
+              </RouterLink>
+              
+              <!-- Disabled link -->
+              <span v-else-if="link.disabled" class="menu-disabled">{{ link.label }}</span>
+              
+              <!-- Link with nested children -->
+              <div v-else class="nested-accordion">
+                <div class="nested-accordion-header" @click.stop="toggleNestedSection(link.label)">
+                  <RouterLink :to="link.to" active-class="active" @click.stop>
+                    {{ link.label }}
+                  </RouterLink>
+                  <span class="nested-toggle">{{ isNestedOpen(link.label) ? '▾' : '▸' }}</span>
+                </div>
+                <div v-if="isNestedOpen(link.label)" class="nested-accordion-content">
+                  <ul class="menu nested-deep">
+                    <li v-for="child in link.children" :key="child.label">
+                      <RouterLink v-if="!child.disabled" :to="child.to" active-class="active">
+                        {{ child.label }}
+                      </RouterLink>
+                      <span v-else class="menu-disabled">{{ child.label }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
@@ -127,6 +156,20 @@ const documentOpen = ref(true)
 const demoOpen = ref(false)
 const documentConventionOpen = ref(true)
 const riskOpen = ref(true)
+
+// Track which nested sections are open
+const nestedSectionsOpen = ref<Record<string, boolean>>({
+  'General Approach to Risk Management': true,
+})
+
+function toggleNestedSection(label: string) {
+  nestedSectionsOpen.value[label] = !nestedSectionsOpen.value[label]
+}
+
+function isNestedOpen(label: string) {
+  return nestedSectionsOpen.value[label] ?? false
+}
+
 const introductionLinks = [
   { label: 'Document Information', to: '/document/introduction' },
   { label: 'Purpose and Scope', to: '/document/purpose-scope' },
@@ -144,8 +187,14 @@ const conformanceLinks = [
   { label: 'Conformance Level', to: '/conformance/level' },
 ]
 const riskLinks = [
-  { label: 'General Approach to Risk Management', to: '/risk/general-approach', disabled: false },
-  { label: 'Product Context (Section 5.2)', to: '/pcontext/intended-purpose', disabled: false },
+  { 
+    label: 'General Approach to Risk Management', 
+    to: '/risk/general-approach', 
+    disabled: false,
+    children: [
+      { label: 'Product Context', to: '/pcontext/intended-purpose', disabled: false },
+    ]
+  },
   { label: 'Risk Acceptance Criteria and Risk Management', to: '', disabled: true },
   { label: 'Risk Assessment', to: '', disabled: true },
   { label: 'Risk Treatment', to: '', disabled: true },

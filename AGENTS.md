@@ -1,6 +1,6 @@
 # Agent Knowledge Base - CRA Tool (EN-40000)
 
-**Last Updated:** February 2025  
+**Last Updated:** February 2025 (Iteration 20)  
 **Project:** CRA Tool - Cyber Resilience Act Documentation Tool  
 **Status:** Active Development
 
@@ -779,6 +779,57 @@ All tables across the application now follow a **consistent, clean design patter
 - Subscription API so Cover, Preview, Introduction, Purpose & Scope, and Storage views stay in sync (listeners auto-update UIs)
 - Keeps `sessionService` cover cache in sync for legacy backend flows
 
+### 6. Nested Sidebar Navigation
+**File:** `web/src/components/Sidebar.vue`
+
+**Features:**
+- **Three-level hierarchy:** Section → Sub-section → Sub-sub-section
+- **Independent toggles:** Each parent section can expand/collapse independently
+- **Clickable parents:** Parent links are navigable; separate arrow button toggles children
+- **Smooth animations:** Slide-down effect when expanding nested items
+- **Active states:** RouterLink active-class works on all nesting levels
+- **Flexible structure:** Supports items with and without children in the same section
+
+**Structure Example:**
+```
+Risk Management Elements
+├─ General Approach to Risk Management (/risk/general-approach) [clickable]
+│  └─ Product Context (/pcontext/intended-purpose) [nested item]
+├─ Risk Assessment (disabled)
+└─ Risk Treatment (disabled)
+```
+
+**Implementation:**
+```typescript
+// Define links with optional children array
+const riskLinks = [
+  { 
+    label: 'General Approach to Risk Management', 
+    to: '/risk/general-approach', 
+    disabled: false,
+    children: [  // ← Add children for nesting
+      { label: 'Product Context', to: '/pcontext/intended-purpose', disabled: false },
+    ]
+  },
+]
+
+// Track which nested sections are open
+const nestedSectionsOpen = ref<Record<string, boolean>>({
+  'General Approach to Risk Management': true,  // Open by default
+})
+```
+
+**Styling:**
+- Progressive indentation: Level 1 (8px) → Level 2 (16px)
+- Toggle arrow (▾/▸) appears only for items with children
+- Hover effects on toggle button
+- Slide-down animation for nested content
+
+**To Add Nested Items:**
+1. Add `children` array to any link definition
+2. Set default open state in `nestedSectionsOpen`
+3. Pattern works for any accordion section (not just Risk Management)
+
 ---
 
 ## 📚 Important Documentation
@@ -1232,92 +1283,3 @@ grep -r "ComponentName" web/src/
 3. Test zoom and page navigation
 4. Verify download works
 5. Check in actual Microsoft Word
-
----
-
-## 🎯 Recent Major Changes (Late 2024 – Early 2025)
-
-1. **Document Management rollout** – Added Cover, Document Preview, and Load & Save routes + sidebar section.
-2. **Cover page UX** – New drag/drop image uploader, expanded metadata form, and professional DOCX formatting (single-line conformity heading, inline “Revision  : date”, bottom-aligned “Document Prepared By” block).
-3. **Shared workspace service** – `documentWorkspace.ts` now powers cover state with subscriptions, JSON import/export, and legacy session sync.
-4. **Document Information + Purpose & Scope** – New Introduction forms capture lifecycle coverage, assessment periods, and methodology with a TipTap editor. Data syncs to Document Preview summaries and DOCX generation.
-5. **Document Preview page** – Section Status card + DOCX preview layout replacing the older snapshot cards.
-6. **Cover builder refactor** – `CoverDocumentRenderer` centralizes cover/introduction rendering logic for easier maintenance.
-7. **Load & Save page** – JSON export/import/clear UI for the Document Management workspace, mirroring the demo storage flow.
-8. **Dev tooling** – `dev_start.sh` tracks dependency hashes, `dev_stop.sh` terminates entire process trees, and `dev_fresh.sh` wipes .venv/node_modules to start clean.
-9. **Product Identification rollout** – Dedicated page with synchronized metadata, dual rich-text editors, and target-market capture feeding DOCX section 1.3.
-10. **Preview + DOCX polish** – Section Status links navigate to editor pages, and DOCX bullet rendering now keeps text inline after HTML converter fixes.
-11. **Manufacturer Information rollout** – New form + workspace state populates section 1.4 and displays in the preview & completion tracker.
-12. **Product Overview rollout** – Sidebar accordion + TipTap editor for Section 2.1 Product Description with dedicated DOCX builder.
-13. **Preview refactor (Real Document Approach)** – Removed smart pagination logic from conformance_claim_builder and product_overview_builder. Preview now uses the actual generated DOCX file instead of attempting to predict pagination, ensuring 100% accuracy between preview and export. Word handles natural pagination while we maintain clean section breaks.
-14. **Document Convention section** (February 2025) – Added Section 4 with four subsections:
-    - Terminology (CRUD table with click-to-edit rows)
-    - Evidence Notation (rich text editors for format, categories, examples)
-    - Requirement Notation (rich text editors for format, categories, conformance)
-    - Assessment Verdicts (rich text editors for verdicts, criteria, determination)
-    - Full workspace persistence and DOCX generation with page break
-15. **Unified Table Design System** (February 2025) – Complete standardization of all tables across the application:
-    - Removed nested cards and toolbars for cleaner structure
-    - Consistent `.table-wrapper` with rounded borders
-    - Smooth hover effects (shadow + 1px lift) on clickable rows
-    - Centered action columns with trash icon hover effects
-    - Proper card padding (24px) so content doesn't touch edges
-    - Plain section headings (no colored text)
-    - Applied to: Standards Conformance, Regulatory Conformance, Third-Party Components, Terminology, and all demo tables
-16. **Standardized DOCX Section Formatting** (February 2025) – Established uniform formatting pattern for all section builders:
-    - Fixed Section 5 (Risk Management) to follow standard heading/reference order
-    - Main section reference now appears BEFORE subsection heading (not after)
-    - All sections use manual paragraph formatting (20pt/18pt) instead of built-in heading styles
-    - References use bold font instead of Quote style for consistency
-    - Page breaks added to major sections (2, 4, 5, etc.)
-    - Documentation added to AGENTS.md with code template and formatting rules
-17. **Risk Management Simplification** (February 2025) – Streamlined Section 5 from five editors to one:
-    - Replaced five separate WYSIWYG editors with single unified editor for all Section 5.1 content
-    - Added "Insert Template" button that pre-fills structured content with product name placeholder
-    - Template includes Risk Management Framework, 6-element list, process diagram placeholder, evidence reference, and methodology section
-    - Updated `RiskManagementState` interface to use single `generalApproachHtml` field
-    - Removed backend summary paragraph - template provides all content structure
-    - Simplified data flow: single field in workspace, schema, and builder
-18. **DOCX Table Export Standardization** (February 2025) – Fixed table formatting issues in exported documents:
-    - Changed Document Convention terminology table from "Light Grid Accent 1" to "Table Grid" style
-    - Removed fixed column widths that caused tables to span across pages
-    - Simplified table rendering to match Third-Party Components pattern
-    - Added comprehensive documentation for DOCX table export handling
-    - All tables now use consistent "Table Grid" style with automatic width adjustment
-
----
-
-## 📝 TODO / Future Enhancements
-
-**Ideas for Future Work:**
-- [ ] Keyboard shortcuts for zoom/navigation
-- [ ] Fit-to-width zoom preset
-- [ ] Page thumbnail previews
-- [ ] Export specific pages
-- [ ] Landscape orientation support
-- [ ] Different paper sizes (Letter, Legal)
-- [ ] Unit tests for document builders
-- [ ] Integration tests for API
-- [ ] Authentication/authorization
-- [ ] Rate limiting
-
----
-
-## 🎓 Learning Resources
-
-**Technologies Used:**
-- FastAPI: https://fastapi.tiangolo.com/
-- Vue 3: https://vuejs.org/
-- TipTap: https://tiptap.dev/
-- python-docx: https://python-docx.readthedocs.io/
-- SQLAlchemy: https://www.sqlalchemy.org/
-
-**Related Standards:**
-- Common Criteria: https://www.commoncriteriaportal.org/
-- CRA (EU): https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act
-
----
-
-**This knowledge base is maintained for AI agents working on the CRA Tool project. Keep it updated as the project evolves!**
-
-**Last major update:** January 2025 - Added Conformance Claim smart pagination to eliminate DOCX export gaps.

@@ -16,7 +16,7 @@
 
     <section class="card content-card">
       <article class="template-body">
-        <p class="section-heading">5.2 Product Context</p>
+        <p class="section-heading">Product Context</p>
         <p class="reference-line">[Reference: Clause 6.2 - Product context]</p>
         <p>
           The product context provides the foundation for all risk management activities. It captures the product's
@@ -25,7 +25,7 @@
       </article>
 
       <article class="template-body">
-        <p class="section-heading">5.2.1 Intended Purpose and Reasonably Foreseeable Use</p>
+        <p class="section-heading">Intended Purpose and Reasonably Foreseeable Use</p>
         <p class="reference-line">[Reference: Clause 6.2.1.2 - Product intended purpose and reasonable foreseeable use]</p>
         <p>
           Describe the formal purpose of {{ productName || '[Product Name]' }}, catalogue its specific intended uses, and
@@ -117,6 +117,7 @@ import {
   updateRiskManagementState,
   type DocumentWorkspaceState,
   type RiskEvidenceEntry,
+  type RiskEvidenceStatus,
 } from '../../services/documentWorkspace'
 
 const workspaceState = ref<DocumentWorkspaceState>(loadDocumentWorkspace())
@@ -156,7 +157,7 @@ function hydrate(state: DocumentWorkspaceState) {
   hydrating.value = false
 }
 
-function normalizeEvidenceEntries(entries?: RiskEvidenceEntry[]) {
+function normalizeEvidenceEntries(entries?: RiskEvidenceEntry[]): RiskEvidenceEntry[] {
   if (entries && entries.length) {
     return entries.map((entry) => ({ ...entry }))
   }
@@ -167,7 +168,7 @@ function normalizeEvidenceEntries(entries?: RiskEvidenceEntry[]) {
       title: 'Product Context Evidence Reference',
       referenceId: '',
       descriptionHtml: '',
-      status: 'not_started',
+      status: 'not_started' as RiskEvidenceStatus,
     },
   ]
 }
@@ -194,7 +195,14 @@ function handleEvidenceChange(entries: RiskEvidenceEntry[]) {
   }
   evidenceEntries.value = nextEntries
   if (hydrating.value) return
-  updateRiskManagementState({ productContext: { evidenceEntries: nextEntries } })
+  updateRiskManagementState({ 
+    productContext: { 
+      intendedPurposeHtml: form.intendedPurposeHtml,
+      specificIntendedUsesHtml: form.specificIntendedUsesHtml,
+      foreseeableUseHtml: form.foreseeableUseHtml,
+      evidenceEntries: nextEntries 
+    } 
+  })
 }
 
 function getCurrentFieldValue(
@@ -222,7 +230,14 @@ function insertIntendedPurposeTemplate() {
 </ul>
 `.trim()
   form.intendedPurposeHtml = template
-  updateRiskManagementState({ productContext: { intendedPurposeHtml: template } })
+  updateRiskManagementState({ 
+    productContext: { 
+      intendedPurposeHtml: template,
+      specificIntendedUsesHtml: form.specificIntendedUsesHtml,
+      foreseeableUseHtml: form.foreseeableUseHtml,
+      evidenceEntries: evidenceEntries.value
+    } 
+  })
 }
 
 function insertSpecificUsesTemplate() {
@@ -235,7 +250,14 @@ function insertSpecificUsesTemplate() {
 </ol>
 `.trim()
   form.specificIntendedUsesHtml = template
-  updateRiskManagementState({ productContext: { specificIntendedUsesHtml: template } })
+  updateRiskManagementState({ 
+    productContext: { 
+      intendedPurposeHtml: form.intendedPurposeHtml,
+      specificIntendedUsesHtml: template,
+      foreseeableUseHtml: form.foreseeableUseHtml,
+      evidenceEntries: evidenceEntries.value
+    } 
+  })
 }
 
 function insertForeseeableUseTemplate() {
@@ -251,7 +273,14 @@ function insertForeseeableUseTemplate() {
 <p>[Describe any misuse patterns that have been considered in the risk assessment.]</p>
 `.trim()
   form.foreseeableUseHtml = template
-  updateRiskManagementState({ productContext: { foreseeableUseHtml: template } })
+  updateRiskManagementState({ 
+    productContext: { 
+      intendedPurposeHtml: form.intendedPurposeHtml,
+      specificIntendedUsesHtml: form.specificIntendedUsesHtml,
+      foreseeableUseHtml: template,
+      evidenceEntries: evidenceEntries.value
+    } 
+  })
 }
 
 onMounted(() => {
@@ -274,7 +303,14 @@ watch(
     if (normalizedValue === getCurrentFieldValue('intendedPurposeHtml')) {
       return
     }
-    updateRiskManagementState({ productContext: { intendedPurposeHtml: normalizedValue } })
+    updateRiskManagementState({ 
+      productContext: { 
+        intendedPurposeHtml: normalizedValue,
+        specificIntendedUsesHtml: form.specificIntendedUsesHtml,
+        foreseeableUseHtml: form.foreseeableUseHtml,
+        evidenceEntries: evidenceEntries.value
+      } 
+    })
   },
   { flush: 'sync' }
 )
@@ -287,7 +323,14 @@ watch(
     if (normalizedValue === getCurrentFieldValue('specificIntendedUsesHtml')) {
       return
     }
-    updateRiskManagementState({ productContext: { specificIntendedUsesHtml: normalizedValue } })
+    updateRiskManagementState({ 
+      productContext: { 
+        intendedPurposeHtml: form.intendedPurposeHtml,
+        specificIntendedUsesHtml: normalizedValue,
+        foreseeableUseHtml: form.foreseeableUseHtml,
+        evidenceEntries: evidenceEntries.value
+      } 
+    })
   },
   { flush: 'sync' }
 )
@@ -300,7 +343,14 @@ watch(
     if (normalizedValue === getCurrentFieldValue('foreseeableUseHtml')) {
       return
     }
-    updateRiskManagementState({ productContext: { foreseeableUseHtml: normalizedValue } })
+    updateRiskManagementState({ 
+      productContext: { 
+        intendedPurposeHtml: form.intendedPurposeHtml,
+        specificIntendedUsesHtml: form.specificIntendedUsesHtml,
+        foreseeableUseHtml: normalizedValue,
+        evidenceEntries: evidenceEntries.value
+      } 
+    })
   },
   { flush: 'sync' }
 )

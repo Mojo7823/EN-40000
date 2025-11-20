@@ -6,6 +6,7 @@ import EditorDemo from '../views/demo/EditorDemo.vue'
 import XmlViewerDemo from '../views/demo/XmlViewerDemo.vue'
 import DocxPreviewDemo from '../views/demo/DocxPreviewDemo.vue'
 import StorageDemo from '../views/demo/StorageDemo.vue'
+import TreeDemo from '../views/demo/TreeDemo.vue'
 import CoverPage from '../views/document/CoverPage.vue'
 import DocumentInformation from '../views/document/DocumentInformation.vue'
 import PurposeScope from '../views/document/PurposeScope.vue'
@@ -33,6 +34,7 @@ const routes = [
   { path: '/demo/xml-viewer', name: 'demo-xml-viewer', component: XmlViewerDemo },
   { path: '/demo/docx-preview', name: 'demo-docx', component: DocxPreviewDemo },
   { path: '/demo/storage', name: 'demo-storage', component: StorageDemo },
+  { path: '/demo/tree', name: 'demo-tree', component: TreeDemo },
   { path: '/document/cover', name: 'document-cover', component: CoverPage },
   { path: '/document/introduction', name: 'document-introduction', component: DocumentInformation },
   { path: '/document/purpose-scope', name: 'document-purpose-scope', component: PurposeScope },
