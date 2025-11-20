@@ -1,0 +1,6 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/cra-tool/backend/venv/bin/python",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/cra-tool/backend"
+  ]
+}
