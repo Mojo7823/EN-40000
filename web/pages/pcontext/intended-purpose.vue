@@ -356,5 +356,5 @@ watch(
 </script>
 
 <style scoped>
-/* Styles inherited from global CSS */
+@import '../../pages/risk/RiskManagement.css';
 </style>
