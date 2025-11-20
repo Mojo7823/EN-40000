@@ -33,94 +33,95 @@ interface SidebarItem {
 const items: SidebarItem[] = [
   {
     label: 'Dashboard',
-    icon: 'i-heroicons-home',
+    icon: 'i-vscode-icons-file-type-home',
     to: '/'
   },
   {
     label: 'Cover',
-    icon: 'i-heroicons-document-text',
+    icon: 'i-vscode-icons-file-type-pdf2',
     to: '/document/cover'
   },
   {
     label: 'Introduction',
-    icon: 'i-heroicons-information-circle',
+    icon: 'i-vscode-icons-default-folder-opened',
     defaultExpanded: true,
     children: [
-      { label: 'Document Information', to: '/document/introduction' },
-      { label: 'Purpose and Scope', to: '/document/purpose-scope' },
-      { label: 'Product Identification', to: '/document/product-identification' },
-      { label: 'Manufacturer Information', to: '/document/manufacturer-information' }
+      { label: 'Document Information', icon: 'i-vscode-icons-file-type-text', to: '/document/introduction' },
+      { label: 'Purpose and Scope', icon: 'i-vscode-icons-file-type-text', to: '/document/purpose-scope' },
+      { label: 'Product Identification', icon: 'i-vscode-icons-file-type-text', to: '/document/product-identification' },
+      { label: 'Manufacturer Information', icon: 'i-vscode-icons-file-type-text', to: '/document/manufacturer-information' }
     ]
   },
   {
     label: 'Product Overview',
-    icon: 'i-heroicons-cube',
+    icon: 'i-vscode-icons-default-folder-opened',
     defaultExpanded: true,
     children: [
-      { label: 'Product Description', to: '/product-overview/description' },
-      { label: 'Product Architecture Overview', to: '/product-overview/architecture' },
-      { label: 'Third-Party Components', to: '/product-overview/third-party-components' }
+      { label: 'Product Description', icon: 'i-vscode-icons-file-type-text', to: '/product-overview/description' },
+      { label: 'Product Architecture Overview', icon: 'i-vscode-icons-file-type-text', to: '/product-overview/architecture' },
+      { label: 'Third-Party Components', icon: 'i-vscode-icons-file-type-text', to: '/product-overview/third-party-components' }
     ]
   },
   {
     label: 'Conformance Claim',
-    icon: 'i-heroicons-check-badge',
+    icon: 'i-vscode-icons-default-folder-opened',
     defaultExpanded: true,
     children: [
-      { label: 'Standards Conformance', to: '/conformance/standards' },
-      { label: 'Regulatory Conformance', to: '/conformance/regulatory' },
-      { label: 'Conformance Level', to: '/conformance/level' }
+      { label: 'Standards Conformance', icon: 'i-vscode-icons-file-type-text', to: '/conformance/standards' },
+      { label: 'Regulatory Conformance', icon: 'i-vscode-icons-file-type-text', to: '/conformance/regulatory' },
+      { label: 'Conformance Level', icon: 'i-vscode-icons-file-type-text', to: '/conformance/level' }
     ]
   },
   {
     label: 'Document Convention',
-    icon: 'i-heroicons-book-open',
+    icon: 'i-vscode-icons-default-folder-opened',
     defaultExpanded: true,
     children: [
-      { label: 'Terminology', to: '/convention/terminology' },
-      { label: 'Notation', to: '/convention/notation' }
+      { label: 'Terminology', icon: 'i-vscode-icons-file-type-text', to: '/convention/terminology' },
+      { label: 'Notation', icon: 'i-vscode-icons-file-type-text', to: '/convention/notation' }
     ]
   },
   {
     label: 'Risk Management Elements',
-    icon: 'i-heroicons-shield-exclamation',
+    icon: 'i-vscode-icons-default-folder-opened',
     defaultExpanded: true,
     children: [
       {
         label: 'General Approach to Risk Management',
+        icon: 'i-vscode-icons-file-type-text',
         to: '/risk/general-approach',
         children: [
-          { label: 'Product Context', to: '/pcontext/intended-purpose' }
+          { label: 'Product Context', icon: 'i-vscode-icons-file-type-text', to: '/pcontext/intended-purpose' }
         ]
       },
-      { label: 'Risk Acceptance Criteria and Risk Management', disabled: true },
-      { label: 'Risk Assessment', disabled: true },
-      { label: 'Risk Treatment', disabled: true },
-      { label: 'Risk Communication', disabled: true },
-      { label: 'Risk Monitoring and Review', disabled: true }
+      { label: 'Risk Acceptance Criteria and Risk Management', icon: 'i-vscode-icons-file-type-text', disabled: true },
+      { label: 'Risk Assessment', icon: 'i-vscode-icons-file-type-text', disabled: true },
+      { label: 'Risk Treatment', icon: 'i-vscode-icons-file-type-text', disabled: true },
+      { label: 'Risk Communication', icon: 'i-vscode-icons-file-type-text', disabled: true },
+      { label: 'Risk Monitoring and Review', icon: 'i-vscode-icons-file-type-text', disabled: true }
     ]
   },
   {
     label: 'Document Management',
-    icon: 'i-heroicons-folder',
+    icon: 'i-vscode-icons-default-folder-opened',
     defaultExpanded: true,
     children: [
-      { label: 'Document Preview', to: '/document/preview' },
-      { label: 'Load & Save', to: '/document/load-save' },
-      { label: 'Evidence List', to: '/document/evidence' }
+      { label: 'Document Preview', icon: 'i-vscode-icons-file-type-pdf2', to: '/document/preview' },
+      { label: 'Load & Save', icon: 'i-vscode-icons-file-type-json', to: '/document/load-save' },
+      { label: 'Evidence List', icon: 'i-vscode-icons-file-type-text', to: '/document/evidence' }
     ]
   },
   {
     label: 'Demo',
-    icon: 'i-heroicons-beaker',
+    icon: 'i-vscode-icons-default-folder',
     defaultExpanded: false,
     children: [
-      { label: 'Modal', to: '/demo/modal' },
-      { label: 'Requirements Table', to: '/demo/table' },
-      { label: 'Rich Text Editor', to: '/demo/editor' },
-      { label: 'XML Viewer', to: '/demo/xml-viewer' },
-      { label: 'Docx Preview', to: '/demo/docx-preview' },
-      { label: 'Save / Load', to: '/demo/storage' }
+      { label: 'Modal', icon: 'i-vscode-icons-file-type-vue', to: '/demo/modal' },
+      { label: 'Requirements Table', icon: 'i-vscode-icons-file-type-vue', to: '/demo/table' },
+      { label: 'Rich Text Editor', icon: 'i-vscode-icons-file-type-vue', to: '/demo/editor' },
+      { label: 'XML Viewer', icon: 'i-vscode-icons-file-type-vue', to: '/demo/xml-viewer' },
+      { label: 'Docx Preview', icon: 'i-vscode-icons-file-type-vue', to: '/demo/docx-preview' },
+      { label: 'Save / Load', icon: 'i-vscode-icons-file-type-vue', to: '/demo/storage' }
     ]
   }
 ]
