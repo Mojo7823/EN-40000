@@ -109,8 +109,8 @@ const familyTables = ref<FamilyTables>({})
 
 async function fetchFamilyTables() {
   try {
-    const res = await api.get('/families')
-    familyTables.value = res.data
+    const res: any = await api.get('/families')
+    familyTables.value = res
   } catch (error) {
     console.error('Error fetching family tables:', error)
   }
@@ -128,14 +128,14 @@ async function load(){
   if (!selectedTable.value) return
   
   try {
-    let res
+    let res: any
     if (selectedTable.value === 'components') {
       res = await api.get('/components')
     } else {
       res = await api.get(`/families/${selectedTable.value}`)
     }
     // Process items to add class_display field
-    items.value = res.data.map((item: Item) => ({
+    items.value = res.map((item: Item) => ({
       ...item,
       class_display: item.class || item.class_field || ''
     }))

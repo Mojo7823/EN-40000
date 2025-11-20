@@ -203,8 +203,8 @@ function debouncedFetch(){
 
 async function fetchFamilyTables() {
   try {
-    const res = await api.get('/families')
-    familyTables.value = res.data
+    const res: any = await api.get('/families')
+    familyTables.value = res
     
     // Fetch counts for all tables
     await fetchTableCounts()
@@ -224,8 +224,8 @@ async function fetchTableCounts() {
 
     for (const table of allTables) {
       try {
-        const res = await api.get(`/families/${table.name}/count`)
-        tableCounts.value[table.name] = res.data.count
+        const res: any = await api.get(`/families/${table.name}/count`)
+        tableCounts.value[table.name] = res.count
       } catch (error) {
         console.error(`Error fetching count for ${table.name}:`, error)
         tableCounts.value[table.name] = 0
@@ -234,8 +234,8 @@ async function fetchTableCounts() {
 
     // Fetch count for general components table
     try {
-      const res = await api.get('/components')
-      tableCounts.value.components = res.data.length
+      const res: any = await api.get('/components')
+      tableCounts.value.components = res.length
     } catch (error) {
       console.error('Error fetching components count:', error)
       tableCounts.value.components = 0
@@ -256,14 +256,14 @@ async function fetchItems(){
   
   loading.value = true
   try {
-    let res
+    let res: any
     if (selectedTable.value === 'components') {
       res = await api.get('/components', { params: { q: q.value || undefined } })
     } else {
       res = await api.get(`/families/${selectedTable.value}`, { params: { q: q.value || undefined } })
     }
     // Process items to add class_display field
-    items.value = res.data.map((item: Item) => ({
+    items.value = res.map((item: Item) => ({
       ...item,
       class_display: item.class || item.class_field || ''
     }))

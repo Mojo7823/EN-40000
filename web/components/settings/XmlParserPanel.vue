@@ -146,8 +146,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import api from '../../services/api'
 import XMLTreeNode from '../XMLTreeNode.vue'
+
+const api = useApi()
 // @ts-ignore
 import DataTable from 'primevue/datatable'
 // @ts-ignore
@@ -211,15 +212,13 @@ async function parseXml() {
     const formData = new FormData()
     formData.append('file', selectedFile.value)
 
-    const response = await api.post('/xml/parse', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+    const response: any = await api.post('/xml/parse', formData, {
+      // headers are handled automatically by $fetch when body is FormData
     })
 
-    if (response.data.success) {
-      parsedData.value = response.data.data
-      extractedComponents.value = response.data.components || []
+    if (response.success) {
+      parsedData.value = response.data
+      extractedComponents.value = response.components || []
       statusMessage.value = `Successfully parsed XML file. Found ${extractedComponents.value.length} components.`
       statusType.value = 'success'
       
@@ -230,13 +229,13 @@ async function parseXml() {
         'success'
       )
     } else {
-      statusMessage.value = response.data.message || 'Failed to parse XML file'
+      statusMessage.value = response.message || 'Failed to parse XML file'
       statusType.value = 'error'
       
       // Show error modal
       showModalNotification(
         'Parsing Failed',
-        response.data.message || 'Failed to parse XML file',
+        response.message || 'Failed to parse XML file',
         'error'
       )
     }
@@ -269,15 +268,13 @@ async function importToDatabase() {
     const formData = new FormData()
     formData.append('file', selectedFile.value)
 
-    const response = await api.post('/xml/import', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+    const response: any = await api.post('/xml/import', formData, {
+      // headers are handled automatically by $fetch when body is FormData
     })
 
-    if (response.data.success) {
-      importSummary.value = response.data
-      statusMessage.value = `${response.data.message}. Imported: ${response.data.components_imported}, Failed: ${response.data.components_failed}`
+    if (response.success) {
+      importSummary.value = response
+      statusMessage.value = `${response.message}. Imported: ${response.components_imported}, Failed: ${response.components_failed}`
       statusType.value = 'success'
       
       // Show success modal
@@ -285,19 +282,19 @@ async function importToDatabase() {
         'Import Complete',
         `Successfully imported XML data to database.`,
         'success',
-        `Components imported: ${response.data.components_imported}\nComponents failed: ${response.data.components_failed}`
+        `Components imported: ${response.components_imported}\nComponents failed: ${response.components_failed}`
       )
       
       // Also parse to show the structure
       await parseXml()
     } else {
-      statusMessage.value = response.data.message || 'Failed to import XML file'
+      statusMessage.value = response.message || 'Failed to import XML file'
       statusType.value = 'error'
       
       // Show error modal
       showModalNotification(
         'Import Failed',
-        response.data.message || 'Failed to import XML file',
+        response.message || 'Failed to import XML file',
         'error'
       )
     }

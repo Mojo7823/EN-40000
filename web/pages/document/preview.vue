@@ -711,11 +711,11 @@ async function uploadCoverImageIfNeeded(force = false) {
   formData.append('file', file)
 
   const userId = sessionService.getUserToken()
-  const response = await api.post('/cover/upload', formData, {
+  const response: any = await api.post('/cover/upload', formData, {
     params: { user_id: userId },
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // headers are handled automatically by $fetch when body is FormData
   })
-  const newPath: string | null = response.data?.path ?? null
+  const newPath: string | null = response.path ?? null
   workspaceState.value = workspace.updateCoverState({ imagePath: newPath })
   return newPath
 }
@@ -879,13 +879,13 @@ async function generatePreview() {
       ;(payload as any).risk_management = riskManagementSection
     }
 
-    const response = await api.post('/cover/preview', payload)
-    const path: string = response.data.path
-    const buffer = await api.get(path, { responseType: 'arraybuffer' })
+    const response: any = await api.post('/cover/preview', payload)
+    const path: string = response.path
+    const buffer: any = await api.get(path, { responseType: 'arraybuffer' })
 
     if (docxPreviewContainer.value) {
       docxPreviewContainer.value.innerHTML = ''
-      await renderAsync(buffer.data, docxPreviewContainer.value, undefined, {
+      await renderAsync(buffer, docxPreviewContainer.value, undefined, {
         inWrapper: true,
         ignoreWidth: false,
         ignoreHeight: false,
@@ -960,10 +960,10 @@ async function downloadDocx() {
   if (!latestDocPath.value) return
   downloading.value = true
   try {
-    const response = await api.get(latestDocPath.value, {
+    const response: any = await api.get(latestDocPath.value, {
       responseType: 'blob',
     })
-    const blob = new Blob([response.data], {
+    const blob = new Blob([response], {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     })
     const url = URL.createObjectURL(blob)

@@ -1,4 +1,3 @@
-import api from '../services/api'
 import { sessionService, type CoverSessionData } from '../services/sessionService'
 import { dataUrlToFile } from './dataUrl'
 
@@ -41,12 +40,17 @@ export async function ensureCoverImageUploaded(
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await api.post('/cover/upload', formData, {
+    const config = useRuntimeConfig()
+    const baseURL = config.public.apiBase
+
+    const response: any = await $fetch('/cover/upload', {
+      method: 'POST',
+      baseURL,
+      body: formData,
       params: { user_id: userToken },
-      headers: { 'Content-Type': 'multipart/form-data' },
     })
 
-    const newPath: string | null = response.data?.path ?? null
+    const newPath: string | null = response.path ?? null
     sessionService.saveCoverData(context.form, newPath, context.uploadedImageData)
 
     return newPath

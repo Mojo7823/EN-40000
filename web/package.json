@@ -32,7 +32,6 @@
     "@tiptap/pm": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
     "@tiptap/vue-3": "^2.1.13",
-    "axios": "1.7.7",
     "docx-preview": "^0.3.7",
     "nuxt": "^3.14.159",
     "pinia": "2.2.4",
@@ -41,6 +40,8 @@
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
+    "@iconify-json/lucide": "^1.2.74",
     "@nuxt/devtools": "^1.5.2",
     "@playwright/test": "^1.48.2",
     "@types/node": "^22.9.0",
