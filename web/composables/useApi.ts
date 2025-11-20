@@ -1,6 +1,11 @@
 export const useApi = () => {
   const config = useRuntimeConfig()
-  const baseURL = config.public.apiBase
+  let baseURL = config.public.apiBase
+
+  // In dev, use Vite proxy at /api to avoid CORS if using default local address
+  if (import.meta.dev && baseURL === 'http://127.0.0.1:8000') {
+    baseURL = '/api'
+  }
 
   return {
     get: async (url: string, options = {}) => {

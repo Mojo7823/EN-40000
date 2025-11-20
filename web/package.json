@@ -32,7 +32,6 @@
     "@tiptap/pm": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
     "@tiptap/vue-3": "^2.1.13",
-    "axios": "1.7.7",
     "docx-preview": "^0.3.7",
     "nuxt": "^3.14.159",
     "pinia": "2.2.4",

@@ -155,7 +155,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import api from '../../services/api'
 // @ts-ignore
 import DataTable from 'primevue/datatable'
 // @ts-ignore
@@ -184,6 +183,7 @@ type FamilyTables = {
   special?: Table[]
 }
 
+const api = useApi()
 const items = ref<Item[]>([])
 const q = ref('')
 const selectedTable = ref<string>('')
@@ -204,7 +204,7 @@ function debouncedFetch(){
 async function fetchFamilyTables() {
   try {
     const res = await api.get('/families')
-    familyTables.value = res.data
+    familyTables.value = (res as any)
     
     // Fetch counts for all tables
     await fetchTableCounts()
@@ -225,7 +225,7 @@ async function fetchTableCounts() {
     for (const table of allTables) {
       try {
         const res = await api.get(`/families/${table.name}/count`)
-        tableCounts.value[table.name] = res.data.count
+        tableCounts.value[table.name] = (res as any).count
       } catch (error) {
         console.error(`Error fetching count for ${table.name}:`, error)
         tableCounts.value[table.name] = 0
@@ -235,7 +235,7 @@ async function fetchTableCounts() {
     // Fetch count for general components table
     try {
       const res = await api.get('/components')
-      tableCounts.value.components = res.data.length
+      tableCounts.value.components = (res as any).length
     } catch (error) {
       console.error('Error fetching components count:', error)
       tableCounts.value.components = 0
@@ -263,7 +263,7 @@ async function fetchItems(){
       res = await api.get(`/families/${selectedTable.value}`, { params: { q: q.value || undefined } })
     }
     // Process items to add class_display field
-    items.value = res.data.map((item: Item) => ({
+    items.value = (res as any).map((item: Item) => ({
       ...item,
       class_display: item.class || item.class_field || ''
     }))

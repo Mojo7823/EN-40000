@@ -1,4 +1,3 @@
-import api from '../services/api'
 import { sessionService, type CoverSessionData } from '../services/sessionService'
 import { dataUrlToFile } from './dataUrl'
 
@@ -41,12 +40,22 @@ export async function ensureCoverImageUploaded(
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await api.post('/cover/upload', formData, {
+    const config = useRuntimeConfig()
+    let baseURL = config.public.apiBase
+
+    // In dev, use Vite proxy at /api to avoid CORS if using default local address
+    if (import.meta.dev && baseURL === 'http://127.0.0.1:8000') {
+      baseURL = '/api'
+    }
+
+    const response = await $fetch('/cover/upload', {
+      method: 'POST',
+      baseURL,
+      body: formData,
       params: { user_id: userToken },
-      headers: { 'Content-Type': 'multipart/form-data' },
     })
 
-    const newPath: string | null = response.data?.path ?? null
+    const newPath: string | null = (response as any)?.path ?? null
     sessionService.saveCoverData(context.form, newPath, context.uploadedImageData)
 
     return newPath

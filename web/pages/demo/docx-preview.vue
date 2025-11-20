@@ -73,10 +73,10 @@
 import { onMounted, ref, watch } from 'vue'
 import { renderAsync } from 'docx-preview'
 import RichTextEditor from '../../components/RichTextEditor.vue'
-import api from '../../services/api'
 import { sessionService } from '../../services/sessionService'
 import { loadDemoState, updateDemoState } from '../../services/demoStorage'
 
+const api = useApi()
 const docxHtml = ref('<p></p>')
 const previewLoading = ref(false)
 const previewError = ref('')
@@ -116,12 +116,12 @@ async function generatePreview() {
       user_id: userId,
       html_content: docxHtml.value,
     })
-    const path: string = response.data.path
-    const buffer = await api.get(path, { responseType: 'arraybuffer' })
+    const path: string = (response as any).path
+    const buffer = await api.get(path, { responseType: 'arrayBuffer' })
 
     if (docxPreviewContainer.value) {
       docxPreviewContainer.value.innerHTML = ''
-      await renderAsync(buffer.data, docxPreviewContainer.value, undefined, {
+      await renderAsync(buffer as ArrayBuffer, docxPreviewContainer.value, undefined, {
         inWrapper: true,
         ignoreWidth: false,
         ignoreHeight: false,
@@ -197,13 +197,10 @@ async function downloadDocx() {
   if (!latestDocPath.value) return
   downloading.value = true
   try {
-    const response = await api.get(latestDocPath.value, {
+    const blob = await api.get(latestDocPath.value, {
       responseType: 'blob',
     })
-    const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    })
-    const url = URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob as Blob)
     const link = document.createElement('a')
     link.href = url
     link.download = 'CRA Tool_Demo.docx'

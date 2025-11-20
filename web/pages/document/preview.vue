@@ -106,7 +106,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { renderAsync } from 'docx-preview'
-import api from '../../services/api'
 import { sessionService } from '../../services/sessionService'
 import type {
   DocumentWorkspaceState,
@@ -116,6 +115,7 @@ import type {
 } from '../../services/documentWorkspace'
 
 const workspace = useDocumentWorkspace()
+const api = useApi()
 import { dataUrlToFile } from '../../utils/dataUrl'
 import { CONFORMANCE_LEVEL_OPTIONS, REGULATORY_PRIMARY_REFERENCES } from '../../constants/conformance'
 import type { ConformanceLevelState } from '../../types/conformance'
@@ -713,9 +713,9 @@ async function uploadCoverImageIfNeeded(force = false) {
   const userId = sessionService.getUserToken()
   const response = await api.post('/cover/upload', formData, {
     params: { user_id: userId },
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // headers: { 'Content-Type': 'multipart/form-data' }, // $fetch handles FormData automatically
   })
-  const newPath: string | null = response.data?.path ?? null
+  const newPath: string | null = (response as any)?.path ?? null
   workspaceState.value = workspace.updateCoverState({ imagePath: newPath })
   return newPath
 }
@@ -880,12 +880,12 @@ async function generatePreview() {
     }
 
     const response = await api.post('/cover/preview', payload)
-    const path: string = response.data.path
-    const buffer = await api.get(path, { responseType: 'arraybuffer' })
+    const path: string = (response as any).path
+    const buffer = await api.get(path, { responseType: 'arrayBuffer' })
 
     if (docxPreviewContainer.value) {
       docxPreviewContainer.value.innerHTML = ''
-      await renderAsync(buffer.data, docxPreviewContainer.value, undefined, {
+      await renderAsync(buffer as ArrayBuffer, docxPreviewContainer.value, undefined, {
         inWrapper: true,
         ignoreWidth: false,
         ignoreHeight: false,
@@ -960,13 +960,10 @@ async function downloadDocx() {
   if (!latestDocPath.value) return
   downloading.value = true
   try {
-    const response = await api.get(latestDocPath.value, {
+    const blob = await api.get(latestDocPath.value, {
       responseType: 'blob',
     })
-    const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    })
-    const url = URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob as Blob)
     const link = document.createElement('a')
     link.href = url
     link.download = 'CRA_Tool_Document_Cover.docx'
