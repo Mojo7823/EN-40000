@@ -1,0 +1,83 @@
+<script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
+
+const columns: TableColumn<{ id: number; name: string; title: string; email: string; role: string }>[] = [{
+  accessorKey: 'id',
+  header: 'ID'
+}, {
+  accessorKey: 'name',
+  header: 'Name'
+}, {
+  accessorKey: 'title',
+  header: 'Title'
+}, {
+  accessorKey: 'email',
+  header: 'Email'
+}, {
+  accessorKey: 'role',
+  header: 'Role'
+}]
+
+const people = [{
+  id: 1,
+  name: 'Lindsay Walton',
+  title: 'Front-end Developer',
+  email: 'lindsay.walton@example.com',
+  role: 'Member'
+}, {
+  id: 2,
+  name: 'Courtney Henry',
+  title: 'Designer',
+  email: 'courtney.henry@example.com',
+  role: 'Admin'
+}, {
+  id: 3,
+  name: 'Tom Cook',
+  title: 'Director of Product',
+  email: 'tom.cook@example.com',
+  role: 'Member'
+}, {
+  id: 4,
+  name: 'Whitney Francis',
+  title: 'Copywriter',
+  email: 'whitney.francis@example.com',
+  role: 'Admin'
+}, {
+  id: 5,
+  name: 'Leonard Krasner',
+  title: 'Senior Designer',
+  email: 'leonard.krasner@example.com',
+  role: 'Owner'
+}, {
+  id: 6,
+  name: 'Floyd Miles',
+  title: 'Principal Designer',
+  email: 'floyd.miles@example.com',
+  role: 'Member'
+}]
+
+const q = ref('')
+
+const filteredRows = computed(() => {
+  if (!q.value) {
+    return people
+  }
+
+  return people.filter((person) => {
+    return Object.values(person).some((value) => {
+      return String(value).toLowerCase().includes(q.value.toLowerCase())
+    })
+  })
+})
+</script>
+
+<template>
+  <div class="p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Table Demo</h1>
+      <UInput v-model="q" placeholder="Filter people..." />
+    </div>
+    
+    <UTable :data="filteredRows" :columns="columns" />
+  </div>
+</template>

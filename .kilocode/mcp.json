@@ -1,1 +1,23 @@
-{"mcpServers":{"playwright":{"command":"npx","args":["-y","@playwright/mcp@0.0.38"],"disabled":true,"alwaysAllow":[]},"nuxt-ui":{"type":"streamable-http","url":"https://ui.nuxt.com/mcp"},"filesystem":{"command":"npx","args":["-y","@modelcontextprotocol/server-filesystem","/home/lilydev/EN-40000"]},"chrome-devtools":{"command":"npx","args":["-y","chrome-devtools-mcp@latest"],"disabled":false,"alwaysAllow":[]},"puppeteer":{"command":"npx","args":["-y","@modelcontextprotocol/server-puppeteer"],"disabled":true,"alwaysAllow":[]}}}
+{
+  "mcpServers": {
+    "nuxt-ui": {
+      "type": "streamable-http",
+      "url": "https://ui.nuxt.com/mcp"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/devi/EN-40000"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.38"
+      ]
+    }
+  }
+}

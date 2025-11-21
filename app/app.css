@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Fix for CSS parsing errors */
+* {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
