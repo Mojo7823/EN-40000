@@ -9,14 +9,25 @@ const isDark = computed({
     colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
   }
 })
-const { data: healthData, error: healthError } = await useFetch('/api/health', {
+const { data: healthData, error: healthError, status, refresh } = useFetch('/api/health', {
   server: false,
-  lazy: true
+  lazy: true,
+  watch: false
+})
+
+// Refresh health check when window gains focus
+onMounted(() => {
+  window.addEventListener('focus', () => refresh())
+})
+
+onUnmounted(() => {
+  window.removeEventListener('focus', () => refresh())
 })
 
 const backendStatus = computed(() => {
-  if (healthError.value) return 'offline'
-  if (healthData.value?.status === 'ok') return 'online'
+  console.log('Health Status:', status.value, healthData.value, healthError.value)
+  if (status.value === 'error' || healthError.value) return 'offline'
+  if (status.value === 'success' && healthData.value?.status === 'ok') return 'online'
   return 'connecting'
 })
 

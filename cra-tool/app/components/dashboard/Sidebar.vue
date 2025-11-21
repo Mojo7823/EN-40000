@@ -22,6 +22,22 @@ const items = [{
     }]
   }]
 }, {
+  label: 'Demos',
+  icon: 'i-heroicons-beaker',
+  children: [{
+    label: 'Table',
+    to: '/demo/table'
+  }, {
+    label: 'Modal',
+    to: '/demo/modal'
+  }, {
+    label: 'CRUD',
+    to: '/demo/crud'
+  }, {
+    label: 'WYSIWYG',
+    to: '/demo/wysiwyg'
+  }]
+}, {
   label: 'Settings',
   icon: 'i-heroicons-cog-6-tooth',
   to: '/settings'

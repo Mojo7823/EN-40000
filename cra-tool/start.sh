@@ -12,14 +12,14 @@ if [ ! -d "backend/venv" ]; then
     python3 -m venv backend/venv
 fi
 
-source backend/venv/bin/activate
+# source backend/venv/bin/activate # No need to activate if we use direct paths
 echo "Installing dependencies..."
-pip install -r backend/requirements.txt
+./backend/venv/bin/pip install -r backend/requirements.txt
 
 # 2. Start Backend
 echo "--- Starting Backend ---"
 # Run uvicorn in background, log to backend.log
-nohup uvicorn backend.main:app --reload --port 8000 > backend.log 2>&1 &
+nohup ./backend/venv/bin/uvicorn backend.main:app --reload --port 8000 > backend.log 2>&1 &
 BACKEND_PID=$!
 echo $BACKEND_PID > backend.pid
 echo "Backend started with PID $BACKEND_PID (Logs: backend.log)"
