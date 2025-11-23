@@ -12,12 +12,47 @@ const items = ref([[{
 }, {
   label: 'Introduction',
   icon: 'i-heroicons-information-circle',
-  defaultOpen: false,
+  defaultOpen: true,
   children: [{
     label: 'Document Information',
     to: '/document/introduction',
     icon: 'i-heroicons-document',
     description: 'Basic document details'
+  }, {
+    label: 'Purpose and Scope',
+    to: '/document/purpose-scope',
+    icon: 'i-heroicons-document-text',
+    description: 'Document purpose and scope'
+  }, {
+    label: 'Product Identification',
+    to: '/document/product-identification',
+    icon: 'i-heroicons-identification',
+    description: 'Product identification details'
+  }, {
+    label: 'Manufacturer Information',
+    to: '/document/manufacturer-information',
+    icon: 'i-heroicons-building-office',
+    description: 'Manufacturer contact information'
+  }]
+}, {
+  label: 'Product Overview',
+  icon: 'i-heroicons-cube',
+  defaultOpen: true,
+  children: [{
+    label: 'Product Description',
+    to: '/product-overview/description',
+    icon: 'i-heroicons-document-text',
+    description: 'Overall product description'
+  }, {
+    label: 'Product Architecture Overview',
+    to: '/product-overview/architecture',
+    icon: 'i-heroicons-squares-2x2',
+    description: 'System architecture'
+  }, {
+    label: 'Third-Party Components',
+    to: '/product-overview/third-party-components',
+    icon: 'i-heroicons-cube-transparent',
+    description: 'Third-party component inventory'
   }]
 }, {
   label: 'Conformance Claim',
@@ -40,9 +75,40 @@ const items = ref([[{
     description: 'Conformance status and justification'
   }]
 }, {
+  label: 'Document Convention',
+  icon: 'i-heroicons-book-open',
+  defaultOpen: true,
+  children: [{
+    label: 'Terminology',
+    to: '/convention/terminology',
+    icon: 'i-heroicons-language',
+    description: 'Terminology glossary'
+  }, {
+    label: 'Notation',
+    to: '/convention/notation',
+    icon: 'i-heroicons-hashtag',
+    description: 'Notation conventions'
+  }]
+}, {
+  label: 'Risk Management Elements',
+  icon: 'i-heroicons-shield-exclamation',
+  defaultOpen: true,
+  children: [{
+    label: 'General Approach to Risk Management',
+    to: '/risk/general-approach',
+    icon: 'i-heroicons-shield-check',
+    description: 'Risk management methodology',
+    children: [{
+      label: 'Product Context',
+      to: '/pcontext/intended-purpose',
+      icon: 'i-heroicons-light-bulb',
+      description: 'Product intended purpose'
+    }]
+  }]
+}, {
   label: 'Document Management',
   icon: 'i-heroicons-folder-open',
-  defaultOpen: false,
+  defaultOpen: true,
   children: [{
     label: 'Document Preview',
     to: '/document/preview',
@@ -53,6 +119,11 @@ const items = ref([[{
     to: '/document/load-save',
     icon: 'i-heroicons-arrow-down-tray',
     description: 'Import/export workspace'
+  }, {
+    label: 'Evidence List',
+    to: '/document/evidence',
+    icon: 'i-heroicons-clipboard-document-list',
+    description: 'Evidence tracking'
   }]
 }, {
   label: 'Demos',

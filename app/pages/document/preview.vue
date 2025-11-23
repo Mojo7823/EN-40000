@@ -133,7 +133,80 @@
               <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Preview</p>
               <h3 class="text-lg font-semibold">Document Preview</h3>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap items-center">
+              <!-- Preview Mode Toggle -->
+              <UButtonGroup size="sm">
+                <UButton
+                  :color="previewMode === 'html' ? 'primary' : 'gray'"
+                  :variant="previewMode === 'html' ? 'solid' : 'ghost'"
+                  @click="previewMode = 'html'"
+                >
+                  HTML
+                </UButton>
+                <UButton
+                  :color="previewMode === 'docx' ? 'primary' : 'gray'"
+                  :variant="previewMode === 'docx' ? 'solid' : 'ghost'"
+                  :disabled="!latestDocPath"
+                  @click="switchToDocxPreview"
+                >
+                  DOCX
+                </UButton>
+              </UButtonGroup>
+
+              <!-- Zoom Controls (DOCX only) -->
+              <div v-if="previewMode === 'docx' && hasGeneratedDocx" class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="gray"
+                  icon="i-heroicons-minus"
+                  :disabled="zoomLevel <= 50"
+                  @click="zoomOut"
+                  title="Zoom Out"
+                />
+                <span class="text-xs font-medium min-w-[45px] text-center">{{ zoomLevel }}%</span>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="gray"
+                  icon="i-heroicons-plus"
+                  :disabled="zoomLevel >= 200"
+                  @click="zoomIn"
+                  title="Zoom In"
+                />
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="gray"
+                  icon="i-heroicons-arrow-path"
+                  @click="resetZoom"
+                  title="Reset Zoom"
+                />
+              </div>
+
+              <!-- Page Navigation (DOCX only) -->
+              <div v-if="previewMode === 'docx' && hasGeneratedDocx && totalPages > 1" class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="gray"
+                  icon="i-heroicons-chevron-left"
+                  :disabled="currentPage <= 1"
+                  @click="previousPage"
+                  title="Previous Page"
+                />
+                <span class="text-xs font-medium min-w-[60px] text-center">{{ currentPage }} / {{ totalPages }}</span>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="gray"
+                  icon="i-heroicons-chevron-right"
+                  :disabled="currentPage >= totalPages"
+                  @click="nextPage"
+                  title="Next Page"
+                />
+              </div>
+
               <UButton
                 variant="ghost"
                 color="gray"
@@ -154,11 +227,39 @@
           </div>
         </template>
 
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 min-h-[280px]">
+        <!-- HTML Preview -->
+        <div v-if="previewMode === 'html'" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 min-h-[280px]">
           <div v-if="previewContent" v-html="previewContent" class="prose prose-sm dark:prose-invert max-w-none"></div>
           <div v-else class="text-sm text-gray-500">
             No preview yet. Click "Preview All" or a section Preview to see content.
           </div>
+        </div>
+
+        <!-- DOCX Preview -->
+        <div v-else class="relative min-h-[600px] border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 p-3 overflow-auto" ref="previewShell">
+          <div v-if="docxLoading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-10">
+            <div class="text-center">
+              <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Rendering DOCX...</div>
+            </div>
+          </div>
+          <div v-else-if="docxError" class="flex items-center justify-center min-h-[400px]">
+            <div class="text-center text-red-600">
+              <p class="font-medium">Error rendering DOCX</p>
+              <p class="text-sm mt-1">{{ docxError }}</p>
+            </div>
+          </div>
+          <div v-else-if="!hasGeneratedDocx" class="flex items-center justify-center min-h-[400px]">
+            <div class="text-center text-gray-500">
+              <p class="font-medium">No DOCX preview available</p>
+              <p class="text-sm mt-1">Generate a document to see the DOCX preview</p>
+            </div>
+          </div>
+          <div
+            ref="docxPreviewContainer"
+            class="docx-preview-container"
+            :class="{ 'hidden': docxLoading || !!docxError || !hasGeneratedDocx }"
+            :style="{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }"
+          ></div>
         </div>
       </UCard>
     </div>
@@ -210,6 +311,8 @@
 </template>
 
 <script setup lang="ts">
+import { renderAsync } from 'docx-preview'
+
 const workspaceService = useDocumentWorkspace()
 const toast = useToast()
 
@@ -220,6 +323,18 @@ const error = ref('')
 const success = ref('')
 const generatedFiles = ref<Array<{ filename: string; path: string; timestamp: string; section: string }>>([])
 const previewContent = ref('')
+
+// DOCX Preview state
+const previewMode = ref<'html' | 'docx'>('html')
+const docxPreviewContainer = ref<HTMLDivElement | null>(null)
+const previewShell = ref<HTMLDivElement | null>(null)
+const latestDocPath = ref<string | null>(null)
+const docxLoading = ref(false)
+const docxError = ref('')
+const hasGeneratedDocx = ref(false)
+const zoomLevel = ref(100)
+const currentPage = ref(1)
+const totalPages = ref(1)
 
 const userId = 'demo-user'
 
@@ -597,6 +712,96 @@ function buildFullPreview() {
   })
 }
 
+// DOCX Preview functions
+function zoomIn() {
+  if (zoomLevel.value < 200) {
+    zoomLevel.value = Math.min(200, zoomLevel.value + 25)
+  }
+}
+
+function zoomOut() {
+  if (zoomLevel.value > 50) {
+    zoomLevel.value = Math.max(50, zoomLevel.value - 25)
+  }
+}
+
+function resetZoom() {
+  zoomLevel.value = 100
+}
+
+function nextPage() {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    scrollToPage(currentPage.value)
+  }
+}
+
+function previousPage() {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    scrollToPage(currentPage.value)
+  }
+}
+
+function scrollToPage(pageNumber: number) {
+  const sections = docxPreviewContainer.value?.querySelectorAll('.docx > section')
+  if (sections && sections[pageNumber - 1]) {
+    const section = sections[pageNumber - 1] as HTMLElement
+    const shell = previewShell.value
+    if (shell) {
+      const sectionTop = section.offsetTop
+      shell.scrollTo({
+        top: sectionTop - 32,
+        behavior: 'smooth'
+      })
+    }
+  }
+}
+
+async function switchToDocxPreview() {
+  previewMode.value = 'docx'
+  if (latestDocPath.value && !hasGeneratedDocx.value) {
+    await renderDocxPreview(latestDocPath.value)
+  }
+}
+
+async function renderDocxPreview(path: string) {
+  docxLoading.value = true
+  docxError.value = ''
+
+  try {
+    const buffer = await $fetch(`http://localhost:8000${path}`, {
+      responseType: 'arrayBuffer'
+    })
+
+    if (docxPreviewContainer.value) {
+      docxPreviewContainer.value.innerHTML = ''
+      await renderAsync(buffer as ArrayBuffer, docxPreviewContainer.value, undefined, {
+        inWrapper: true,
+        ignoreWidth: false,
+        ignoreHeight: false,
+        renderHeaders: true,
+        renderFooters: true,
+        renderFootnotes: true,
+        renderEndnotes: true,
+      })
+      hasGeneratedDocx.value = true
+      
+      // Count pages
+      setTimeout(() => {
+        const sections = docxPreviewContainer.value?.querySelectorAll('.docx > section')
+        totalPages.value = sections?.length || 1
+        currentPage.value = 1
+      }, 100)
+    }
+  } catch (e: any) {
+    console.error('DOCX rendering error:', e)
+    docxError.value = 'Failed to render DOCX preview. Please ensure the backend is running.'
+  } finally {
+    docxLoading.value = false
+  }
+}
+
 async function generateSection(section: string) {
   loadingSection.value = section
   error.value = ''
@@ -646,12 +851,22 @@ async function generateSection(section: string) {
     })
 
     if (response.status === 'ready') {
+      const docPath = `/api/preview${response.path}`
       generatedFiles.value.unshift({
         filename: `${sectionName.replace(/\s+/g, '_')}_${response.filename}`,
-        path: `/api/preview${response.path}`,
+        path: docPath,
         timestamp: new Date().toLocaleString(),
         section: section
       })
+      
+      // Store latest doc path and render DOCX preview
+      latestDocPath.value = docPath
+      hasGeneratedDocx.value = false // Reset for new render
+      
+      // Auto-switch to DOCX preview and render
+      previewMode.value = 'docx'
+      await renderDocxPreview(docPath)
+      
       success.value = `${sectionName} generated successfully!`
       
       toast.add({
@@ -719,12 +934,22 @@ async function generateFullDocument() {
     })
 
     if (response.status === 'ready') {
+      const docPath = `/api/preview${response.path}`
       generatedFiles.value.unshift({
         filename: `Full_Document_${response.filename}`,
-        path: `/api/preview${response.path}`,
+        path: docPath,
         timestamp: new Date().toLocaleString(),
         section: 'full'
       })
+      
+      // Store latest doc path and render DOCX preview
+      latestDocPath.value = docPath
+      hasGeneratedDocx.value = false // Reset for new render
+      
+      // Auto-switch to DOCX preview and render
+      previewMode.value = 'docx'
+      await renderDocxPreview(docPath)
+      
       success.value = 'Full document generated successfully!'
       
       toast.add({
