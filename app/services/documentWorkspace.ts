@@ -147,7 +147,13 @@ export interface DocumentWorkspaceState {
   lastUpdated: string
 }
 
-const STORAGE_KEY = 'cratool_document_workspace'
+const STORAGE_KEY_BASE = 'cratool_document_workspace'
+
+// Get user-specific storage key
+function getUserStorageKey(): string {
+  const userToken = sessionService.getUserToken()
+  return `${STORAGE_KEY_BASE}_${userToken}`
+}
 const CONFORMANCE_LEVEL_VALUE_SET = new Set<ConformanceLevelStatus>(
   CONFORMANCE_LEVEL_OPTIONS.map((option) => option.value)
 )
@@ -530,7 +536,8 @@ function notifyListeners(state: DocumentWorkspaceState) {
 function persistState(state: DocumentWorkspaceState, shouldNotify = true) {
   inMemoryState = cloneState(state)
   if (hasStorage()) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    const storageKey = getUserStorageKey()
+    localStorage.setItem(storageKey, JSON.stringify(state))
   }
   if (shouldNotify) {
     notifyListeners(inMemoryState)
@@ -539,7 +546,8 @@ function persistState(state: DocumentWorkspaceState, shouldNotify = true) {
 
 function readFromStorage(): DocumentWorkspaceState | null {
   if (!hasStorage()) return null
-  const raw = localStorage.getItem(STORAGE_KEY)
+  const storageKey = getUserStorageKey()
+  const raw = localStorage.getItem(storageKey)
   if (!raw) return null
   try {
     const parsed = JSON.parse(raw)

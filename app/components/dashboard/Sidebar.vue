@@ -1,13 +1,63 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const items = ref([{
+const items = ref([[{
   label: 'Dashboard',
   icon: 'i-heroicons-home',
   to: '/demo/dashboard'
 }, {
+  label: 'Cover',
+  to: '/document/cover',
+  icon: 'i-heroicons-photo'
+}, {
+  label: 'Introduction',
+  icon: 'i-heroicons-information-circle',
+  defaultOpen: false,
+  children: [{
+    label: 'Document Information',
+    to: '/document/introduction',
+    icon: 'i-heroicons-document',
+    description: 'Basic document details'
+  }]
+}, {
+  label: 'Conformance Claim',
+  icon: 'i-heroicons-check-badge',
+  defaultOpen: true,
+  children: [{
+    label: 'Standards Conformance',
+    to: '/conformance/standards',
+    icon: 'i-heroicons-clipboard-document-list',
+    description: 'Primary and related standards'
+  }, {
+    label: 'Regulatory Conformance',
+    to: '/conformance/regulatory',
+    icon: 'i-heroicons-scale',
+    description: 'CRA and other regulations'
+  }, {
+    label: 'Conformance Level',
+    to: '/conformance/level',
+    icon: 'i-heroicons-shield-check',
+    description: 'Conformance status and justification'
+  }]
+}, {
+  label: 'Document Management',
+  icon: 'i-heroicons-folder-open',
+  defaultOpen: false,
+  children: [{
+    label: 'Document Preview',
+    to: '/document/preview',
+    icon: 'i-heroicons-eye',
+    description: 'Preview and download document'
+  }, {
+    label: 'Load & Save',
+    to: '/document/load-save',
+    icon: 'i-heroicons-arrow-down-tray',
+    description: 'Import/export workspace'
+  }]
+}, {
   label: 'Demos',
   icon: 'i-heroicons-beaker',
+  defaultOpen: false,
   children: [{
     label: 'Table',
     to: '/demo/table',
@@ -49,11 +99,11 @@ const items = ref([{
       icon: 'i-heroicons-lock-closed'
     }]
   }]
-}, {
+}], [{
   label: 'Settings',
   icon: 'i-heroicons-cog-6-tooth',
   to: '/demo/settings'
-}])
+}]])
 </script>
 
 <template>

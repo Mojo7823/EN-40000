@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Standards Page Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Standards Page Test Results</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        // Test instructions
+        addResult('Testing Standards Conformance Page', 'info');
+        addResult('1. Navigate to http://localhost:3002/conformance/standards', 'info');
+        addResult('2. Click "Add Standard" button', 'info');
+        addResult('3. Check if modal appears with proper layout', 'info');
+        addResult('4. Verify dropdown shows: prEN 40000-1-1, JT013090:2026, JT013091:2026, and "Add Custom Standard"', 'info');
+        addResult('5. Select a standard from dropdown and save', 'info');
+        addResult('6. Verify the standard appears in the table', 'info');
+    </script>
+</body>
+</html>
