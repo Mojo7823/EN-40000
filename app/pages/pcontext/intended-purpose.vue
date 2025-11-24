@@ -91,12 +91,35 @@
 
       <RichTextEditor v-model="form.foreseeableUseHtml" min-height="280px" placeholder="Describe foreseeable uses and potential misuse..." />
     </UCard>
+
+    <!-- Evidence Tracker Card -->
+    <UCard>
+      <template #header>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 4</p>
+          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">Evidence Tracker</h2>
+        </div>
+      </template>
+
+      <div class="mb-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Track evidence references that support the product context claims and risk assessments.
+        </p>
+      </div>
+
+      <EvidenceTracker
+        v-model="evidenceEntries"
+        title="Evidence Tracker"
+        description="Link supporting documentation that proves the product context has been reviewed."
+      />
+    </UCard>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import type { DocumentWorkspaceState } from '~/services/documentWorkspace'
+import type { DocumentWorkspaceState, RiskEvidenceEntry, RiskEvidenceStatus } from '~/services/documentWorkspace'
+import { RISK_PRODUCT_CONTEXT_SECTION_KEY } from '~/services/documentWorkspace'
 
 const workspace = useDocumentWorkspace()
 
@@ -107,6 +130,7 @@ const form = reactive({
   specificIntendedUsesHtml: '',
   foreseeableUseHtml: '',
 })
+const evidenceEntries = ref<RiskEvidenceEntry[]>([])
 let unsubscribe: (() => void) | null = null
 
 const productName = computed(() => {
@@ -119,6 +143,7 @@ function hydrate(state: DocumentWorkspaceState) {
   const nextIntendedPurpose = productContext?.intendedPurposeHtml || ''
   const nextSpecificUses = productContext?.specificIntendedUsesHtml || ''
   const nextForeseeableUse = productContext?.foreseeableUseHtml || ''
+  const nextEvidence = normalizeEvidenceEntries(productContext?.evidenceEntries)
 
   if (form.intendedPurposeHtml !== nextIntendedPurpose) {
     form.intendedPurposeHtml = nextIntendedPurpose
@@ -129,11 +154,63 @@ function hydrate(state: DocumentWorkspaceState) {
   if (form.foreseeableUseHtml !== nextForeseeableUse) {
     form.foreseeableUseHtml = nextForeseeableUse
   }
+  if (!areEvidenceEntriesEqual(evidenceEntries.value, nextEvidence)) {
+    evidenceEntries.value = nextEvidence
+  }
   hydrating.value = false
 }
 
 function normalizeRichTextValue(value?: string) {
   return value ?? ''
+}
+
+function normalizeEvidenceEntries(entries?: RiskEvidenceEntry[]): RiskEvidenceEntry[] {
+  if (entries && entries.length) {
+    return entries.map((entry) => ({ ...entry }))
+  }
+  return [
+    {
+      id: `${RISK_PRODUCT_CONTEXT_SECTION_KEY}-evidence`,
+      sectionKey: RISK_PRODUCT_CONTEXT_SECTION_KEY,
+      title: 'Product Context Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started' as RiskEvidenceStatus,
+    },
+  ]
+}
+
+function areEvidenceEntriesEqual(a: RiskEvidenceEntry[], b: RiskEvidenceEntry[]) {
+  if (a.length !== b.length) return false
+  return a.every((entry, index) => {
+    const next = b[index]
+    if (!next) return false
+    return (
+      entry.id === next.id &&
+      entry.sectionKey === next.sectionKey &&
+      entry.title === next.title &&
+      entry.referenceId === next.referenceId &&
+      entry.descriptionHtml === next.descriptionHtml &&
+      entry.status === next.status
+    )
+  })
+}
+
+function addEvidenceEntry() {
+  const id = workspace.generateEvidenceEntryId?.(RISK_PRODUCT_CONTEXT_SECTION_KEY) ??
+    `${RISK_PRODUCT_CONTEXT_SECTION_KEY}-${Date.now()}`
+
+  evidenceEntries.value = [
+    ...evidenceEntries.value,
+    {
+      id,
+      sectionKey: RISK_PRODUCT_CONTEXT_SECTION_KEY,
+      title: '',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ]
 }
 
 onMounted(() => {
@@ -152,13 +229,12 @@ watch(
   () => form.intendedPurposeHtml,
   (value) => {
     if (hydrating.value) return
-    const currentContext = workspaceState.value.riskManagement?.productContext
     workspace.updateRiskManagementState({
       productContext: {
         intendedPurposeHtml: normalizeRichTextValue(value),
         specificIntendedUsesHtml: form.specificIntendedUsesHtml,
         foreseeableUseHtml: form.foreseeableUseHtml,
-        evidenceEntries: currentContext?.evidenceEntries || []
+        evidenceEntries: normalizeEvidenceEntries(evidenceEntries.value)
       }
     })
   },
@@ -169,13 +245,12 @@ watch(
   () => form.specificIntendedUsesHtml,
   (value) => {
     if (hydrating.value) return
-    const currentContext = workspaceState.value.riskManagement?.productContext
     workspace.updateRiskManagementState({
       productContext: {
         intendedPurposeHtml: form.intendedPurposeHtml,
         specificIntendedUsesHtml: normalizeRichTextValue(value),
         foreseeableUseHtml: form.foreseeableUseHtml,
-        evidenceEntries: currentContext?.evidenceEntries || []
+        evidenceEntries: normalizeEvidenceEntries(evidenceEntries.value)
       }
     })
   },
@@ -186,16 +261,34 @@ watch(
   () => form.foreseeableUseHtml,
   (value) => {
     if (hydrating.value) return
-    const currentContext = workspaceState.value.riskManagement?.productContext
     workspace.updateRiskManagementState({
       productContext: {
         intendedPurposeHtml: form.intendedPurposeHtml,
         specificIntendedUsesHtml: form.specificIntendedUsesHtml,
         foreseeableUseHtml: normalizeRichTextValue(value),
-        evidenceEntries: currentContext?.evidenceEntries || []
+        evidenceEntries: normalizeEvidenceEntries(evidenceEntries.value)
       }
     })
   },
   { flush: 'sync' }
+)
+
+watch(
+  evidenceEntries,
+  (value) => {
+    if (hydrating.value) return
+    const currentEvidence = workspaceState.value.riskManagement?.productContext?.evidenceEntries || []
+    const normalized = normalizeEvidenceEntries(value)
+    if (areEvidenceEntriesEqual(normalized, currentEvidence)) return
+    workspace.updateRiskManagementState({
+      productContext: {
+        intendedPurposeHtml: form.intendedPurposeHtml,
+        specificIntendedUsesHtml: form.specificIntendedUsesHtml,
+        foreseeableUseHtml: form.foreseeableUseHtml,
+        evidenceEntries: normalized,
+      }
+    })
+  },
+  { deep: true }
 )
 </script>

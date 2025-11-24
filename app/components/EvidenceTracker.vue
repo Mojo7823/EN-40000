@@ -36,13 +36,13 @@
           </div>
         </template>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div v-if="localEntries[index]" class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Evidence Title
             </label>
-            <UInput 
-              v-model="localEntries[index].title" 
+            <UInput
+              v-model="localEntries[index]!.title"
               placeholder="Risk Management Plan"
             />
           </div>
@@ -51,8 +51,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Reference ID
             </label>
-            <UInput 
-              v-model="localEntries[index].referenceId" 
+            <UInput
+              v-model="localEntries[index]!.referenceId"
               placeholder="EVD-RM-001"
             />
           </div>
@@ -61,21 +61,27 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Status
             </label>
-            <USelect 
-              v-model="localEntries[index].status"
-              :options="statusOptions"
-              option-attribute="label"
-              value-attribute="value"
-            />
+            <USelectMenu
+              v-model="localEntries[index]!.status"
+              :items="statusOptions"
+              value-key="value"
+              label-key="label"
+              :search-input="false"
+              color="neutral"
+              variant="outline"
+              trailing-icon="i-heroicons-chevron-down-20-solid"
+              class="w-full"
+            >
+            </USelectMenu>
           </div>
         </div>
 
-        <div class="mt-4">
+        <div v-if="localEntries[index]" class="mt-4">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Notes / Link
           </label>
           <UTextarea
-            v-model="localEntries[index].descriptionHtml"
+            v-model="localEntries[index]!.descriptionHtml"
             :rows="3"
             placeholder="Link to evidence repository, revision, or summary"
           />
@@ -101,7 +107,7 @@ import {
 } from '~/services/documentWorkspace'
 
 const props = defineProps<{
-  modelValue: RiskEvidenceEntry[]
+  modelValue?: RiskEvidenceEntry[]
   title?: string
   description?: string
 }>()
@@ -111,7 +117,7 @@ const emit = defineEmits<{
 }>()
 
 const statusOptions = RISK_EVIDENCE_STATUS_OPTIONS
-const localEntries = ref<RiskEvidenceEntry[]>(JSON.parse(JSON.stringify(props.modelValue)))
+const localEntries = ref<RiskEvidenceEntry[]>(cloneEntries(props.modelValue))
 const isUpdatingFromProps = ref(false)
 
 // Watch for external changes to props
@@ -119,7 +125,7 @@ watch(
   () => props.modelValue,
   (newValue) => {
     isUpdatingFromProps.value = true
-    localEntries.value = JSON.parse(JSON.stringify(newValue))
+    localEntries.value = cloneEntries(newValue)
     nextTick(() => {
       isUpdatingFromProps.value = false
     })
@@ -131,11 +137,16 @@ watch(
   localEntries,
   (newValue) => {
     if (!isUpdatingFromProps.value) {
-      emit('update:modelValue', JSON.parse(JSON.stringify(newValue)))
+      emit('update:modelValue', cloneEntries(newValue))
     }
   },
   { deep: true }
 )
+
+function cloneEntries(entries?: RiskEvidenceEntry[]) {
+  if (!Array.isArray(entries)) return []
+  return entries.map((entry) => ({ ...entry }))
+}
 
 function statusLabel(status: RiskEvidenceStatus) {
   return statusOptions.find((option) => option.value === status)?.label ?? 'Not Started'
@@ -144,18 +155,18 @@ function statusLabel(status: RiskEvidenceStatus) {
 function statusColor(status: RiskEvidenceStatus) {
   switch (status) {
     case 'complete':
-      return 'green'
+      return 'success'
     case 'in_progress':
-      return 'blue'
+      return 'info'
     case 'not_started':
     default:
-      return 'gray'
+      return 'neutral'
   }
 }
 
 function sectionLabel(sectionKey?: string) {
   if (!sectionKey || sectionKey === RISK_PRODUCT_CONTEXT_SECTION_KEY) {
-    return '5.1.1 Product Context'
+    return 'Product Context (Clause 6.2.1.2)'
   }
   return sectionKey
 }
