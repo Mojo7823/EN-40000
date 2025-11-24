@@ -1,33 +1,45 @@
 <template>
-  <div class="container mx-auto p-6 max-w-7xl">
+  <div class="container mx-auto p-6 space-y-6">
     <!-- Title Card -->
-    <UCard class="mb-6">
-      <template #header>
-        <div class="flex justify-between items-start gap-4 flex-wrap">
-          <div>
-            <p class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Conformance Claim</p>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Standards Conformance</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">
-              Capture the primary and related standards that underpin this conformance claim. These entries render in
-              section 3.1 of the CRA documentation.
+    <UCard class="bg-gradient-to-r from-primary-50/80 via-white to-white dark:from-primary-950 dark:via-gray-950 dark:to-gray-900 border-primary-100 dark:border-primary-900">
+      <div class="flex flex-wrap justify-between items-start gap-4">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300">
+            Conformance Claim
+          </p>
+          <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Standards Conformance</h1>
+            <p class="text-sm text-gray-700 dark:text-gray-200">
+              Capture the primary and related standards that underpin this conformance claim. These entries render in section 3.1 of the CRA documentation.
             </p>
           </div>
-          <div class="flex gap-3 flex-wrap items-center ml-auto">
-            <UButton to="/document/preview" variant="ghost" color="gray">
-              Go to Document Preview
-            </UButton>
-          </div>
         </div>
-      </template>
+        <div class="flex flex-wrap items-center gap-2">
+          <UButton
+            to="/document/preview"
+            color="primary"
+            variant="soft"
+            icon="i-heroicons-arrow-right"
+            trailing
+          >
+            Document Preview
+          </UButton>
+        </div>
+      </div>
     </UCard>
 
     <!-- Primary Standard -->
-    <UCard class="mb-6">
+    <UCard>
       <template #header>
-        <h2 class="text-xl font-bold">Primary Standard</h2>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Standards Conformance
+          </p>
+          <h3 class="text-lg font-semibold">Primary Standard</h3>
+        </div>
       </template>
       
-      <div class="space-y-4 border-t border-gray-200 dark:border-gray-800 pt-4">
+      <div class="space-y-4">
         <div>
           <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Standard Code</span>
           <p class="text-base text-gray-900 dark:text-white mt-1">{{ primaryCodeDisplay }}</p>
@@ -42,118 +54,104 @@
     <!-- Related Standards -->
     <UCard>
       <template #header>
-        <div class="space-y-2">
-          <h2 class="text-xl font-bold">Related Standards Applied</h2>
-          <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">3.1 Standards Conformance</p>
-          <p class="text-gray-600 dark:text-gray-400">
-            Track supporting standards that broaden the claim, such as vocabulary references or security requirement
-            profiles.
-          </p>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Standards Inventory
+            </p>
+            <h3 class="text-lg font-semibold">Related Standards Applied</h3>
+          </div>
+          <UButton icon="i-heroicons-plus" @click="openCreateModal">
+            Add Standard
+          </UButton>
         </div>
       </template>
 
-      <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
-        <UTable 
-          :rows="form.relatedStandards" 
+      <div class="space-y-3">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Track supporting standards that broaden the claim, such as vocabulary references or security requirement profiles.
+        </p>
+        <UTable
+          :data="form.relatedStandards"
           :columns="columns"
           :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No related standards recorded yet.' }"
-          class="mb-4"
-          @select="openEditModal"
+          @select="handleRowSelect"
         >
-          <template #code-data="{ row }">
-            <span class="font-medium cursor-pointer">{{ row.code || '—' }}</span>
+          <template #code-cell="{ row }">
+            <span class="font-medium cursor-pointer">{{ row.original.code || '—' }}</span>
           </template>
           
-          <template #description-data="{ row }">
-            <span class="cursor-pointer">{{ row.description || '—' }}</span>
+          <template #description-cell="{ row }">
+            <span class="cursor-pointer">{{ row.original.description || '—' }}</span>
           </template>
           
-          <template #actions-data="{ row }">
-            <UButton 
-              icon="i-heroicons-trash" 
-              color="red" 
-              variant="ghost" 
+          <template #actions-cell="{ row }">
+            <UButton
+              icon="i-heroicons-trash"
+              color="error"
+              variant="ghost"
               size="sm"
-              @click.stop="removeStandard(row.id)"
+              @click.stop="removeStandard(row.original.id)"
             />
           </template>
         </UTable>
-        
-        <UButton icon="i-heroicons-plus" @click="openCreateModal">
-          Add Standard
-        </UButton>
       </div>
     </UCard>
 
     <!-- Modal -->
-    <UModal v-model="isModalOpen">
-      <UCard>
-        <template #header>
-          <div class="flex justify-between items-start gap-4">
-            <div>
-              <h3 class="text-lg font-semibold">{{ modalTitle }}</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ modalSubtitle }}</p>
-            </div>
-            <UButton
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="closeModal"
-            />
-          </div>
-        </template>
-
+    <UModal
+      v-model:open="isModalOpen"
+      :title="modalTitle"
+      :description="modalSubtitle"
+    >
+      <template #body>
         <div class="space-y-4">
-          <UFormGroup v-if="modalMode !== 'primary'" label="Predefined Standards" help="Select 'Add Custom Standard' to enter a custom reference.">
+          <UFormField v-if="modalMode !== 'primary'" label="Predefined Standards" description="Select 'Add Custom Standard' to enter a custom reference.">
             <USelectMenu
               v-model="selectedOption"
-              :options="standardOptions"
-              value-attribute="value"
-            >
-              <template #label>
-                {{ selectedOptionLabel }}
-              </template>
-            </USelectMenu>
-          </UFormGroup>
+              :items="standardOptions"
+              value-key="value"
+              label-key="label"
+            />
+          </UFormField>
 
-          <UFormGroup label="Standard Code" required>
+          <UFormField label="Standard Code" required>
             <UInput v-model="modalForm.code" placeholder="prEN 40000-1-1" />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Description">
-            <UTextarea 
-              v-model="modalForm.description" 
+          <UFormField label="Description">
+            <UTextarea
+              v-model="modalForm.description"
               :rows="3"
               placeholder="Vocabulary, Vulnerability Handling..."
             />
-          </UFormGroup>
+          </UFormField>
         </div>
+      </template>
 
-        <template #footer>
-          <div class="flex flex-col gap-3">
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              {{ duplicateWarning || 'Standards appear in the order they are added.' }}
-            </p>
-            <div class="flex justify-end gap-3">
-              <UButton
-                v-if="modalMode === 'edit'"
-                color="red"
-                variant="ghost"
-                @click="deleteFromModal"
-              >
-                Delete
-              </UButton>
-              <UButton color="gray" variant="ghost" @click="closeModal">
-                Cancel
-              </UButton>
-              <UButton :disabled="!canSaveModal" @click="saveStandard">
-                Save
-              </UButton>
-            </div>
+      <template #footer>
+        <div class="flex flex-col gap-3">
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ duplicateWarning || 'Standards appear in the order they are added.' }}
+          </p>
+          <div class="flex justify-end gap-3">
+            <UButton
+              v-if="modalMode === 'edit'"
+              color="error"
+              variant="ghost"
+              @click="deleteFromModal"
+            >
+              Delete
+            </UButton>
+            <UButton color="neutral" variant="ghost" @click="closeModal">
+              Cancel
+            </UButton>
+            <UButton :disabled="!canSaveModal" @click="saveStandard">
+              Save
+            </UButton>
           </div>
-        </template>
-      </UCard>
+        </div>
+      </template>
     </UModal>
   </div>
 </template>
@@ -172,9 +170,9 @@ const workspace = useDocumentWorkspace()
 const CUSTOM_OPTION_VALUE = '__custom__'
 
 const columns = [
-  { key: 'code', label: 'Standard', id: 'code' },
-  { key: 'description', label: 'Description', id: 'description' },
-  { key: 'actions', label: 'Actions', id: 'actions' }
+  { accessorKey: 'code', header: 'Standard' },
+  { accessorKey: 'description', header: 'Description' },
+  { id: 'actions', header: 'Actions' }
 ]
 
 const initialState = workspace.loadDocumentWorkspace()
@@ -318,6 +316,10 @@ function openCreateModal() {
   modalForm.description = ''
   modalForm.source = 'custom'
   selectedOption.value = CUSTOM_OPTION_VALUE
+}
+
+function handleRowSelect(e: Event, row: any) {
+  openEditModal(row.original)
 }
 
 function openEditModal(entry: ConformanceStandardEntry) {

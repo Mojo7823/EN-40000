@@ -1,47 +1,58 @@
 <template>
-  <div class="container mx-auto p-6 max-w-7xl">
+  <div class="container mx-auto p-6 space-y-6">
     <!-- Title Card -->
-    <UCard class="mb-6">
-      <template #header>
-        <div class="flex justify-between items-start gap-4 flex-wrap">
-          <div>
-            <p class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Conformance Claim</p>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Regulatory Conformance</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">
-              Document the directives, regulations, or sector-specific rules that this product adheres to as part of the CRA
-              submission.
+    <UCard class="bg-gradient-to-r from-primary-50/80 via-white to-white dark:from-primary-950 dark:via-gray-950 dark:to-gray-900 border-primary-100 dark:border-primary-900">
+      <div class="flex flex-wrap justify-between items-start gap-4">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300">
+            Conformance Claim
+          </p>
+          <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Regulatory Conformance</h1>
+            <p class="text-sm text-gray-700 dark:text-gray-200">
+              Document the directives, regulations, or sector-specific rules that this product adheres to as part of the CRA submission.
             </p>
           </div>
-          <div class="flex gap-3 flex-wrap items-center ml-auto">
-            <UButton to="/conformance/standards" variant="ghost" color="gray">
-              Standards Conformance
-            </UButton>
-            <UButton to="/conformance/level" variant="ghost" color="gray">
-              Conformance Level
-            </UButton>
-            <UButton to="/document/preview" variant="ghost" color="gray">
-              Document Preview
-            </UButton>
-          </div>
         </div>
-      </template>
+        <div class="flex flex-wrap items-center gap-2">
+          <UButton
+            to="/conformance/standards"
+            color="primary"
+            variant="outline"
+          >
+            Standards Conformance
+          </UButton>
+          <UButton
+            to="/document/preview"
+            color="primary"
+            variant="soft"
+            icon="i-heroicons-arrow-right"
+            trailing
+          >
+            Document Preview
+          </UButton>
+        </div>
+      </div>
     </UCard>
 
     <!-- Reference Card -->
-    <UCard class="mb-6">
+    <UCard>
       <template #header>
-        <div class="space-y-2">
-          <h2 class="text-xl font-bold">3.2 Regulatory Conformance</h2>
-          <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">[Reference: Annex C - Relationship with CRA]</p>
-          <p class="text-gray-600 dark:text-gray-400 italic">
-            This product is intended to conform to the essential cybersecurity requirements of the Cyber Resilience Act.
+        <div>
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Clause Context
           </p>
+          <h3 class="text-lg font-semibold">3.2 Regulatory Conformance</h3>
         </div>
       </template>
       
-      <div class="space-y-2">
-        <p class="text-gray-900 dark:text-white">This product is intended to conform to the essential cybersecurity requirements of:</p>
-        <ul class="list-disc list-inside space-y-1 text-gray-900 dark:text-white">
+      <div class="prose dark:prose-invert max-w-none">
+        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">[Reference: Annex C - Relationship with CRA]</p>
+        <p class="text-sm">
+          This product is intended to conform to the essential cybersecurity requirements of the Cyber Resilience Act.
+        </p>
+        <p class="text-sm text-gray-900 dark:text-white">This product is intended to conform to the essential cybersecurity requirements of:</p>
+        <ul class="list-disc list-inside space-y-1 text-sm text-gray-900 dark:text-white">
           <li v-for="item in primaryReferences" :key="item">{{ item }}</li>
         </ul>
       </div>
@@ -50,45 +61,47 @@
     <!-- Additional Regulations -->
     <UCard>
       <template #header>
-        <div class="space-y-2">
-          <h2 class="text-xl font-bold">Other Applicable Regulations</h2>
-          <p class="text-gray-600 dark:text-gray-400">
-            List complementary regulations or directives (e.g., privacy, accessibility, safety) that reinforce the CRA
-            conformance claim.
-          </p>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Regulatory Inventory
+            </p>
+            <h3 class="text-lg font-semibold">Other Applicable Regulations</h3>
+          </div>
+          <UButton icon="i-heroicons-plus" @click="openCreateModal">
+            Add Regulation
+          </UButton>
         </div>
       </template>
 
-      <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
-        <UTable 
-          :rows="form.additionalRegulations" 
+      <div class="space-y-3">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          List complementary regulations or directives (e.g., privacy, accessibility, safety) that reinforce the CRA conformance claim.
+        </p>
+        <UTable
+          :data="form.additionalRegulations"
           :columns="columns"
           :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No regulations captured yet.' }"
-          class="mb-4"
-          @select="openEditModal"
+          @select="handleRowSelect"
         >
-          <template #regulation-data="{ row }">
-            <span class="font-medium cursor-pointer">{{ row.regulation || '—' }}</span>
+          <template #regulation-cell="{ row }">
+            <span class="font-medium cursor-pointer">{{ row.original.regulation || '—' }}</span>
           </template>
           
-          <template #description-data="{ row }">
-            <span class="cursor-pointer">{{ row.description || '—' }}</span>
+          <template #description-cell="{ row }">
+            <span class="cursor-pointer">{{ row.original.description || '—' }}</span>
           </template>
           
-          <template #actions-data="{ row }">
-            <UButton 
-              icon="i-heroicons-trash" 
-              color="red" 
-              variant="ghost" 
+          <template #actions-cell="{ row }">
+            <UButton
+              icon="i-heroicons-trash"
+              color="error"
+              variant="ghost"
               size="sm"
-              @click.stop="removeEntry(row.id)"
+              @click.stop="removeEntry(row.original.id)"
             />
           </template>
         </UTable>
-        
-        <UButton icon="i-heroicons-plus" @click="openCreateModal">
-          Add Regulation
-        </UButton>
       </div>
     </UCard>
 
@@ -96,46 +109,46 @@
     <UModal v-model:open="isModalOpen" :title="modalTitle" :description="modalSubtitle">
       <template #body>
         <div class="space-y-4">
-          <UFormGroup label="Suggested Regulations">
+          <UFormField label="Suggested Regulations" description="Select [Other Regulation] to enter a custom reference.">
             <USelectMenu
               v-model="selectedOption"
-              :options="regulationOptions"
-              value-attribute="value"
-              option-attribute="label"
+              :items="regulationOptions"
+              value-key="value"
+              label-key="label"
+              class="w-full"
             />
-            <template #help>
-              <span class="text-xs">Select [Other Regulation] to enter a custom reference.</span>
-            </template>
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Regulation" required>
-            <UInput v-model="modalForm.regulation" placeholder="GDPR" />
-          </UFormGroup>
+          <UFormField label="Regulation" required>
+            <UInput v-model="modalForm.regulation" placeholder="GDPR" class="w-full" />
+          </UFormField>
 
-          <UFormGroup label="Description">
-            <UTextarea 
-              v-model="modalForm.description" 
+          <UFormField label="Description">
+            <UTextarea
+              v-model="modalForm.description"
               :rows="3"
               placeholder="General Data Protection Regulation"
+              class="w-full"
             />
-          </UFormGroup>
+          </UFormField>
         </div>
       </template>
 
       <template #footer>
         <div class="flex flex-col gap-3">
-          <p v-if="duplicateWarning" class="text-xs text-red-500">{{ duplicateWarning }}</p>
-          <p v-else class="text-xs text-gray-500 dark:text-gray-400">{{ modalStatus }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ duplicateWarning || modalStatus }}
+          </p>
           <div class="flex justify-end gap-3">
             <UButton
               v-if="modalMode === 'edit'"
-              color="red"
+              color="error"
               variant="ghost"
               @click="deleteFromModal"
             >
               Delete
             </UButton>
-            <UButton color="gray" variant="ghost" @click="closeModal">
+            <UButton color="neutral" variant="ghost" @click="closeModal">
               Cancel
             </UButton>
             <UButton :disabled="!canSaveModal" @click="saveEntry">
@@ -163,9 +176,9 @@ const primaryReferences = REGULATORY_PRIMARY_REFERENCES
 const CUSTOM_OPTION_VALUE = '__custom__'
 
 const columns = [
-  { key: 'regulation', label: 'Regulation', id: 'regulation' },
-  { key: 'description', label: 'Description', id: 'description' },
-  { key: 'actions', label: 'Actions', id: 'actions' }
+  { accessorKey: 'regulation', header: 'Regulation' },
+  { accessorKey: 'description', header: 'Description' },
+  { id: 'actions', header: 'Actions' }
 ]
 
 const initialState = workspace.loadDocumentWorkspace()
@@ -283,6 +296,10 @@ function openCreateModal() {
   selectedOption.value = CUSTOM_OPTION_VALUE
   modalStatus.value = 'Regulation name is required.'
   isModalOpen.value = true
+}
+
+function handleRowSelect(e: Event, row: any) {
+  openEditModal(row.original)
 }
 
 function openEditModal(entry: RegulatoryReferenceEntry) {

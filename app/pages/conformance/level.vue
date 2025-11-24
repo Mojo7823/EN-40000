@@ -1,52 +1,66 @@
 <template>
-  <div class="container mx-auto p-6 max-w-7xl">
+  <div class="container mx-auto p-6 space-y-6">
     <!-- Title Card -->
-    <UCard class="mb-6">
-      <template #header>
-        <div class="flex justify-between items-start gap-4 flex-wrap">
-          <div>
-            <p class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Conformance Claim</p>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Conformance Level</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">
+    <UCard class="bg-gradient-to-r from-primary-50/80 via-white to-white dark:from-primary-950 dark:via-gray-950 dark:to-gray-900 border-primary-100 dark:border-primary-900">
+      <div class="flex flex-wrap justify-between items-start gap-4">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300">
+            Conformance Claim
+          </p>
+          <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Conformance Level</h1>
+            <p class="text-sm text-gray-700 dark:text-gray-200">
               Declare the claimed assurance tier or conformance level and describe any scope limitations or dependencies.
             </p>
           </div>
-          <div class="flex gap-3 flex-wrap items-center ml-auto">
-            <UButton to="/conformance/standards" variant="ghost" color="gray">
-              Standards Conformance
-            </UButton>
-            <UButton to="/conformance/regulatory" variant="ghost" color="gray">
-              Regulatory Conformance
-            </UButton>
-            <UButton to="/document/preview" variant="ghost" color="gray">
-              Document Preview
-            </UButton>
-          </div>
         </div>
-      </template>
+        <div class="flex flex-wrap items-center gap-2">
+          <UButton
+            to="/conformance/standards"
+            color="primary"
+            variant="outline"
+          >
+            Standards Conformance
+          </UButton>
+          <UButton
+            to="/document/preview"
+            color="primary"
+            variant="soft"
+            icon="i-heroicons-arrow-right"
+            trailing
+          >
+            Document Preview
+          </UButton>
+        </div>
+      </div>
     </UCard>
 
     <!-- Form Card -->
     <UCard>
       <template #header>
-        <div class="space-y-2">
-          <h2 class="text-xl font-bold">3.3 Conformance Level</h2>
-          <p class="text-gray-600 dark:text-gray-400 italic">
-            Select the overall status and provide context for partial or non-conformance claims.
+        <div>
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Clause Context
           </p>
+          <h3 class="text-lg font-semibold">3.3 Conformance Level</h3>
         </div>
       </template>
 
       <div class="space-y-6">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Select the overall status and provide context for partial or non-conformance claims.
+        </p>
+
         <!-- Status Selection -->
         <div class="space-y-3">
+          <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Conformance Status</h4>
           <div class="flex flex-wrap gap-3">
-            <label 
-              v-for="option in levelOptions" 
-              :key="option.value" 
+            <label
+              v-for="option in levelOptions"
+              :key="option.value"
               class="flex items-center gap-2 px-4 py-3 border rounded-lg cursor-pointer transition-all min-w-[200px]"
-              :class="form.statuses.includes(option.value) 
-                ? 'border-primary-500 bg-primary-50 dark:bg-primary-950' 
+              :class="form.statuses.includes(option.value)
+                ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
                 : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'"
             >
               <input
@@ -65,11 +79,13 @@
 
         <!-- Justification Editor -->
         <div class="space-y-3">
-          <h3 class="text-lg font-semibold">Justification for Partial Conformance (if applicable)</h3>
+          <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Justification for Partial Conformance</h4>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Explain which requirements are not met and why. Cite remediation plans or mitigating controls.
+          </p>
           <RichTextEditor
             v-model="form.justificationHtml"
             min-height="220px"
-            placeholder="Explain which requirements are not met and why. Cite remediation plans or mitigating controls."
           />
         </div>
       </div>
