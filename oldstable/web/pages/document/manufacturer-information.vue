@@ -121,21 +121,27 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  width: 100%;
 }
 
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .field span {
   font-weight: 600;
+  display: block;
 }
 
 .field input,
 .field textarea {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 12px;
   border-radius: 10px;
   border: 1px solid var(--panel-border);

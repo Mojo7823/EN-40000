@@ -3,8 +3,8 @@ import { ref } from 'vue'
 
 const items = ref([[{
   label: 'Dashboard',
-  icon: 'i-heroicons-home',
-  to: '/demo/dashboard'
+  to: '/dashboard',
+  icon: 'i-heroicons-home'
 }, {
   label: 'Cover',
   to: '/document/cover',

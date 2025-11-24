@@ -70,8 +70,8 @@
         <div class="space-y-4">
           <div
             v-for="section in sectionList"
-            :key="section.key" @click="navigateTo(section.to)" @keydown.enter="navigateTo(section.to)" role="link" tabindex="0"
-            class="p-4 rounded-lg border transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+            :key="section.key"
+            class="p-4 rounded-lg border transition-colors"
             :class="getSectionBorderColor(section)"
           >
             <div class="flex items-start justify-between gap-4">
@@ -88,6 +88,38 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400">
                   {{ section.summary }}
                 </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <UButton
+                  size="xs"
+                  variant="soft"
+                  color="blue"
+                  icon="i-heroicons-eye"
+                  :disabled="section.status === 'missing'"
+                  @click="previewSection(section.key)"
+                >
+                  Preview
+                </UButton>
+                <UButton
+                  size="xs"
+                  variant="soft"
+                  color="primary"
+                  icon="i-heroicons-arrow-right-circle"
+                  :to="section.to"
+                >
+                  Edit
+                </UButton>
+                <UButton
+                  size="xs"
+                  variant="soft"
+                  color="primary"
+                  icon="i-heroicons-document-arrow-down"
+                  :disabled="section.status === 'missing'"
+                  :loading="loadingSection === section.key"
+                  @click="generateSection(section.key)"
+                >
+                  Generate
+                </UButton>
               </div>
             </div>
           </div>

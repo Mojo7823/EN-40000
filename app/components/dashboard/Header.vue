@@ -51,7 +51,6 @@ const statusColor = computed(() => {
   <header class="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between px-6">
     <div class="flex items-center gap-4">
       <UButton icon="i-heroicons-bars-3" color="neutral" variant="ghost" class="lg:hidden" />
-      <h1 class="font-semibold text-gray-900 dark:text-white">Dashboard</h1>
     </div>
 
     <div class="flex items-center gap-2">

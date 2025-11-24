@@ -1,186 +1,235 @@
 <template>
-  <div class="p-6 space-y-6">
-    <!-- Header Card -->
-    <UCard>
-      <template #header>
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Third-Party Components</p>
-            <h1 class="text-2xl font-bold mt-1">Product Overview</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">
+  <div class="container mx-auto p-6 space-y-6">
+    <UCard class="bg-gradient-to-r from-primary-50/80 via-white to-white dark:from-primary-950 dark:via-gray-950 dark:to-gray-900 border-primary-100 dark:border-primary-900">
+      <div class="flex flex-wrap justify-between items-start gap-4">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300">
+            Product Overview
+          </p>
+          <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Third-Party Components</h1>
+            <p class="text-sm text-gray-700 dark:text-gray-200">
               Track third-party components, capture the management approach, and record evidence references for SBOM documentation.
             </p>
           </div>
-          <div class="flex gap-2">
-            <UButton to="/product-overview/description" color="gray" variant="ghost">
-              Product Description
-            </UButton>
-            <UButton to="/document/preview" color="gray" variant="ghost" icon="i-heroicons-arrow-right" trailing>
-              Document Preview
-            </UButton>
-          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <UButton
+            to="/product-overview/description"
+            color="primary"
+            variant="outline"
+          >
+            Product Description
+          </UButton>
+          <UButton
+            to="/document/preview"
+            color="primary"
+            variant="soft"
+            icon="i-heroicons-arrow-right"
+            trailing
+          >
+            Document Preview
+          </UButton>
+        </div>
+      </div>
+    </UCard>
+
+    <UCard>
+      <template #header>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Clause Context
+          </p>
+          <h3 class="text-lg font-semibold">2.3 Third-Party Components</h3>
         </div>
       </template>
 
-      <div class="prose dark:prose-invert max-w-none mb-6">
-        <p class="text-lg font-semibold text-primary-600 dark:text-primary-400">2.3 Third-Party Components</p>
+      <div class="prose dark:prose-invert max-w-none">
         <p class="text-sm font-medium text-gray-700 dark:text-gray-300">[Reference: Clause 7.11 - Third-party component cybersecurity management]</p>
         <p class="text-sm">
           List the hardware/software components integrated into the product. Capture versioning, suppliers, and license
           obligations so the SBOM stays current.
         </p>
       </div>
-
-      <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
-        <UTable 
-          :rows="form.entries" 
-          :columns="columns"
-          :empty-state="{ icon: 'i-heroicons-cube-transparent', label: 'No components recorded yet.' }"
-          class="mb-4"
-          @select="openEditModal"
-        >
-          <template #componentName-data="{ row }">
-            <span class="font-medium cursor-pointer">{{ row.componentName || '—' }}</span>
-          </template>
-          
-          <template #componentType-data="{ row }">
-            <span class="cursor-pointer">{{ row.componentType || '—' }}</span>
-          </template>
-          
-          <template #version-data="{ row }">
-            <span class="cursor-pointer">{{ row.version || '—' }}</span>
-          </template>
-          
-          <template #supplier-data="{ row }">
-            <span class="cursor-pointer">{{ row.supplier || '—' }}</span>
-          </template>
-
-          <template #purpose-data="{ row }">
-            <span class="cursor-pointer">{{ row.purpose || '—' }}</span>
-          </template>
-
-          <template #license-data="{ row }">
-            <span class="cursor-pointer">{{ row.license || '—' }}</span>
-          </template>
-          
-          <template #actions-data="{ row }">
-            <UButton 
-              icon="i-heroicons-trash" 
-              color="red" 
-              variant="ghost" 
-              size="sm"
-              @click.stop="removeComponent(row.id)"
-            />
-          </template>
-        </UTable>
-        
-        <UButton icon="i-heroicons-plus" @click="openCreateModal">
-          Add Component
-        </UButton>
-      </div>
     </UCard>
 
-    <!-- Management Approach -->
     <UCard>
       <template #header>
-        <h2 class="text-xl font-bold">Third-Party Component Management Approach</h2>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Component Inventory
+            </p>
+            <h3 class="text-lg font-semibold">Components List</h3>
+          </div>
+          <UButton icon="i-heroicons-plus" @click="openCreateModal">
+            Add Component
+          </UButton>
+        </div>
       </template>
-      <div>
-        <p class="text-sm italic text-gray-600 dark:text-gray-400 mb-4">
+
+      <UTable
+        :data="form.entries"
+        :columns="columns"
+        :empty-state="{ icon: 'i-heroicons-cube-transparent', label: 'No components recorded yet.' }"
+        @select="handleRowSelect"
+      >
+          <template #componentName-cell="{ row }">
+            <span class="font-medium cursor-pointer">{{ row.original.componentName || '—' }}</span>
+          </template>
+          
+          <template #componentType-cell="{ row }">
+            <span class="cursor-pointer">{{ row.original.componentType || '—' }}</span>
+          </template>
+          
+          <template #version-cell="{ row }">
+            <span class="cursor-pointer">{{ row.original.version || '—' }}</span>
+          </template>
+          
+          <template #supplier-cell="{ row }">
+            <span class="cursor-pointer">{{ row.original.supplier || '—' }}</span>
+          </template>
+
+          <template #purpose-cell="{ row }">
+            <span class="cursor-pointer">{{ row.original.purpose || '—' }}</span>
+          </template>
+
+          <template #license-cell="{ row }">
+            <span class="cursor-pointer">{{ row.original.license || '—' }}</span>
+          </template>
+          
+          <template #actions-cell="{ row }">
+            <UButton
+              icon="i-heroicons-trash"
+              color="error"
+              variant="ghost"
+              size="sm"
+              @click.stop="removeComponent(row.original.id)"
+            />
+          </template>
+      </UTable>
+    </UCard>
+
+    <UCard>
+      <template #header>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Management Approach
+          </p>
+          <h3 class="text-lg font-semibold">Third-Party Component Management</h3>
+        </div>
+      </template>
+
+      <div class="space-y-3">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
           Describe how third-party components are selected, evaluated, monitored, and updated across the product lifecycle.
         </p>
         <RichTextEditor
           v-model="form.managementApproachHtml"
           min-height="220px"
-          placeholder="Describe the evaluation and monitoring strategy for third-party components."
         />
       </div>
     </UCard>
 
-    <!-- Evidence Reference -->
     <UCard>
       <template #header>
-        <h2 class="text-xl font-bold">Evidence Reference</h2>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Evidence Reference
+          </p>
+          <h3 class="text-lg font-semibold">SBOM Documentation</h3>
+        </div>
       </template>
-      <div>
-        <p class="text-sm italic text-gray-600 dark:text-gray-400 mb-4">
+
+      <div class="space-y-3">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
           Reference the SBOM or other documentation that tracks third-party component reviews, approvals, and contracts.
         </p>
         <RichTextEditor
           v-model="form.evidenceReferenceHtml"
           min-height="200px"
-          placeholder="Provide document IDs or storage locations where SBOM/component management records are stored."
         />
       </div>
     </UCard>
-
-    <!-- Modal -->
-    <UModal v-model="isModalOpen">
-      <UCard>
-        <template #header>
-          <div class="flex justify-between items-start gap-4">
-            <div>
-              <h3 class="text-lg font-semibold">{{ modalTitle }}</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ modalSubtitle }}</p>
-            </div>
-            <UButton
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              @click="closeModal"
-            />
-          </div>
-        </template>
-
-        <div class="space-y-4">
-          <UFormGroup label="Component Name" required>
-            <UInput v-model="modalForm.componentName" placeholder="Component Name" />
-          </UFormGroup>
-
-          <UFormGroup label="Type">
-            <UInput v-model="modalForm.componentType" placeholder="Software library, hardware module, API..." />
-          </UFormGroup>
-
-          <div class="grid grid-cols-2 gap-4">
-            <UFormGroup label="Version">
-              <UInput v-model="modalForm.version" placeholder="1.0.0" />
-            </UFormGroup>
-
-            <UFormGroup label="Supplier">
-              <UInput v-model="modalForm.supplier" placeholder="Supplier name" />
-            </UFormGroup>
-          </div>
-
-          <UFormGroup label="Purpose">
-            <UInput v-model="modalForm.purpose" placeholder="Authentication, cryptography, analytics..." />
-          </UFormGroup>
-
-          <UFormGroup label="License">
-            <UInput v-model="modalForm.license" placeholder="Apache 2.0, GPLv3, Proprietary..." />
-          </UFormGroup>
-        </div>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton
-              v-if="modalMode === 'edit'"
-              color="red"
-              variant="ghost"
-              @click="deleteFromModal"
-            >
-              Delete
-            </UButton>
-            <UButton color="gray" variant="ghost" @click="closeModal">
-              Cancel
-            </UButton>
-            <UButton :disabled="!canSaveModal" @click="saveComponent">
-              Save
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
   </div>
+
+  <!-- Add Component Modal -->
+  <UModal
+    v-model:open="isModalOpen"
+    :title="modalTitle"
+    :description="modalSubtitle"
+  >
+    <template #body>
+      <div class="space-y-4">
+        <UFormField
+          label="Component Name"
+          required
+          description="Enter the name of the third-party component"
+        >
+          <UInput v-model="modalForm.componentName" placeholder="e.g., React, Express.js, PostgreSQL" />
+        </UFormField>
+
+        <UFormField
+          label="Type"
+          description="Specify the type of component"
+        >
+          <UInput v-model="modalForm.componentType" placeholder="e.g., Software library, hardware module, API service" />
+        </UFormField>
+
+        <UFormField
+          label="Version"
+          description="Component version number"
+        >
+          <UInput v-model="modalForm.version" placeholder="e.g., 1.0.0, 2.3.4" />
+        </UFormField>
+
+        <UFormField
+          label="Supplier"
+          description="Name of the component supplier or vendor"
+        >
+          <UInput v-model="modalForm.supplier" placeholder="e.g., Microsoft, Apache Foundation, GitHub" />
+        </UFormField>
+
+        <UFormField
+          label="Purpose"
+          description="Describe what this component is used for in your product"
+        >
+          <UInput v-model="modalForm.purpose" placeholder="e.g., Authentication, data encryption, analytics tracking" />
+        </UFormField>
+
+        <UFormField
+          label="License"
+          description="Licensing terms for this component"
+        >
+          <UInput v-model="modalForm.license" placeholder="e.g., MIT, Apache 2.0, GPL-3.0, Proprietary" />
+        </UFormField>
+      </div>
+    </template>
+
+    <template #footer>
+      <div class="flex flex-col gap-3">
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          {{ modalMode === 'create' ? 'Fill in the component details to track third-party dependencies in your SBOM.' : 'Update component information to keep your SBOM current.' }}
+        </p>
+        <div class="flex justify-end gap-3">
+          <UButton
+            v-if="modalMode === 'edit'"
+            color="error"
+            variant="ghost"
+            @click="deleteFromModal"
+          >
+            Delete
+          </UButton>
+          <UButton color="neutral" variant="ghost" @click="closeModal">
+            Cancel
+          </UButton>
+          <UButton :disabled="!canSaveModal" @click="saveComponent">
+            Save
+          </UButton>
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -194,13 +243,13 @@ import type {
 const workspace = useDocumentWorkspace()
 
 const columns = [
-  { key: 'componentName', label: 'Component', id: 'componentName' },
-  { key: 'componentType', label: 'Type', id: 'componentType' },
-  { key: 'version', label: 'Version', id: 'version' },
-  { key: 'supplier', label: 'Supplier', id: 'supplier' },
-  { key: 'purpose', label: 'Purpose', id: 'purpose' },
-  { key: 'license', label: 'License', id: 'license' },
-  { key: 'actions', label: 'Actions', id: 'actions' }
+  { accessorKey: 'componentName', header: 'Component' },
+  { accessorKey: 'componentType', header: 'Type' },
+  { accessorKey: 'version', header: 'Version' },
+  { accessorKey: 'supplier', header: 'Supplier' },
+  { accessorKey: 'purpose', header: 'Purpose' },
+  { accessorKey: 'license', header: 'License' },
+  { id: 'actions', header: 'Actions' }
 ]
 
 const workspaceState = ref(workspace.loadDocumentWorkspace())
@@ -290,6 +339,10 @@ function openCreateModal() {
   modalMode.value = 'create'
   Object.assign(modalForm, createEmptyEntry())
   isModalOpen.value = true
+}
+
+function handleRowSelect(e: Event, row: any) {
+  openEditModal(row.original)
 }
 
 function openEditModal(entry: ThirdPartyComponentEntry) {
