@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 
 // Shape types for threat modeling (DFD-based)
 type ShapeType = 'process' | 'dataStore' | 'externalEntity' | 'dataFlow' | 'trustBoundary'
@@ -125,6 +125,14 @@ const allThreats = computed(() => {
   return threats
 })
 
+// Computed property for selected data flow to avoid repeated type casting
+const selectedDataFlow = computed(() => {
+  if (selectedShape.value && selectedShape.value.type === 'dataFlow') {
+    return selectedShape.value as DataFlow
+  }
+  return null
+})
+
 const threatStats = computed(() => {
   const stats = {
     total: allThreats.value.length,
@@ -139,8 +147,15 @@ const threatStats = computed(() => {
   }
   
   allThreats.value.forEach(({ threat }) => {
-    stats[threat.status.toLowerCase() as keyof typeof stats]++
-    stats[threat.severity.toLowerCase() as keyof typeof stats]++
+    const statusKey = threat.status.toLowerCase()
+    const severityKey = threat.severity.toLowerCase()
+    
+    if (statusKey in stats) {
+      stats[statusKey as 'open' | 'mitigated' | 'accepted' | 'transferred']++
+    }
+    if (severityKey in stats) {
+      stats[severityKey as 'critical' | 'high' | 'medium' | 'low']++
+    }
   })
   
   return stats
@@ -259,15 +274,16 @@ function saveDataFlowDetails() {
 }
 
 function deleteSelectedShape() {
-  if (!selectedShape.value) return
+  const shape = selectedShape.value
+  if (!shape) return
   
-  if (selectedShape.value.type === 'trustBoundary') {
-    trustBoundaries.value = trustBoundaries.value.filter(b => b.id !== selectedShape.value?.id)
-  } else if (selectedShape.value.type === 'dataFlow') {
-    dataFlows.value = dataFlows.value.filter(f => f.id !== selectedShape.value?.id)
+  if (shape.type === 'trustBoundary') {
+    trustBoundaries.value = trustBoundaries.value.filter(b => b.id !== shape.id)
+  } else if (shape.type === 'dataFlow') {
+    dataFlows.value = dataFlows.value.filter(f => f.id !== shape.id)
   } else {
     // Remove shape and its related data flows
-    const shapeId = selectedShape.value.id
+    const shapeId = shape.id
     shapes.value = shapes.value.filter(s => s.id !== shapeId)
     dataFlows.value = dataFlows.value.filter(f => f.fromId !== shapeId && f.toId !== shapeId)
   }
@@ -357,7 +373,8 @@ function startDrag(shape: Shape | TrustBoundary, event: MouseEvent) {
 }
 
 function handleDrag(event: MouseEvent) {
-  if (!isDragging.value || !draggedShape.value) return
+  const shape = draggedShape.value
+  if (!isDragging.value || !shape) return
   
   const canvas = document.querySelector('.canvas-container')
   if (!canvas) return
@@ -366,8 +383,8 @@ function handleDrag(event: MouseEvent) {
   const newX = event.clientX - rect.left - dragOffset.value.x
   const newY = event.clientY - rect.top - dragOffset.value.y
   
-  draggedShape.value.x = Math.max(0, Math.min(newX, rect.width - draggedShape.value.width))
-  draggedShape.value.y = Math.max(0, Math.min(newY, rect.height - draggedShape.value.height))
+  shape.x = Math.max(0, Math.min(newX, rect.width - shape.width))
+  shape.y = Math.max(0, Math.min(newY, rect.height - shape.height))
 }
 
 function stopDrag() {
@@ -785,7 +802,7 @@ onUnmounted(() => {
           </UFormField>
           
           <!-- Threats section for data flows -->
-          <div v-if="selectedShape && selectedShape.type === 'dataFlow'">
+          <div v-if="selectedDataFlow">
             <div class="flex items-center justify-between mb-2">
               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Threats</label>
               <UButton size="xs" @click="openAddThreatModal">
@@ -794,13 +811,13 @@ onUnmounted(() => {
               </UButton>
             </div>
             
-            <div v-if="(selectedShape as DataFlow).threats.length === 0" class="text-sm text-gray-500 dark:text-gray-400 py-2">
+            <div v-if="selectedDataFlow.threats.length === 0" class="text-sm text-gray-500 dark:text-gray-400 py-2">
               No threats added yet
             </div>
             
             <div v-else class="space-y-2 max-h-40 overflow-y-auto">
               <div
-                v-for="threat in (selectedShape as DataFlow).threats"
+                v-for="threat in selectedDataFlow.threats"
                 :key="threat.id"
                 class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded"
               >
