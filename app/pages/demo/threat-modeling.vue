@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
+const toast = useToast()
+
 // Shape types for threat modeling (DFD-based)
 type ShapeType = 'process' | 'dataStore' | 'externalEntity' | 'dataFlow' | 'trustBoundary'
 
@@ -484,6 +486,23 @@ function applyAction(action: HistoryAction) {
       }
       break
     }
+    case 'UPDATE_THREAT': {
+      const { elementId, threat, elementType } = action.data as { elementId: string; threat: Threat; elementType: string }
+      if (elementType === 'dataFlow') {
+        const flow = dataFlows.value.find(f => f.id === elementId)
+        if (flow) {
+          const index = flow.threats.findIndex(t => t.id === threat.id)
+          if (index !== -1) flow.threats[index] = threat
+        }
+      } else {
+        const shape = shapes.value.find(s => s.id === elementId)
+        if (shape) {
+          const index = shape.threats.findIndex(t => t.id === threat.id)
+          if (index !== -1) shape.threats[index] = threat
+        }
+      }
+      break
+    }
     case 'MOVE_SHAPE': {
       const { id, x, y } = action.data as { id: string; x: number; y: number }
       const shape = shapes.value.find(s => s.id === id)
@@ -544,6 +563,24 @@ function applyReverseAction(action: HistoryAction) {
       } else {
         const shape = shapes.value.find(s => s.id === elementId)
         if (shape) shape.threats.push(threat)
+      }
+      break
+    }
+    case 'UPDATE_THREAT': {
+      // For undo, we restore the old threat from reverseData
+      const { elementId, threat, elementType } = action.reverseData as { elementId: string; threat: Threat; elementType: string }
+      if (elementType === 'dataFlow') {
+        const flow = dataFlows.value.find(f => f.id === elementId)
+        if (flow) {
+          const index = flow.threats.findIndex(t => t.id === threat.id)
+          if (index !== -1) flow.threats[index] = threat
+        }
+      } else {
+        const shape = shapes.value.find(s => s.id === elementId)
+        if (shape) {
+          const index = shape.threats.findIndex(t => t.id === threat.id)
+          if (index !== -1) shape.threats[index] = threat
+        }
       }
       break
     }
@@ -1094,10 +1131,10 @@ function handleImportJSON(event: Event) {
       historyStack.value = []
       historyIndex.value = -1
       
-      alert('Threat model imported successfully!')
+      toast.add({ title: 'Success', description: 'Threat model imported successfully!', color: 'success' })
     } catch (error) {
       console.error('Failed to import:', error)
-      alert('Failed to import threat model. Please check the file format.')
+      toast.add({ title: 'Error', description: 'Failed to import threat model. Please check the file format.', color: 'error' })
     }
   }
   reader.readAsText(file)
@@ -1108,7 +1145,7 @@ function handleImportJSON(event: Event) {
 
 function exportToCSV() {
   if (allThreats.value.length === 0) {
-    alert('No threats to export.')
+    toast.add({ title: 'Info', description: 'No threats to export.', color: 'neutral' })
     return
   }
   
