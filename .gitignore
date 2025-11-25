@@ -4,6 +4,7 @@ __pycache__/
 .nuxt/
 _nuxt/
 .output/
+.data/
 
 # Runtime files
 *.log
