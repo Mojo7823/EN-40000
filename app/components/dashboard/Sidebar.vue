@@ -154,6 +154,10 @@ const items = ref([[{
     to: '/demo/evidence-tracker',
     icon: 'i-heroicons-clipboard-document-check'
   }, {
+    label: 'Threat Modeling',
+    to: '/demo/threat-modeling',
+    icon: 'i-heroicons-shield-exclamation'
+  }, {
     label: 'User Management',
     icon: 'i-heroicons-users',
     children: [{
