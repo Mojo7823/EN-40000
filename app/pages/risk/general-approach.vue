@@ -7,10 +7,10 @@
       <template #header>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Risk Management Elements</p>
-            <h1 class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">General Approach to Risk Management</h1>
+            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 5</p>
+            <h1 class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">Risk Management Elements</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Document the overall risk management framework and approach used to identify, assess, and mitigate cybersecurity risks throughout the product lifecycle.
+              [Reference: Clause 6 - Risk management elements]
             </p>
           </div>
           <UButton to="/document/preview" color="primary" variant="soft" icon="i-heroicons-arrow-right" trailing>
@@ -20,34 +20,34 @@
       </template>
     </UCard>
 
-    <!-- Risk Management Context Card -->
+    <!-- Section 5.1 Card -->
     <UCard>
       <template #header>
         <div>
-          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Clause Reference</p>
-          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">5.1 General Approach to Risk Management</h2>
+          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 5.1</p>
+          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">General Approach to Risk Management</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">[Reference: Clause 6.1 - General]</p>
         </div>
       </template>
 
-      <div class="prose dark:prose-invert max-w-none">
+      <div class="prose dark:prose-invert max-w-none mb-6">
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          This section describes the systematic approach taken to manage cybersecurity risks for <strong>{{ productName }}</strong>.
-          The risk management process covers risk identification, risk analysis, risk evaluation, and risk treatment
-          throughout the product lifecycle.
+          This section describes how <strong>{{ productName }}</strong> applies risk management throughout its lifecycle
+          to ensure an appropriate level of cybersecurity.
         </p>
       </div>
     </UCard>
 
-    <!-- Risk Management Editor Card -->
+    <!-- Risk Management Framework Editor Card -->
     <UCard>
       <template #header>
         <div>
           <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Content</p>
-          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">Risk Management Approach</h2>
+          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">Risk Management Framework Applied</h2>
         </div>
       </template>
 
-      <RichTextEditor v-model="form.generalApproachHtml" min-height="400px" placeholder="Describe the general approach to risk management..." />
+      <RichTextEditor v-model="form.generalApproachHtml" min-height="400px" placeholder="Describe the risk management framework applied..." />
     </UCard>
   </div>
 </template>

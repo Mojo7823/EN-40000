@@ -97,13 +97,12 @@ const items = ref([[{
     label: 'General Approach to Risk Management',
     to: '/risk/general-approach',
     icon: 'i-heroicons-shield-check',
-    description: 'Risk management methodology',
-    children: [{
-      label: 'Product Context',
-      to: '/pcontext/intended-purpose',
-      icon: 'i-heroicons-light-bulb',
-      description: 'Product intended purpose'
-    }]
+    description: 'Risk management methodology'
+  }, {
+    label: 'Product Context',
+    to: '/pcontext/intended-purpose',
+    icon: 'i-heroicons-light-bulb',
+    description: 'Product intended purpose'
   }]
 }, {
   label: 'Document Management',
@@ -190,6 +189,8 @@ const items = ref([[{
       <span class="font-bold text-xl text-gray-900 dark:text-white">CRA Tool</span>
     </div>
 
-    <UNavigationMenu orientation="vertical" :items="items" />
+    <div class="flex-1 overflow-y-auto">
+      <UNavigationMenu orientation="vertical" :items="items" />
+    </div>
   </div>
 </template>

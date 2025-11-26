@@ -14,7 +14,9 @@ EVIDENCE_STATUS_LABELS = {
 }
 
 
-def append_risk_management_section(document: Document, payload: Optional[object]) -> None:
+def append_risk_management_section(
+    document: Document, payload: Optional[object], product_name: str = "[Product Name]"
+) -> None:
     """Append Section 5 - Risk Management Elements to the document."""
     if not payload:
         return
@@ -28,17 +30,20 @@ def append_risk_management_section(document: Document, payload: Optional[object]
 
     document.add_page_break()
 
+    # Section 5 heading
     heading = document.add_paragraph()
     heading_run = heading.add_run("5. RISK MANAGEMENT ELEMENTS")
     heading_run.font.size = Pt(20)
     heading_run.font.bold = True
     heading.space_after = Pt(8)
 
-    reference = document.add_paragraph("[Reference: Clause 6.1 - General]")
+    # Main clause reference
+    reference = document.add_paragraph("[Reference: Clause 6 - Risk management elements]")
     reference.runs[0].font.bold = True
     reference.space_after = Pt(10)
 
     if general_html:
+        # 5.1 subheading
         subheading = document.add_paragraph()
         subheading_run = subheading.add_run("5.1 General Approach to Risk Management")
         subheading_run.font.size = Pt(18)
@@ -46,17 +51,37 @@ def append_risk_management_section(document: Document, payload: Optional[object]
         subheading.space_before = Pt(6)
         subheading.space_after = Pt(6)
 
-        clause_reference = document.add_paragraph("[Reference: Clause 5 - Risk Management Elements]")
+        # Clause reference for 5.1
+        clause_reference = document.add_paragraph("[Reference: Clause 6.1 - General]")
         clause_reference.runs[0].font.bold = True
         clause_reference.space_after = Pt(10)
 
+        # Intro paragraph with product name
+        intro_text = (
+            f"This section describes how {product_name} applies risk management throughout its lifecycle "
+            "to ensure an appropriate level of cybersecurity."
+        )
+        intro_para = document.add_paragraph(intro_text)
+        intro_para.space_after = Pt(10)
+
+        # Risk Management Framework Applied label
+        framework_label = document.add_paragraph()
+        framework_run = framework_label.add_run("Risk Management Framework Applied:")
+        framework_run.font.bold = True
+        framework_label.space_after = Pt(6)
+
+        # WYSIWYG content
         append_html_to_document(document, general_html)
 
     if has_product_context:
-        _append_product_context_section(document, product_context_payload)
+        _append_product_context_section(document, product_context_payload, product_name)
 
 
-def _append_product_context_section(document: Document, payload: Optional[object]) -> None:
+def _append_product_context_section(
+    document: Document, payload: Optional[object], product_name: str = "[Product Name]"
+) -> None:
+    from docx.shared import RGBColor
+    
     heading = document.add_paragraph()
     heading_run = heading.add_run("5.2 Product Context")
     heading_run.font.size = Pt(18)
@@ -81,24 +106,42 @@ def _append_product_context_section(document: Document, payload: Optional[object
     clause_reference.runs[0].font.bold = True
     clause_reference.space_after = Pt(8)
 
-    intro = document.add_paragraph(
-        "The product context provides the foundation for all risk management activities. It describes the product's intended purpose, functions, operational environment, architecture, and users."
+    # Blue requirement section
+    req_para = document.add_paragraph()
+    req_run = req_para.add_run("Requirement [Clause 6.2.3]:")
+    req_run.font.color.rgb = RGBColor(0, 0, 255)
+    req_para.space_after = Pt(4)
+    
+    req_text = document.add_paragraph(
+        '"The product context shall be identified and recorded based on:'
     )
-    intro.paragraph_format.space_after = Pt(12)
+    req_text.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+    req_text.space_after = Pt(2)
+    
+    bullets = [
+        "the product's IPRFU;",
+        "the product's functions;",
+        "the product's operational environment of use;",
+        "the product's architecture overview;",
+        "the product's user descriptions."
+    ]
+    for bullet in bullets:
+        bullet_para = document.add_paragraph(bullet, style='List Bullet')
+        bullet_para.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+        bullet_para.space_after = Pt(2)
+    
+    closing_quote = document.add_paragraph('"')
+    closing_quote.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+    closing_quote.space_after = Pt(12)
 
     _append_product_context_block(
         document,
-        "Intended Purpose",
+        "Intended Purpose:",
         _extract_value(payload, "intended_purpose_html"),
     )
     _append_product_context_block(
         document,
-        "Specific Intended Uses",
-        _extract_value(payload, "specific_intended_uses_html"),
-    )
-    _append_product_context_block(
-        document,
-        "Reasonably Foreseeable Use and Misuse Considerations",
+        "Reasonably Foreseeable Use & Misuse:",
         _extract_value(payload, "foreseeable_use_html"),
     )
 
@@ -123,7 +166,7 @@ def _append_evidence_tracker(document: Document, payload: Optional[Iterable[obje
         return
 
     heading = document.add_paragraph()
-    heading_run = heading.add_run("Evidence Tracker")
+    heading_run = heading.add_run("Evidence Reference:")
     heading_run.font.size = Pt(13)
     heading_run.font.bold = True
     heading.space_before = Pt(10)

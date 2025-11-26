@@ -51,7 +51,16 @@ def build_cover_document(
             start_on_new_page=True,
         )
 
-    append_risk_management_section(document, getattr(payload, 'risk_management', None))
+    # Extract product name for risk management section
+    introduction = getattr(payload, 'introduction', None)
+    product_name = "[Product Name]"
+    if introduction:
+        product_name = (
+            getattr(introduction, 'product_name', None)
+            or (introduction.get('product_name') if isinstance(introduction, dict) else None)
+            or "[Product Name]"
+        )
+    append_risk_management_section(document, getattr(payload, 'risk_management', None), product_name)
 
     filename = f"{uuid.uuid4().hex}.docx"
     output_path = output_dir / filename

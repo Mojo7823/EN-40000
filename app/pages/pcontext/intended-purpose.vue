@@ -107,11 +107,91 @@
         </p>
       </div>
 
-      <EvidenceTracker
-        v-model="evidenceEntries"
-        title="Evidence Tracker"
-        description="Link supporting documentation that proves the product context has been reviewed."
-      />
+      <div class="space-y-4">
+        <UCard 
+          v-for="(entry, index) in evidenceEntries" 
+          :key="entry.id"
+        >
+          <template #header>
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-semibold text-gray-900 dark:text-white">
+                  {{ entry.title || `Evidence ${index + 1}` }}
+                </h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Product Context (Clause 6.2.1.2)
+                </p>
+              </div>
+              <UBadge 
+                :color="entry.status === 'complete' ? 'success' : entry.status === 'in_progress' ? 'info' : 'neutral'"
+                variant="subtle"
+              >
+                {{ entry.status === 'complete' ? 'Complete' : entry.status === 'in_progress' ? 'In Progress' : 'Not Started' }}
+              </UBadge>
+            </div>
+          </template>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Evidence Title
+              </label>
+              <UInput
+                v-model="evidenceEntries[index].title"
+                placeholder="Risk Management Plan"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Reference ID
+              </label>
+              <UInput
+                v-model="evidenceEntries[index].referenceId"
+                placeholder="EVD-RM-001"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <USelectMenu
+                v-model="evidenceEntries[index].status"
+                :items="[
+                  { label: 'Not Started', value: 'not_started' },
+                  { label: 'In Progress', value: 'in_progress' },
+                  { label: 'Complete', value: 'complete' }
+                ]"
+                value-key="value"
+                label-key="label"
+                :search-input="false"
+                color="neutral"
+                variant="outline"
+                trailing-icon="i-heroicons-chevron-down-20-solid"
+                class="w-full"
+              />
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Notes / Link
+            </label>
+            <UTextarea
+              v-model="evidenceEntries[index].descriptionHtml"
+              :rows="3"
+              placeholder="Link to evidence repository, revision, or summary"
+            />
+          </div>
+        </UCard>
+
+        <div v-if="evidenceEntries.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div class="text-5xl mb-4">📋</div>
+          <p>No evidence entries yet</p>
+          <p class="text-sm">Add evidence to track compliance documentation</p>
+        </div>
+      </div>
     </UCard>
   </div>
 </template>
