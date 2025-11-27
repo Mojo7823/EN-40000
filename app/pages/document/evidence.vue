@@ -11,12 +11,40 @@
               Track every evidence reference captured throughout the risk management sections. Use this list to confirm the document is fully supported before exporting.
             </p>
           </div>
-          <UButton to="/pcontext/intended-purpose" color="neutral" variant="ghost">
-            Go to Product Context
+          <UButton to="/document/preview" color="primary" variant="soft" icon="i-heroicons-arrow-right" trailing>
+            Document Preview
           </UButton>
         </div>
       </template>
     </UCard>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <UCard>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ summaryStats.total }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Total Evidence</p>
+        </div>
+      </UCard>
+      <UCard>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ summaryStats.complete }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Complete</p>
+        </div>
+      </UCard>
+      <UCard>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ summaryStats.inProgress }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
+        </div>
+      </UCard>
+      <UCard>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-gray-600 dark:text-gray-400">{{ summaryStats.notStarted }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Not Started</p>
+        </div>
+      </UCard>
+    </div>
 
     <!-- Evidence Overview -->
     <UCard>
@@ -90,16 +118,26 @@ const workspace = useDocumentWorkspace()
 const workspaceState = ref<DocumentWorkspaceState>(workspace.loadDocumentWorkspace())
 let unsubscribe: (() => void) | null = null
 
-const columns: any[] = [
-  { id: 'section', key: 'section', label: 'Section' },
-  { id: 'title', key: 'title', label: 'Evidence Title' },
-  { id: 'referenceId', key: 'referenceId', label: 'Reference ID' },
-  { id: 'status', key: 'status', label: 'Status' },
-  { id: 'notes', key: 'notes', label: 'Notes' },
-  { id: 'actions', key: 'actions', label: 'Actions' },
+const columns = [
+  { id: 'section', key: 'section', header: 'Section' },
+  { id: 'title', key: 'title', header: 'Evidence Title' },
+  { id: 'referenceId', key: 'referenceId', header: 'Reference ID' },
+  { id: 'status', key: 'status', header: 'Status' },
+  { id: 'notes', key: 'notes', header: 'Notes' },
+  { id: 'actions', key: 'actions', header: 'Actions' },
 ]
 
 const evidenceRows = computed(() => buildEvidenceRows(workspaceState.value))
+
+const summaryStats = computed(() => {
+  const rows = evidenceRows.value
+  return {
+    total: rows.length,
+    complete: rows.filter((r) => r.status === 'complete').length,
+    inProgress: rows.filter((r) => r.status === 'in_progress').length,
+    notStarted: rows.filter((r) => r.status === 'not_started').length,
+  }
+})
 
 onMounted(() => {
   unsubscribe = workspace.subscribeDocumentWorkspace((state) => {
@@ -115,17 +153,46 @@ function buildEvidenceRows(state: DocumentWorkspaceState) {
   const rows: Array<
     RiskEvidenceEntry & { sectionLabel: string; referenceLine: string; route: string }
   > = []
+
+  // Product Context evidence
   const productContext = state.riskManagement?.productContext
   if (productContext?.evidenceEntries?.length) {
     productContext.evidenceEntries.forEach((entry) => {
       rows.push({
         ...entry,
-        sectionLabel: 'Product Context (Section 5.2)',
+        sectionLabel: 'Product Context (Section 5.2.1)',
         referenceLine: '[Reference: Clause 6.2.1.2]',
         route: '/pcontext/intended-purpose',
       })
     })
   }
+
+  // Product Functions evidence
+  const productFunction = state.riskManagement?.productFunction
+  if (productFunction?.evidenceEntries?.length) {
+    productFunction.evidenceEntries.forEach((entry) => {
+      rows.push({
+        ...entry,
+        sectionLabel: 'Product Functions (Section 5.2.2)',
+        referenceLine: '[Reference: Clause 6.2.1.3]',
+        route: '/pcontext/product-function',
+      })
+    })
+  }
+
+  // Operational Environment evidence
+  const operationalEnvironment = state.riskManagement?.operationalEnvironment
+  if (operationalEnvironment?.evidenceEntries?.length) {
+    operationalEnvironment.evidenceEntries.forEach((entry) => {
+      rows.push({
+        ...entry,
+        sectionLabel: 'Operational Environment (Section 5.2.3)',
+        referenceLine: '[Reference: Clause 6.2.1.4]',
+        route: '/pcontext/operational-environment',
+      })
+    })
+  }
+
   return rows
 }
 

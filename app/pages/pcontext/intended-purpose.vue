@@ -129,7 +129,7 @@
             </div>
           </template>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Evidence Title
@@ -137,6 +137,7 @@
               <UInput
                 v-model="entry.title"
                 placeholder="Risk Management Plan"
+                class="w-full"
               />
             </div>
 
@@ -147,6 +148,7 @@
               <UInput
                 v-model="entry.referenceId"
                 placeholder="EVD-RM-001"
+                class="w-full"
               />
             </div>
 
@@ -180,6 +182,8 @@
               v-model="entry.descriptionHtml"
               :rows="3"
               placeholder="Link to evidence repository, revision, or summary"
+              class="w-full"
+              autoresize
             />
           </div>
         </UCard>

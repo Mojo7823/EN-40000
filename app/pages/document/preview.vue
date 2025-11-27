@@ -19,7 +19,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <UButton
             variant="ghost"
-            color="gray"
+            color="neutral"
             to="/document/load-save"
             icon="i-heroicons-arrow-down-tray"
           >
@@ -64,7 +64,7 @@
               <h3 class="text-lg font-semibold">Sections</h3>
               <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Follow the sections in order before previewing.</p>
             </div>
-            <UBadge color="gray" variant="subtle">{{ completionPercentage }}% complete</UBadge>
+            <UBadge color="neutral" variant="subtle">{{ completionPercentage }}% complete</UBadge>
           </div>
         </template>
 
@@ -88,7 +88,7 @@
               </div>
               <UBadge
                 class="shrink-0 whitespace-nowrap self-start"
-                :color="getGroupStatusColor(item.state)"
+                :color="getGroupStatusColor(item.state) as any"
                 variant="subtle"
               >
                 {{ item.stateLabel }}
@@ -120,7 +120,7 @@
                   </div>
                   <UBadge
                     class="absolute top-3 right-3 shrink-0 whitespace-nowrap"
-                    :color="getStatusColor(section.status)"
+                    :color="getStatusColor(section.status) as any"
                     variant="soft"
                   >
                     {{ getStatusLabel(section.status) }}
@@ -145,7 +145,7 @@
                 <UButton
                   size="xs"
                   variant="ghost"
-                  color="gray"
+                  color="neutral"
                   icon="i-heroicons-minus"
                   :disabled="zoomLevel <= 50"
                   @click="zoomOut"
@@ -155,7 +155,7 @@
                 <UButton
                   size="xs"
                   variant="ghost"
-                  color="gray"
+                  color="neutral"
                   icon="i-heroicons-plus"
                   :disabled="zoomLevel >= 200"
                   @click="zoomIn"
@@ -164,7 +164,7 @@
                 <UButton
                   size="xs"
                   variant="ghost"
-                  color="gray"
+                  color="neutral"
                   icon="i-heroicons-arrow-path"
                   @click="resetZoom"
                   title="Reset Zoom"
@@ -176,7 +176,7 @@
                 <UButton
                   size="xs"
                   variant="ghost"
-                  color="gray"
+                  color="neutral"
                   icon="i-heroicons-chevron-left"
                   :disabled="currentPage <= 1"
                   @click="previousPage"
@@ -186,7 +186,7 @@
                 <UButton
                   size="xs"
                   variant="ghost"
-                  color="gray"
+                  color="neutral"
                   icon="i-heroicons-chevron-right"
                   :disabled="currentPage >= totalPages"
                   @click="nextPage"
@@ -196,7 +196,7 @@
 
               <UButton
                 variant="ghost"
-                color="gray"
+                color="neutral"
                 icon="i-heroicons-arrow-path"
                 @click="buildFullPreview"
               >
@@ -249,7 +249,7 @@
               <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Generated</p>
               <h3 class="text-lg font-semibold">Documents</h3>
             </div>
-            <UBadge color="gray" variant="subtle">{{ generatedFiles.length }} file(s)</UBadge>
+            <UBadge color="neutral" variant="subtle">{{ generatedFiles.length }} file(s)</UBadge>
           </div>
         </template>
 
@@ -359,7 +359,7 @@ const SECTION_GROUP_DEFINITIONS = [
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context'],
+    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment'],
   },
 ]
 const userId = sessionService.getUserToken()
@@ -397,7 +397,11 @@ const conformanceClaim = computed(() => workspace.value.conformanceClaim)
 const documentConvention = computed(() => workspace.value.documentConvention)
 const riskManagement = computed(() => workspace.value.riskManagement)
 const productContextState = computed(() => riskManagement.value.productContext)
+const productFunctionState = computed(() => riskManagement.value.productFunction)
+const operationalEnvironmentState = computed(() => riskManagement.value.operationalEnvironment)
 const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
+const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
+const operationalEnvEvidenceSummary = computed(() => summarizeEvidenceEntries(operationalEnvironmentState.value?.evidenceEntries ?? []))
 
 const sectionList = computed(() => buildSectionStatuses())
 const sectionGroups = computed(() => buildSectionGroups(sectionList.value))
@@ -545,7 +549,17 @@ function buildRiskManagementPayload(state?: any) {
   const functionEvidenceEntries = normalizeEvidencePayload(productFunction?.evidenceEntries)
   const hasProductFunction = primaryFunctionsHtml || securityFunctionsHtml || functionEvidenceEntries.length
 
-  if (!generalHtml && !hasProductContext && !hasProductFunction) {
+  // Operational Environment
+  const operationalEnvironment = state.operationalEnvironment
+  const physicalEnvHtml = normalizeHtml(operationalEnvironment?.physicalEnvironmentHtml)
+  const networkEnvHtml = normalizeHtml(operationalEnvironment?.networkEnvironmentHtml)
+  const systemEnvHtml = normalizeHtml(operationalEnvironment?.systemEnvironmentHtml)
+  const constraintsHtml = normalizeHtml(operationalEnvironment?.operationalConstraintsHtml)
+  const rdpsEnvHtml = normalizeHtml(operationalEnvironment?.rdpsEnvironmentHtml)
+  const opEnvEvidenceEntries = normalizeEvidencePayload(operationalEnvironment?.evidenceEntries)
+  const hasOperationalEnvironment = physicalEnvHtml || networkEnvHtml || systemEnvHtml || constraintsHtml || rdpsEnvHtml || opEnvEvidenceEntries.length
+
+  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment) {
     return undefined
   }
 
@@ -553,6 +567,7 @@ function buildRiskManagementPayload(state?: any) {
     general_approach_html?: string
     product_context?: Record<string, unknown>
     product_function?: Record<string, unknown>
+    operational_environment?: Record<string, unknown>
   } = {}
 
   if (generalHtml) {
@@ -573,6 +588,17 @@ function buildRiskManagementPayload(state?: any) {
       primary_functions_html: primaryFunctionsHtml,
       security_functions_html: securityFunctionsHtml,
       evidence_entries: functionEvidenceEntries,
+    }
+  }
+
+  if (hasOperationalEnvironment) {
+    payload.operational_environment = {
+      physical_environment_html: physicalEnvHtml,
+      network_environment_html: networkEnvHtml,
+      system_environment_html: systemEnvHtml,
+      operational_constraints_html: constraintsHtml,
+      rdps_environment_html: rdpsEnvHtml,
+      evidence_entries: opEnvEvidenceEntries,
     }
   }
 
@@ -823,7 +849,7 @@ function buildSectionStatuses() {
     ),
     createStatus(
       'risk-product-context',
-      'Product Context (Section 5.2)',
+      'Product Context (Section 5.2.1)',
       'Intended purpose, foreseeable use, and supporting evidence.',
       [
         stripHtml(productContextState.value?.intendedPurposeHtml || ''),
@@ -840,6 +866,49 @@ function buildSectionStatuses() {
       '/pcontext/intended-purpose',
       evidenceSummary.value.total
         ? `${evidenceSummary.value.completed}/${evidenceSummary.value.total} evidence items ready`
+        : 'No evidence captured yet'
+    ),
+    createStatus(
+      'risk-product-function',
+      'Product Functions (Section 5.2.2)',
+      'Primary and security functions of the product.',
+      [
+        stripHtml(productFunctionState.value?.primaryFunctionsHtml || ''),
+        stripHtml(productFunctionState.value?.securityFunctionsHtml || ''),
+        productFunctionEvidenceSummary.value.total
+          ? productFunctionEvidenceSummary.value.state === 'completed'
+            ? 'complete'
+            : productFunctionEvidenceSummary.value.state === 'partial'
+              ? 'progress'
+              : ''
+          : '',
+      ],
+      '/pcontext/product-function',
+      productFunctionEvidenceSummary.value.total
+        ? `${productFunctionEvidenceSummary.value.completed}/${productFunctionEvidenceSummary.value.total} evidence items ready`
+        : 'No evidence captured yet'
+    ),
+    createStatus(
+      'risk-operational-environment',
+      'Operational Environment (Section 5.2.3)',
+      'Physical, network, system environments and RDPS dependencies.',
+      [
+        stripHtml(operationalEnvironmentState.value?.physicalEnvironmentHtml || ''),
+        stripHtml(operationalEnvironmentState.value?.networkEnvironmentHtml || ''),
+        stripHtml(operationalEnvironmentState.value?.systemEnvironmentHtml || ''),
+        stripHtml(operationalEnvironmentState.value?.operationalConstraintsHtml || ''),
+        stripHtml(operationalEnvironmentState.value?.rdpsEnvironmentHtml || ''),
+        operationalEnvEvidenceSummary.value.total
+          ? operationalEnvEvidenceSummary.value.state === 'completed'
+            ? 'complete'
+            : operationalEnvEvidenceSummary.value.state === 'partial'
+              ? 'progress'
+              : ''
+          : '',
+      ],
+      '/pcontext/operational-environment',
+      operationalEnvEvidenceSummary.value.total
+        ? `${operationalEnvEvidenceSummary.value.completed}/${operationalEnvEvidenceSummary.value.total} evidence items ready`
         : 'No evidence captured yet'
     ),
     createStatus(
@@ -893,14 +962,14 @@ function buildSectionGroups(statuses: Array<ReturnType<typeof createStatus>>): S
 }
 
 // Get status color for badges
-function getStatusColor(status: string): string {
+function getStatusColor(status: string) {
   switch (status) {
     case 'done':
     case 'completed':
-      return 'green'
-    case 'partial': return 'orange'
-    case 'missing': return 'red'
-    default: return 'gray'
+      return 'success'
+    case 'partial': return 'warning'
+    case 'missing': return 'error'
+    default: return 'neutral'
   }
 }
 
@@ -916,14 +985,14 @@ function getSectionBorderColor(section: any): string {
   }
 }
 
-function getGroupStatusColor(state: string): string {
+function getGroupStatusColor(state: string) {
   switch (state) {
     case 'done':
     case 'completed':
-      return 'green'
-    case 'partial': return 'orange'
-    case 'missing': return 'red'
-    default: return 'gray'
+      return 'success'
+    case 'partial': return 'warning'
+    case 'missing': return 'error'
+    default: return 'neutral'
   }
 }
 
@@ -938,7 +1007,7 @@ function buildFullPreview() {
     toast.add({
       title: 'No Document Yet',
       description: 'Generate a DOCX first to preview.',
-      color: 'orange',
+      color: 'warning',
       icon: 'i-heroicons-exclamation-triangle'
     })
     return
@@ -1045,7 +1114,7 @@ async function generateFullDocument() {
       toast.add({
         title: 'Missing Product Name',
         description: error.value,
-        color: 'orange',
+        color: 'warning',
         icon: 'i-heroicons-exclamation-triangle'
       })
       return
@@ -1054,7 +1123,7 @@ async function generateFullDocument() {
     const imagePath = await uploadCoverImageIfNeeded()
     const payload = buildCoverPreviewPayload(imagePath)
 
-    const response = await $fetch('http://localhost:8000/api/cover/preview', {
+    const response = await $fetch<{ status: string; path: string; filename: string }>('http://localhost:8000/api/cover/preview', {
       method: 'POST',
       body: payload
     })
@@ -1077,7 +1146,7 @@ async function generateFullDocument() {
       toast.add({
         title: 'Document Generated',
         description: 'Full CRA document has been generated successfully.',
-        color: 'green',
+        color: 'success',
         icon: 'i-heroicons-check-circle'
       })
       
@@ -1091,7 +1160,7 @@ async function generateFullDocument() {
     toast.add({
       title: 'Generation Failed',
       description: error.value,
-      color: 'red',
+      color: 'error',
       icon: 'i-heroicons-x-circle'
     })
   } finally {
@@ -1113,7 +1182,7 @@ async function downloadFile(file: any) {
     toast.add({
       title: 'Download Started',
       description: `Downloading ${file.filename}`,
-      color: 'green',
+      color: 'success',
       icon: 'i-heroicons-arrow-down-tray'
     })
     
@@ -1123,7 +1192,7 @@ async function downloadFile(file: any) {
     toast.add({
       title: 'Download Failed',
       description: error.value,
-      color: 'red',
+      color: 'error',
       icon: 'i-heroicons-x-circle'
     })
   }

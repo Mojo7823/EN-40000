@@ -146,11 +146,22 @@ class ProductFunctionSection(BaseModel):
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 
+class OperationalEnvironmentSection(BaseModel):
+    """Product Operational Environment (Section 5.2.3)."""
+    physical_environment_html: Optional[str] = None
+    network_environment_html: Optional[str] = None
+    system_environment_html: Optional[str] = None
+    operational_constraints_html: Optional[str] = None
+    rdps_environment_html: Optional[str] = None
+    evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
     product_context: Optional[ProductContextSection] = None
     product_function: Optional[ProductFunctionSection] = None
+    operational_environment: Optional[OperationalEnvironmentSection] = None
 
 
 class CoverPreviewRequest(BaseModel):

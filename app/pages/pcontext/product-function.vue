@@ -89,14 +89,14 @@
             </div>
           </template>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Evidence Title</label>
-              <UInput v-model="evidenceEntries[index].title" placeholder="Product Functions Evidence" />
+              <UInput v-model="evidenceEntries[index].title" placeholder="Product Functions Evidence" class="w-full" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reference ID</label>
-              <UInput v-model="evidenceEntries[index].referenceId" placeholder="EVD-PF-001" />
+              <UInput v-model="evidenceEntries[index].referenceId" placeholder="EVD-PF-001" class="w-full" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
@@ -111,13 +111,14 @@
                 label-key="label"
                 color="neutral"
                 variant="outline"
+                class="w-full"
               />
             </div>
           </div>
 
           <div class="mt-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes / Link</label>
-            <UTextarea v-model="evidenceEntries[index].descriptionHtml" :rows="2" placeholder="Link to evidence or notes" />
+            <UTextarea v-model="evidenceEntries[index].descriptionHtml" :rows="2" placeholder="Link to evidence or notes" class="w-full" autoresize />
           </div>
         </UCard>
       </div>

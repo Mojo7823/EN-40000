@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+defineProps<{
+  width?: number
+}>()
+
+const emit = defineEmits<{
+  collapse: []
+}>()
+
 const items = ref([[{
   label: 'Dashboard',
   to: '/dashboard',
@@ -112,6 +120,11 @@ const items = ref([[{
       to: '/pcontext/product-function',
       icon: 'i-heroicons-cog-6-tooth',
       description: 'Product functions'
+    }, {
+      label: 'Operational Environment',
+      to: '/pcontext/operational-environment',
+      icon: 'i-heroicons-server-stack',
+      description: 'Product operational environment'
     }]
   }]
 }, {
@@ -191,15 +204,15 @@ const items = ref([[{
 </script>
 
 <template>
-  <div class="flex flex-col h-full border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 w-64 p-4">
-    <div class="flex items-center gap-2 px-2 mb-8">
-      <div class="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
+  <div class="flex flex-col h-full border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 w-full p-4 select-none">
+    <div class="flex items-center gap-2 px-2 mb-8 cursor-pointer" @click="emit('collapse')">
+      <div class="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center flex-shrink-0">
         <UIcon name="i-heroicons-cube-transparent" class="text-white w-6 h-6" />
       </div>
-      <span class="font-bold text-xl text-gray-900 dark:text-white">CRA Tool</span>
+      <span class="font-bold text-xl text-gray-900 dark:text-white truncate">CRA Tool</span>
     </div>
 
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto overflow-x-hidden">
       <UNavigationMenu orientation="vertical" :items="items" />
     </div>
   </div>

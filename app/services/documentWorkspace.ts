@@ -135,10 +135,20 @@ export interface ProductFunctionState {
   evidenceEntries: RiskEvidenceEntry[]
 }
 
+export interface ProductOperationalEnvironmentState {
+  physicalEnvironmentHtml: string
+  networkEnvironmentHtml: string
+  systemEnvironmentHtml: string
+  operationalConstraintsHtml: string
+  rdpsEnvironmentHtml: string
+  evidenceEntries: RiskEvidenceEntry[]
+}
+
 export interface RiskManagementState {
   generalApproachHtml: string
   productContext: ProductContextState
   productFunction: ProductFunctionState
+  operationalEnvironment: ProductOperationalEnvironmentState
 }
 
 export interface DocumentWorkspaceState {
@@ -168,6 +178,7 @@ const TERMINOLOGY_ID_PREFIX = 'term-'
 
 export const RISK_PRODUCT_CONTEXT_SECTION_KEY = 'risk-product-context'
 export const RISK_PRODUCT_FUNCTION_SECTION_KEY = 'risk-product-function'
+export const RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY = 'risk-operational-environment'
 
 export const RISK_EVIDENCE_STATUS_OPTIONS = [
   { value: 'not_started', label: 'Not Started' },
@@ -305,10 +316,29 @@ const defaultProductFunctionState: ProductFunctionState = {
   ],
 }
 
+const defaultOperationalEnvironmentState: ProductOperationalEnvironmentState = {
+  physicalEnvironmentHtml: '',
+  networkEnvironmentHtml: '',
+  systemEnvironmentHtml: '',
+  operationalConstraintsHtml: '',
+  rdpsEnvironmentHtml: '',
+  evidenceEntries: [
+    {
+      id: `${RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY}-evidence`,
+      sectionKey: RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY,
+      title: 'Operational Environment Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ],
+}
+
 const defaultRiskManagementState: RiskManagementState = {
   generalApproachHtml: '',
   productContext: cloneProductContextState(defaultProductContextState),
   productFunction: cloneProductFunctionState(defaultProductFunctionState),
+  operationalEnvironment: cloneOperationalEnvironmentState(defaultOperationalEnvironmentState),
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -423,12 +453,30 @@ function cloneProductFunctionState(state?: ProductFunctionState): ProductFunctio
   }
 }
 
+function cloneOperationalEnvironmentState(state?: ProductOperationalEnvironmentState): ProductOperationalEnvironmentState {
+  const source = state ?? defaultOperationalEnvironmentState
+  const evidenceSource =
+    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
+      ? source.evidenceEntries
+      : defaultOperationalEnvironmentState.evidenceEntries
+
+  return {
+    physicalEnvironmentHtml: source.physicalEnvironmentHtml ?? '',
+    networkEnvironmentHtml: source.networkEnvironmentHtml ?? '',
+    systemEnvironmentHtml: source.systemEnvironmentHtml ?? '',
+    operationalConstraintsHtml: source.operationalConstraintsHtml ?? '',
+    rdpsEnvironmentHtml: source.rdpsEnvironmentHtml ?? '',
+    evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY),
+  }
+}
+
 function cloneRiskManagementState(state?: RiskManagementState): RiskManagementState {
   const source = state ?? defaultRiskManagementState
   return {
     generalApproachHtml: source.generalApproachHtml ?? '',
     productContext: cloneProductContextState(source.productContext),
     productFunction: cloneProductFunctionState(source.productFunction),
+    operationalEnvironment: cloneOperationalEnvironmentState(source.operationalEnvironment),
   }
 }
 
@@ -878,6 +926,7 @@ export function updateRiskManagementState(
   const current = inMemoryState.riskManagement
   const currentProductContext = current.productContext || cloneProductContextState()
   const currentProductFunction = current.productFunction || cloneProductFunctionState()
+  const currentOperationalEnvironment = current.operationalEnvironment || cloneOperationalEnvironmentState()
 
   let nextProductContext: ProductContextState
   if (patch.productContext) {
@@ -937,10 +986,40 @@ export function updateRiskManagementState(
     )
   }
 
+  let nextOperationalEnvironment: ProductOperationalEnvironmentState
+  if (patch.operationalEnvironment) {
+    const opEnvPatch = patch.operationalEnvironment
+    const patchedEvidence =
+      opEnvPatch.evidenceEntries !== undefined
+        ? opEnvPatch.evidenceEntries.length
+          ? cloneEvidenceEntries(opEnvPatch.evidenceEntries, RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY)
+          : cloneEvidenceEntries(defaultOperationalEnvironmentState.evidenceEntries, RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY)
+        : cloneEvidenceEntries(currentOperationalEnvironment.evidenceEntries, RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY)
+
+    nextOperationalEnvironment = {
+      physicalEnvironmentHtml: opEnvPatch.physicalEnvironmentHtml ?? currentOperationalEnvironment.physicalEnvironmentHtml,
+      networkEnvironmentHtml: opEnvPatch.networkEnvironmentHtml ?? currentOperationalEnvironment.networkEnvironmentHtml,
+      systemEnvironmentHtml: opEnvPatch.systemEnvironmentHtml ?? currentOperationalEnvironment.systemEnvironmentHtml,
+      operationalConstraintsHtml: opEnvPatch.operationalConstraintsHtml ?? currentOperationalEnvironment.operationalConstraintsHtml,
+      rdpsEnvironmentHtml: opEnvPatch.rdpsEnvironmentHtml ?? currentOperationalEnvironment.rdpsEnvironmentHtml,
+      evidenceEntries: patchedEvidence,
+    }
+  } else {
+    nextOperationalEnvironment = cloneOperationalEnvironmentState(currentOperationalEnvironment)
+  }
+
+  if (!nextOperationalEnvironment.evidenceEntries.length) {
+    nextOperationalEnvironment.evidenceEntries = cloneEvidenceEntries(
+      defaultOperationalEnvironmentState.evidenceEntries,
+      RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY
+    )
+  }
+
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
     productContext: nextProductContext,
     productFunction: nextProductFunction,
+    operationalEnvironment: nextOperationalEnvironment,
   }
 
   const next: DocumentWorkspaceState = {
