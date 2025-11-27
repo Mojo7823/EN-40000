@@ -7,6 +7,7 @@ from docx.shared import Pt
 from .section_builders import create_base_document, add_documentation_intro_section, add_section_with_html
 from .cover_builder import add_cover_to_document
 from .html_converter import append_html_to_document
+from .risk_management_builder import append_risk_management_section
 
 
 def build_final_combined_document(payload, image_file: Path, output_dir: Path) -> Path:
@@ -103,15 +104,22 @@ def build_final_combined_document(payload, image_file: Path, output_dir: Path) -
             add_page_break=True
         )
     
-    # Section 5: Security Requirements
+    # Section 5: Risk Management Elements
+    if payload.risk_management:
+        product_name = "[Product Name]"
+        if payload.cover_data:
+            product_name = payload.cover_data.get("title") or payload.cover_data.get("deviceName") or product_name
+        append_risk_management_section(document, payload.risk_management, product_name)
+    
+    # Section 6: Security Requirements (renumbered from 5)
     _add_security_requirements_section(document, payload)
     
-    # Section 6: Product Summary Specification (TSS)
+    # Section 7: Product Summary Specification (TSS)
     if payload.tss_html:
         document.add_page_break()
         
         tss_heading = document.add_paragraph()
-        tss_run = tss_heading.add_run("6. Product Summary Specification")
+        tss_run = tss_heading.add_run("7. Product Summary Specification")
         tss_run.font.size = Pt(20)
         tss_run.font.bold = True
         tss_heading.space_before = Pt(12)
@@ -150,7 +158,7 @@ def _add_security_requirements_section(document: Document, payload):
         document.add_page_break()
         
         security_heading = document.add_paragraph()
-        security_run = security_heading.add_run("5. Security Requirements")
+        security_run = security_heading.add_run("6. Security Requirements")
         security_run.font.size = Pt(20)
         security_run.font.bold = True
         security_heading.space_before = Pt(12)
@@ -158,7 +166,7 @@ def _add_security_requirements_section(document: Document, payload):
         security_section_added = True
         
         sfr_heading = document.add_paragraph()
-        sfr_run = sfr_heading.add_run("5.1 Security Functional Requirements")
+        sfr_run = sfr_heading.add_run("6.1 Security Functional Requirements")
         sfr_run.font.size = Pt(18)
         sfr_run.font.bold = True
         sfr_heading.space_before = Pt(8)
@@ -178,7 +186,7 @@ def _add_security_requirements_section(document: Document, payload):
             document.add_page_break()
             
             security_heading = document.add_paragraph()
-            security_run = security_heading.add_run("5. Security Requirements")
+            security_run = security_heading.add_run("6. Security Requirements")
             security_run.font.size = Pt(20)
             security_run.font.bold = True
             security_heading.space_before = Pt(12)
@@ -186,7 +194,7 @@ def _add_security_requirements_section(document: Document, payload):
             security_section_added = True
         
         sar_heading = document.add_paragraph()
-        sar_run = sar_heading.add_run("5.2 Security Assurance Requirements")
+        sar_run = sar_heading.add_run("6.2 Security Assurance Requirements")
         sar_run.font.size = Pt(18)
         sar_run.font.bold = True
         sar_heading.space_before = Pt(8)

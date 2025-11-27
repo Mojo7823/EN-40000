@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const colorMode = useColorMode()
+const sidebarOpen = inject<Ref<boolean>>('sidebarOpen')
 
 const isDark = computed({
   get () {
@@ -50,7 +51,7 @@ const statusColor = computed(() => {
 <template>
   <header class="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between px-6">
     <div class="flex items-center gap-4">
-      <UButton icon="i-heroicons-bars-3" color="neutral" variant="ghost" class="lg:hidden" />
+      <UButton icon="i-heroicons-bars-3" color="neutral" variant="ghost" class="lg:hidden" @click="sidebarOpen = true" />
     </div>
 
     <div class="flex items-center gap-2">

@@ -26,7 +26,7 @@
       <template #header>
         <div>
           <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Clause Reference</p>
-          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">6.2 Product Context</h2>
+          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">5.2 Product Context</h2>
         </div>
       </template>
 
@@ -42,8 +42,9 @@
     <UCard>
       <template #header>
         <div>
-          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 1</p>
-          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">Intended Purpose Narrative</h2>
+          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 5.2.1</p>
+          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">5.2.1 Intended Purpose and Reasonably Foreseeable Use</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">[Reference: Clause 6.2.1.2 - Intended purpose and reasonably foreseeable use]</p>
         </div>
       </template>
 
@@ -60,8 +61,7 @@
     <UCard>
       <template #header>
         <div>
-          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 2</p>
-          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">Specific Intended Uses</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">Specific Intended Uses</h2>
         </div>
       </template>
 
@@ -78,8 +78,7 @@
     <UCard>
       <template #header>
         <div>
-          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 3</p>
-          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">Reasonably Foreseeable Use & Misuse</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">Reasonably Foreseeable Use & Misuse</h2>
         </div>
       </template>
 
@@ -96,8 +95,7 @@
     <UCard>
       <template #header>
         <div>
-          <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 4</p>
-          <h2 class="text-xl font-bold mt-2 text-gray-900 dark:text-white">Evidence Tracker</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">Evidence Reference</h2>
         </div>
       </template>
 
@@ -137,7 +135,7 @@
                 Evidence Title
               </label>
               <UInput
-                v-model="evidenceEntries[index].title"
+                v-model="entry.title"
                 placeholder="Risk Management Plan"
               />
             </div>
@@ -147,7 +145,7 @@
                 Reference ID
               </label>
               <UInput
-                v-model="evidenceEntries[index].referenceId"
+                v-model="entry.referenceId"
                 placeholder="EVD-RM-001"
               />
             </div>
@@ -157,7 +155,7 @@
                 Status
               </label>
               <USelectMenu
-                v-model="evidenceEntries[index].status"
+                v-model="entry.status"
                 :items="[
                   { label: 'Not Started', value: 'not_started' },
                   { label: 'In Progress', value: 'in_progress' },
@@ -179,7 +177,7 @@
               Notes / Link
             </label>
             <UTextarea
-              v-model="evidenceEntries[index].descriptionHtml"
+              v-model="entry.descriptionHtml"
               :rows="3"
               placeholder="Link to evidence repository, revision, or summary"
             />

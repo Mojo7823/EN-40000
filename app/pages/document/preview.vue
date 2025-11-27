@@ -529,20 +529,30 @@ function summarizeEvidenceEntries(entries: any[]) {
 function buildRiskManagementPayload(state?: any) {
   if (!state) return undefined
   const generalHtml = normalizeHtml(state.generalApproachHtml)
+  
+  // Product Context
   const productContext = state.productContext
   const intendedPurposeHtml = normalizeHtml(productContext?.intendedPurposeHtml)
   const specificUsesHtml = normalizeHtml(productContext?.specificIntendedUsesHtml)
   const foreseeableUseHtml = normalizeHtml(productContext?.foreseeableUseHtml)
-  const evidenceEntries = normalizeEvidencePayload(productContext?.evidenceEntries)
-  const hasProductContext = intendedPurposeHtml || specificUsesHtml || foreseeableUseHtml || evidenceEntries.length
+  const contextEvidenceEntries = normalizeEvidencePayload(productContext?.evidenceEntries)
+  const hasProductContext = intendedPurposeHtml || specificUsesHtml || foreseeableUseHtml || contextEvidenceEntries.length
 
-  if (!generalHtml && !hasProductContext) {
+  // Product Function
+  const productFunction = state.productFunction
+  const primaryFunctionsHtml = normalizeHtml(productFunction?.primaryFunctionsHtml)
+  const securityFunctionsHtml = normalizeHtml(productFunction?.securityFunctionsHtml)
+  const functionEvidenceEntries = normalizeEvidencePayload(productFunction?.evidenceEntries)
+  const hasProductFunction = primaryFunctionsHtml || securityFunctionsHtml || functionEvidenceEntries.length
+
+  if (!generalHtml && !hasProductContext && !hasProductFunction) {
     return undefined
   }
 
   const payload: {
     general_approach_html?: string
     product_context?: Record<string, unknown>
+    product_function?: Record<string, unknown>
   } = {}
 
   if (generalHtml) {
@@ -554,7 +564,15 @@ function buildRiskManagementPayload(state?: any) {
       intended_purpose_html: intendedPurposeHtml,
       specific_intended_uses_html: specificUsesHtml,
       foreseeable_use_html: foreseeableUseHtml,
-      evidence_entries: evidenceEntries,
+      evidence_entries: contextEvidenceEntries,
+    }
+  }
+
+  if (hasProductFunction) {
+    payload.product_function = {
+      primary_functions_html: primaryFunctionsHtml,
+      security_functions_html: securityFunctionsHtml,
+      evidence_entries: functionEvidenceEntries,
     }
   }
 

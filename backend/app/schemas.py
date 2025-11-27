@@ -140,10 +140,17 @@ class ProductContextSection(BaseModel):
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 
+class ProductFunctionSection(BaseModel):
+    primary_functions_html: Optional[str] = None
+    security_functions_html: Optional[str] = None
+    evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
     product_context: Optional[ProductContextSection] = None
+    product_function: Optional[ProductFunctionSection] = None
 
 
 class CoverPreviewRequest(BaseModel):
@@ -226,3 +233,4 @@ class FinalPreviewRequest(BaseModel):
     selected_eal: Optional[str] = None  # Legacy: EAL (Evaluation Assurance Level - Common Criteria)
     sfr_preview_html: Optional[str] = None
     sar_preview_html: Optional[str] = None
+    risk_management: Optional[RiskManagementSection] = None  # Risk Management Elements (Section 5)

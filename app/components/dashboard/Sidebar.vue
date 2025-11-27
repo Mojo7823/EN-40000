@@ -100,9 +100,19 @@ const items = ref([[{
     description: 'Risk management methodology'
   }, {
     label: 'Product Context',
-    to: '/pcontext/intended-purpose',
     icon: 'i-heroicons-light-bulb',
-    description: 'Product intended purpose'
+    defaultOpen: true,
+    children: [{
+      label: 'Intended Purpose',
+      to: '/pcontext/intended-purpose',
+      icon: 'i-heroicons-document-text',
+      description: 'Product intended purpose'
+    }, {
+      label: 'Product Functions',
+      to: '/pcontext/product-function',
+      icon: 'i-heroicons-cog-6-tooth',
+      description: 'Product functions'
+    }]
   }]
 }, {
   label: 'Document Management',

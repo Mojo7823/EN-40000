@@ -129,9 +129,16 @@ export interface ProductContextState {
   evidenceEntries: RiskEvidenceEntry[]
 }
 
+export interface ProductFunctionState {
+  primaryFunctionsHtml: string
+  securityFunctionsHtml: string
+  evidenceEntries: RiskEvidenceEntry[]
+}
+
 export interface RiskManagementState {
   generalApproachHtml: string
   productContext: ProductContextState
+  productFunction: ProductFunctionState
 }
 
 export interface DocumentWorkspaceState {
@@ -160,6 +167,7 @@ const CONFORMANCE_LEVEL_VALUE_SET = new Set<ConformanceLevelStatus>(
 const TERMINOLOGY_ID_PREFIX = 'term-'
 
 export const RISK_PRODUCT_CONTEXT_SECTION_KEY = 'risk-product-context'
+export const RISK_PRODUCT_FUNCTION_SECTION_KEY = 'risk-product-function'
 
 export const RISK_EVIDENCE_STATUS_OPTIONS = [
   { value: 'not_started', label: 'Not Started' },
@@ -282,9 +290,25 @@ const defaultProductContextState: ProductContextState = {
   ],
 }
 
+const defaultProductFunctionState: ProductFunctionState = {
+  primaryFunctionsHtml: '',
+  securityFunctionsHtml: '',
+  evidenceEntries: [
+    {
+      id: `${RISK_PRODUCT_FUNCTION_SECTION_KEY}-evidence`,
+      sectionKey: RISK_PRODUCT_FUNCTION_SECTION_KEY,
+      title: 'Product Functions Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ],
+}
+
 const defaultRiskManagementState: RiskManagementState = {
   generalApproachHtml: '',
   productContext: cloneProductContextState(defaultProductContextState),
+  productFunction: cloneProductFunctionState(defaultProductFunctionState),
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -385,11 +409,26 @@ function cloneProductContextState(state?: ProductContextState | LegacyProductCon
   }
 }
 
+function cloneProductFunctionState(state?: ProductFunctionState): ProductFunctionState {
+  const source = state ?? defaultProductFunctionState
+  const evidenceSource =
+    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
+      ? source.evidenceEntries
+      : defaultProductFunctionState.evidenceEntries
+
+  return {
+    primaryFunctionsHtml: source.primaryFunctionsHtml ?? '',
+    securityFunctionsHtml: source.securityFunctionsHtml ?? '',
+    evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_PRODUCT_FUNCTION_SECTION_KEY),
+  }
+}
+
 function cloneRiskManagementState(state?: RiskManagementState): RiskManagementState {
   const source = state ?? defaultRiskManagementState
   return {
     generalApproachHtml: source.generalApproachHtml ?? '',
     productContext: cloneProductContextState(source.productContext),
+    productFunction: cloneProductFunctionState(source.productFunction),
   }
 }
 
@@ -838,6 +877,7 @@ export function updateRiskManagementState(
 ): DocumentWorkspaceState {
   const current = inMemoryState.riskManagement
   const currentProductContext = current.productContext || cloneProductContextState()
+  const currentProductFunction = current.productFunction || cloneProductFunctionState()
 
   let nextProductContext: ProductContextState
   if (patch.productContext) {
@@ -869,9 +909,38 @@ export function updateRiskManagementState(
     )
   }
 
+  let nextProductFunction: ProductFunctionState
+  if (patch.productFunction) {
+    const productFunctionPatch = patch.productFunction
+    const patchedEvidence =
+      productFunctionPatch.evidenceEntries !== undefined
+        ? productFunctionPatch.evidenceEntries.length
+          ? cloneEvidenceEntries(productFunctionPatch.evidenceEntries, RISK_PRODUCT_FUNCTION_SECTION_KEY)
+          : cloneEvidenceEntries(defaultProductFunctionState.evidenceEntries, RISK_PRODUCT_FUNCTION_SECTION_KEY)
+        : cloneEvidenceEntries(currentProductFunction.evidenceEntries, RISK_PRODUCT_FUNCTION_SECTION_KEY)
+
+    nextProductFunction = {
+      primaryFunctionsHtml:
+        productFunctionPatch.primaryFunctionsHtml ?? currentProductFunction.primaryFunctionsHtml,
+      securityFunctionsHtml:
+        productFunctionPatch.securityFunctionsHtml ?? currentProductFunction.securityFunctionsHtml,
+      evidenceEntries: patchedEvidence,
+    }
+  } else {
+    nextProductFunction = cloneProductFunctionState(currentProductFunction)
+  }
+
+  if (!nextProductFunction.evidenceEntries.length) {
+    nextProductFunction.evidenceEntries = cloneEvidenceEntries(
+      defaultProductFunctionState.evidenceEntries,
+      RISK_PRODUCT_FUNCTION_SECTION_KEY
+    )
+  }
+
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
     productContext: nextProductContext,
+    productFunction: nextProductFunction,
   }
 
   const next: DocumentWorkspaceState = {

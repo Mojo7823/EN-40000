@@ -23,9 +23,11 @@ def append_risk_management_section(
 
     general_html = _extract_value(payload, "general_approach_html")
     product_context_payload = getattr(payload, "product_context", None)
+    product_function_payload = getattr(payload, "product_function", None)
     has_product_context = _product_context_has_content(product_context_payload)
+    has_product_function = _product_function_has_content(product_function_payload)
 
-    if not general_html and not has_product_context:
+    if not general_html and not has_product_context and not has_product_function:
         return
 
     document.add_page_break()
@@ -76,17 +78,22 @@ def append_risk_management_section(
     if has_product_context:
         _append_product_context_section(document, product_context_payload, product_name)
 
+    if has_product_function:
+        _append_product_function_section(document, product_function_payload)
+
 
 def _append_product_context_section(
     document: Document, payload: Optional[object], product_name: str = "[Product Name]"
 ) -> None:
     from docx.shared import RGBColor
     
+    # Start 5.2 Product Context on a new page
+    document.add_page_break()
+    
     heading = document.add_paragraph()
     heading_run = heading.add_run("5.2 Product Context")
     heading_run.font.size = Pt(18)
     heading_run.font.bold = True
-    heading.space_before = Pt(12)
     heading.space_after = Pt(6)
 
     reference = document.add_paragraph("[Reference: Clause 6.2 - Product Context]")
@@ -222,6 +229,52 @@ def _product_context_has_content(payload: Optional[object]) -> bool:
             bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
         ]
     )
+
+
+def _product_function_has_content(payload: Optional[object]) -> bool:
+    if not payload:
+        return False
+    return any(
+        [
+            bool(_extract_value(payload, "primary_functions_html")),
+            bool(_extract_value(payload, "security_functions_html")),
+            bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
+        ]
+    )
+
+
+def _append_product_function_section(document: Document, payload: Optional[object]) -> None:
+    if not payload:
+        return
+
+    # Start 5.2.2 Product Functions on a new page
+    document.add_page_break()
+
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("5.2.2 Product Functions")
+    heading_run.font.size = Pt(16)
+    heading_run.font.bold = True
+    heading.space_after = Pt(6)
+
+    reference = document.add_paragraph("[Reference: Clause 6.2.1.3 - Product functions]")
+    reference.runs[0].font.bold = True
+    reference.space_after = Pt(10)
+
+    primary_html = _extract_value(payload, "primary_functions_html")
+    if primary_html:
+        append_html_to_document(document, primary_html)
+
+    security_html = _extract_value(payload, "security_functions_html")
+    if security_html:
+        security_label = document.add_paragraph()
+        security_run = security_label.add_run("Security Functions")
+        security_run.font.size = Pt(13)
+        security_run.font.bold = True
+        security_label.space_before = Pt(10)
+        security_label.space_after = Pt(6)
+        append_html_to_document(document, security_html)
+
+    _append_evidence_tracker(document, getattr(payload, "evidence_entries", None))
 
 
 def _extract_value(payload: object, field: str) -> Optional[str]:
