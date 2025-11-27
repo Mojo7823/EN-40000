@@ -156,12 +156,63 @@ class OperationalEnvironmentSection(BaseModel):
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 
+class HardwareComponentEntry(BaseModel):
+    """Hardware component for Product Architecture (Section 5.2.4)."""
+    component_name: Optional[str] = None
+    function: Optional[str] = None
+    interfaces: Optional[str] = None
+    security_functions: Optional[str] = None
+
+
+class SoftwareComponentEntry(BaseModel):
+    """Software component for Product Architecture (Section 5.2.4)."""
+    type: Optional[str] = None
+    function: Optional[str] = None
+    third_party: bool = False
+    interfaces: Optional[str] = None
+    security_functions: Optional[str] = None
+
+
+class RdpsComponentEntry(BaseModel):
+    """RDPS component for Product Architecture (Section 5.2.4)."""
+    component: Optional[str] = None
+    provider: Optional[str] = None
+    function: Optional[str] = None
+    location: Optional[str] = None
+    development_responsibility: Optional[str] = None
+    operation_responsibility: Optional[str] = None
+
+
+class ComponentInterfaceEntry(BaseModel):
+    """Component interface for Product Architecture (Section 5.2.4)."""
+    interface: Optional[str] = None
+    component_a: Optional[str] = None
+    component_b: Optional[str] = None
+    protocol: Optional[str] = None
+    authentication: Optional[str] = None
+    data_exchanged: Optional[str] = None
+
+
+class ProductArchitectureSection(BaseModel):
+    """Product Architecture Overview (Section 5.2.4)."""
+    architecture_description_html: Optional[str] = None
+    no_hardware_components: bool = False
+    hardware_components: List[HardwareComponentEntry] = Field(default_factory=list)
+    software_components: List[SoftwareComponentEntry] = Field(default_factory=list)
+    no_rdps_components: bool = False
+    rdps_components: List[RdpsComponentEntry] = Field(default_factory=list)
+    component_interfaces: List[ComponentInterfaceEntry] = Field(default_factory=list)
+    architecture_diagram_html: Optional[str] = None
+    evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
     product_context: Optional[ProductContextSection] = None
     product_function: Optional[ProductFunctionSection] = None
     operational_environment: Optional[OperationalEnvironmentSection] = None
+    product_architecture: Optional[ProductArchitectureSection] = None
 
 
 class CoverPreviewRequest(BaseModel):

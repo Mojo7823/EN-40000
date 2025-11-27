@@ -125,6 +125,11 @@ const items = ref([[{
       to: '/pcontext/operational-environment',
       icon: 'i-heroicons-server-stack',
       description: 'Product operational environment'
+    }, {
+      label: 'Product Architecture',
+      to: '/pcontext/product-architecture',
+      icon: 'i-heroicons-cube-transparent',
+      description: 'Hardware, software, RDPS components'
     }]
   }]
 }, {

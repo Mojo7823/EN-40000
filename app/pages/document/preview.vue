@@ -359,7 +359,7 @@ const SECTION_GROUP_DEFINITIONS = [
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment'],
+    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture'],
   },
 ]
 const userId = sessionService.getUserToken()
@@ -399,9 +399,11 @@ const riskManagement = computed(() => workspace.value.riskManagement)
 const productContextState = computed(() => riskManagement.value.productContext)
 const productFunctionState = computed(() => riskManagement.value.productFunction)
 const operationalEnvironmentState = computed(() => riskManagement.value.operationalEnvironment)
+const productArchitectureState = computed(() => riskManagement.value.productArchitecture)
 const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
 const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
 const operationalEnvEvidenceSummary = computed(() => summarizeEvidenceEntries(operationalEnvironmentState.value?.evidenceEntries ?? []))
+const productArchitectureEvidenceSummary = computed(() => summarizeEvidenceEntries(productArchitectureState.value?.evidenceEntries ?? []))
 
 const sectionList = computed(() => buildSectionStatuses())
 const sectionGroups = computed(() => buildSectionGroups(sectionList.value))
@@ -559,7 +561,18 @@ function buildRiskManagementPayload(state?: any) {
   const opEnvEvidenceEntries = normalizeEvidencePayload(operationalEnvironment?.evidenceEntries)
   const hasOperationalEnvironment = physicalEnvHtml || networkEnvHtml || systemEnvHtml || constraintsHtml || rdpsEnvHtml || opEnvEvidenceEntries.length
 
-  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment) {
+  // Product Architecture
+  const productArchitecture = state.productArchitecture
+  const archDescHtml = normalizeHtml(productArchitecture?.architectureDescriptionHtml)
+  const archDiagramHtml = normalizeHtml(productArchitecture?.architectureDiagramHtml)
+  const hwComponents = productArchitecture?.hardwareComponents || []
+  const swComponents = productArchitecture?.softwareComponents || []
+  const rdpsComponents = productArchitecture?.rdpsComponents || []
+  const compInterfaces = productArchitecture?.componentInterfaces || []
+  const archEvidenceEntries = normalizeEvidencePayload(productArchitecture?.evidenceEntries)
+  const hasProductArchitecture = archDescHtml || archDiagramHtml || hwComponents.length || swComponents.length || rdpsComponents.length || compInterfaces.length || archEvidenceEntries.length
+
+  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture) {
     return undefined
   }
 
@@ -568,6 +581,7 @@ function buildRiskManagementPayload(state?: any) {
     product_context?: Record<string, unknown>
     product_function?: Record<string, unknown>
     operational_environment?: Record<string, unknown>
+    product_architecture?: Record<string, unknown>
   } = {}
 
   if (generalHtml) {
@@ -599,6 +613,45 @@ function buildRiskManagementPayload(state?: any) {
       operational_constraints_html: constraintsHtml,
       rdps_environment_html: rdpsEnvHtml,
       evidence_entries: opEnvEvidenceEntries,
+    }
+  }
+
+  if (hasProductArchitecture) {
+    payload.product_architecture = {
+      architecture_description_html: archDescHtml,
+      no_hardware_components: productArchitecture?.noHardwareComponents || false,
+      hardware_components: hwComponents.map((c: any) => ({
+        component_name: c.componentName,
+        function: c.function,
+        interfaces: c.interfaces,
+        security_functions: c.securityFunctions,
+      })),
+      software_components: swComponents.map((c: any) => ({
+        type: c.type,
+        function: c.function,
+        third_party: c.thirdParty,
+        interfaces: c.interfaces,
+        security_functions: c.securityFunctions,
+      })),
+      no_rdps_components: productArchitecture?.noRdpsComponents || false,
+      rdps_components: rdpsComponents.map((c: any) => ({
+        component: c.component,
+        provider: c.provider,
+        function: c.function,
+        location: c.location,
+        development_responsibility: c.developmentResponsibility,
+        operation_responsibility: c.operationResponsibility,
+      })),
+      component_interfaces: compInterfaces.map((c: any) => ({
+        interface: c.interface,
+        component_a: c.componentA,
+        component_b: c.componentB,
+        protocol: c.protocol,
+        authentication: c.authentication,
+        data_exchanged: c.dataExchanged,
+      })),
+      architecture_diagram_html: archDiagramHtml,
+      evidence_entries: archEvidenceEntries,
     }
   }
 
@@ -909,6 +962,30 @@ function buildSectionStatuses() {
       '/pcontext/operational-environment',
       operationalEnvEvidenceSummary.value.total
         ? `${operationalEnvEvidenceSummary.value.completed}/${operationalEnvEvidenceSummary.value.total} evidence items ready`
+        : 'No evidence captured yet'
+    ),
+    createStatus(
+      'risk-product-architecture',
+      'Product Architecture (Section 5.2.4)',
+      'Hardware, software, RDPS components and interfaces.',
+      [
+        stripHtml(productArchitectureState.value?.architectureDescriptionHtml || ''),
+        productArchitectureState.value?.hardwareComponents?.length ? 'hw' : '',
+        productArchitectureState.value?.softwareComponents?.length ? 'sw' : '',
+        productArchitectureState.value?.rdpsComponents?.length ? 'rdps' : '',
+        productArchitectureState.value?.componentInterfaces?.length ? 'iface' : '',
+        stripHtml(productArchitectureState.value?.architectureDiagramHtml || ''),
+        productArchitectureEvidenceSummary.value.total
+          ? productArchitectureEvidenceSummary.value.state === 'completed'
+            ? 'complete'
+            : productArchitectureEvidenceSummary.value.state === 'partial'
+              ? 'progress'
+              : ''
+          : '',
+      ],
+      '/pcontext/product-architecture',
+      productArchitectureEvidenceSummary.value.total
+        ? `${productArchitectureEvidenceSummary.value.completed}/${productArchitectureEvidenceSummary.value.total} evidence items ready`
         : 'No evidence captured yet'
     ),
     createStatus(

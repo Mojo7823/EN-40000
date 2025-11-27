@@ -144,11 +144,66 @@ export interface ProductOperationalEnvironmentState {
   evidenceEntries: RiskEvidenceEntry[]
 }
 
+// Hardware Component Entry for Product Architecture
+export interface HardwareComponentEntry {
+  id: string
+  componentName: string
+  function: string
+  interfaces: string
+  securityFunctions: string
+}
+
+// Software Component Entry for Product Architecture
+export interface SoftwareComponentEntry {
+  id: string
+  type: string
+  function: string
+  thirdParty: boolean
+  interfaces: string
+  securityFunctions: string
+}
+
+// RDPS Component Entry for Product Architecture
+export interface RdpsComponentEntry {
+  id: string
+  component: string
+  provider: string
+  function: string
+  location: string
+  developmentResponsibility: string
+  operationResponsibility: string
+}
+
+// Component Interface Entry for Product Architecture
+export interface ComponentInterfaceEntry {
+  id: string
+  interface: string
+  componentA: string
+  componentB: string
+  protocol: string
+  authentication: string
+  dataExchanged: string
+}
+
+// Product Architecture State (Section 5.2.4)
+export interface ProductArchitectureState {
+  architectureDescriptionHtml: string
+  noHardwareComponents: boolean
+  hardwareComponents: HardwareComponentEntry[]
+  softwareComponents: SoftwareComponentEntry[]
+  noRdpsComponents: boolean
+  rdpsComponents: RdpsComponentEntry[]
+  componentInterfaces: ComponentInterfaceEntry[]
+  architectureDiagramHtml: string
+  evidenceEntries: RiskEvidenceEntry[]
+}
+
 export interface RiskManagementState {
   generalApproachHtml: string
   productContext: ProductContextState
   productFunction: ProductFunctionState
   operationalEnvironment: ProductOperationalEnvironmentState
+  productArchitecture: ProductArchitectureState
 }
 
 export interface DocumentWorkspaceState {
@@ -179,6 +234,7 @@ const TERMINOLOGY_ID_PREFIX = 'term-'
 export const RISK_PRODUCT_CONTEXT_SECTION_KEY = 'risk-product-context'
 export const RISK_PRODUCT_FUNCTION_SECTION_KEY = 'risk-product-function'
 export const RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY = 'risk-operational-environment'
+export const RISK_PRODUCT_ARCHITECTURE_SECTION_KEY = 'risk-product-architecture'
 
 export const RISK_EVIDENCE_STATUS_OPTIONS = [
   { value: 'not_started', label: 'Not Started' },
@@ -334,11 +390,33 @@ const defaultOperationalEnvironmentState: ProductOperationalEnvironmentState = {
   ],
 }
 
+const defaultProductArchitectureState: ProductArchitectureState = {
+  architectureDescriptionHtml: '',
+  noHardwareComponents: false,
+  hardwareComponents: [],
+  softwareComponents: [],
+  noRdpsComponents: false,
+  rdpsComponents: [],
+  componentInterfaces: [],
+  architectureDiagramHtml: '',
+  evidenceEntries: [
+    {
+      id: `${RISK_PRODUCT_ARCHITECTURE_SECTION_KEY}-evidence`,
+      sectionKey: RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
+      title: 'Product Architecture Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ],
+}
+
 const defaultRiskManagementState: RiskManagementState = {
   generalApproachHtml: '',
   productContext: cloneProductContextState(defaultProductContextState),
   productFunction: cloneProductFunctionState(defaultProductFunctionState),
   operationalEnvironment: cloneOperationalEnvironmentState(defaultOperationalEnvironmentState),
+  productArchitecture: cloneProductArchitectureState(defaultProductArchitectureState),
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -470,6 +548,26 @@ function cloneOperationalEnvironmentState(state?: ProductOperationalEnvironmentS
   }
 }
 
+function cloneProductArchitectureState(state?: ProductArchitectureState): ProductArchitectureState {
+  const source = state ?? defaultProductArchitectureState
+  const evidenceSource =
+    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
+      ? source.evidenceEntries
+      : defaultProductArchitectureState.evidenceEntries
+
+  return {
+    architectureDescriptionHtml: source.architectureDescriptionHtml ?? '',
+    noHardwareComponents: source.noHardwareComponents ?? false,
+    hardwareComponents: (source.hardwareComponents ?? []).map((c) => ({ ...c })),
+    softwareComponents: (source.softwareComponents ?? []).map((c) => ({ ...c })),
+    noRdpsComponents: source.noRdpsComponents ?? false,
+    rdpsComponents: (source.rdpsComponents ?? []).map((c) => ({ ...c })),
+    componentInterfaces: (source.componentInterfaces ?? []).map((c) => ({ ...c })),
+    architectureDiagramHtml: source.architectureDiagramHtml ?? '',
+    evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_PRODUCT_ARCHITECTURE_SECTION_KEY),
+  }
+}
+
 function cloneRiskManagementState(state?: RiskManagementState): RiskManagementState {
   const source = state ?? defaultRiskManagementState
   return {
@@ -477,6 +575,7 @@ function cloneRiskManagementState(state?: RiskManagementState): RiskManagementSt
     productContext: cloneProductContextState(source.productContext),
     productFunction: cloneProductFunctionState(source.productFunction),
     operationalEnvironment: cloneOperationalEnvironmentState(source.operationalEnvironment),
+    productArchitecture: cloneProductArchitectureState(source.productArchitecture),
   }
 }
 
@@ -1015,11 +1114,53 @@ export function updateRiskManagementState(
     )
   }
 
+  const currentProductArchitecture = current.productArchitecture || cloneProductArchitectureState()
+  let nextProductArchitecture: ProductArchitectureState
+  if (patch.productArchitecture) {
+    const archPatch = patch.productArchitecture
+    const patchedEvidence =
+      archPatch.evidenceEntries !== undefined
+        ? archPatch.evidenceEntries.length
+          ? cloneEvidenceEntries(archPatch.evidenceEntries, RISK_PRODUCT_ARCHITECTURE_SECTION_KEY)
+          : cloneEvidenceEntries(defaultProductArchitectureState.evidenceEntries, RISK_PRODUCT_ARCHITECTURE_SECTION_KEY)
+        : cloneEvidenceEntries(currentProductArchitecture.evidenceEntries, RISK_PRODUCT_ARCHITECTURE_SECTION_KEY)
+
+    nextProductArchitecture = {
+      architectureDescriptionHtml: archPatch.architectureDescriptionHtml ?? currentProductArchitecture.architectureDescriptionHtml,
+      noHardwareComponents: archPatch.noHardwareComponents ?? currentProductArchitecture.noHardwareComponents,
+      hardwareComponents: archPatch.hardwareComponents !== undefined
+        ? archPatch.hardwareComponents.map((c) => ({ ...c }))
+        : currentProductArchitecture.hardwareComponents.map((c) => ({ ...c })),
+      softwareComponents: archPatch.softwareComponents !== undefined
+        ? archPatch.softwareComponents.map((c) => ({ ...c }))
+        : currentProductArchitecture.softwareComponents.map((c) => ({ ...c })),
+      noRdpsComponents: archPatch.noRdpsComponents ?? currentProductArchitecture.noRdpsComponents,
+      rdpsComponents: archPatch.rdpsComponents !== undefined
+        ? archPatch.rdpsComponents.map((c) => ({ ...c }))
+        : currentProductArchitecture.rdpsComponents.map((c) => ({ ...c })),
+      componentInterfaces: archPatch.componentInterfaces !== undefined
+        ? archPatch.componentInterfaces.map((c) => ({ ...c }))
+        : currentProductArchitecture.componentInterfaces.map((c) => ({ ...c })),
+      architectureDiagramHtml: archPatch.architectureDiagramHtml ?? currentProductArchitecture.architectureDiagramHtml,
+      evidenceEntries: patchedEvidence,
+    }
+  } else {
+    nextProductArchitecture = cloneProductArchitectureState(currentProductArchitecture)
+  }
+
+  if (!nextProductArchitecture.evidenceEntries.length) {
+    nextProductArchitecture.evidenceEntries = cloneEvidenceEntries(
+      defaultProductArchitectureState.evidenceEntries,
+      RISK_PRODUCT_ARCHITECTURE_SECTION_KEY
+    )
+  }
+
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
     productContext: nextProductContext,
     productFunction: nextProductFunction,
     operationalEnvironment: nextOperationalEnvironment,
+    productArchitecture: nextProductArchitecture,
   }
 
   const next: DocumentWorkspaceState = {
