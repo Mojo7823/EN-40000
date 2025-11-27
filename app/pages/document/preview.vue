@@ -56,6 +56,7 @@
     </UCard>
 
     <div class="space-y-6">
+      <!-- Section Status Card -->
       <UCard>
         <template #header>
           <div class="flex items-center justify-between">
@@ -88,7 +89,7 @@
               </div>
               <UBadge
                 class="shrink-0 whitespace-nowrap self-start"
-                :color="getGroupStatusColor(item.state) as any"
+                :color="getStatusColor(item.state) as any"
                 variant="subtle"
               >
                 {{ item.stateLabel }}
@@ -102,7 +103,7 @@
                 v-for="section in item.items"
                 :key="section.key"
                 class="relative p-3 rounded-lg border transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                :class="getSectionBorderColor(section)"
+                :class="getSectionBorderClasses(section.status)"
                 role="link"
                 tabindex="0"
                 @click="navigateTo(section.to)"
@@ -132,6 +133,7 @@
         </UAccordion>
       </UCard>
 
+      <!-- DOCX Preview Card -->
       <UCard>
         <template #header>
           <div class="flex items-center justify-between flex-wrap gap-2">
@@ -141,24 +143,24 @@
             </div>
             <div class="flex gap-2 flex-wrap items-center">
               <!-- Zoom Controls -->
-              <div v-if="hasGeneratedDocx" class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div v-if="docxPreview.hasGenerated.value" class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <UButton
                   size="xs"
                   variant="ghost"
                   color="neutral"
                   icon="i-heroicons-minus"
-                  :disabled="zoomLevel <= 50"
-                  @click="zoomOut"
+                  :disabled="docxPreview.zoomLevel.value <= 50"
+                  @click="docxPreview.zoomOut"
                   title="Zoom Out"
                 />
-                <span class="text-xs font-medium min-w-[45px] text-center">{{ zoomLevel }}%</span>
+                <span class="text-xs font-medium min-w-[45px] text-center">{{ docxPreview.zoomLevel.value }}%</span>
                 <UButton
                   size="xs"
                   variant="ghost"
                   color="neutral"
                   icon="i-heroicons-plus"
-                  :disabled="zoomLevel >= 200"
-                  @click="zoomIn"
+                  :disabled="docxPreview.zoomLevel.value >= 200"
+                  @click="docxPreview.zoomIn"
                   title="Zoom In"
                 />
                 <UButton
@@ -166,30 +168,30 @@
                   variant="ghost"
                   color="neutral"
                   icon="i-heroicons-arrow-path"
-                  @click="resetZoom"
+                  @click="docxPreview.resetZoom"
                   title="Reset Zoom"
                 />
               </div>
 
               <!-- Page Navigation -->
-              <div v-if="hasGeneratedDocx && totalPages > 1" class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div v-if="docxPreview.hasGenerated.value && docxPreview.totalPages.value > 1" class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <UButton
                   size="xs"
                   variant="ghost"
                   color="neutral"
                   icon="i-heroicons-chevron-left"
-                  :disabled="currentPage <= 1"
-                  @click="previousPage"
+                  :disabled="docxPreview.currentPage.value <= 1"
+                  @click="docxPreview.previousPage"
                   title="Previous Page"
                 />
-                <span class="text-xs font-medium min-w-[60px] text-center">{{ currentPage }} / {{ totalPages }}</span>
+                <span class="text-xs font-medium min-w-[60px] text-center">{{ docxPreview.currentPage.value }} / {{ docxPreview.totalPages.value }}</span>
                 <UButton
                   size="xs"
                   variant="ghost"
                   color="neutral"
                   icon="i-heroicons-chevron-right"
-                  :disabled="currentPage >= totalPages"
-                  @click="nextPage"
+                  :disabled="docxPreview.currentPage.value >= docxPreview.totalPages.value"
+                  @click="docxPreview.nextPage"
                   title="Next Page"
                 />
               </div>
@@ -216,18 +218,18 @@
 
         <!-- DOCX Preview -->
         <div class="relative min-h-[520px] max-h-[75vh] border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 p-3 overflow-auto" ref="previewShell">
-          <div v-if="docxLoading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-10">
+          <div v-if="docxPreview.loading.value" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-10">
             <div class="text-center">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Rendering DOCX...</div>
             </div>
           </div>
-          <div v-else-if="docxError" class="flex items-center justify-center min-h-[400px]">
+          <div v-else-if="docxPreview.error.value" class="flex items-center justify-center min-h-[400px]">
             <div class="text-center text-red-600">
               <p class="font-medium">Error rendering DOCX</p>
-              <p class="text-sm mt-1">{{ docxError }}</p>
+              <p class="text-sm mt-1">{{ docxPreview.error.value }}</p>
             </div>
           </div>
-          <div v-else-if="!hasGeneratedDocx" class="flex items-center justify-center min-h-[400px]">
+          <div v-else-if="!docxPreview.hasGenerated.value" class="flex items-center justify-center min-h-[400px]">
             <div class="text-center text-gray-500">
               <p class="font-medium">No DOCX preview available</p>
               <p class="text-sm mt-1">Generate a document to see the DOCX preview</p>
@@ -236,12 +238,13 @@
           <div
             ref="docxPreviewContainer"
             class="docx-preview-container"
-            :class="{ 'hidden': docxLoading || !!docxError || !hasGeneratedDocx }"
-            :style="{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }"
+            :class="{ 'hidden': docxPreview.loading.value || !!docxPreview.error.value || !docxPreview.hasGenerated.value }"
+            :style="{ transform: `scale(${docxPreview.zoomLevel.value / 100})`, transformOrigin: 'top center' }"
           ></div>
         </div>
       </UCard>
 
+      <!-- Generated Files Card -->
       <UCard v-if="generatedFiles.length">
         <template #header>
           <div class="flex items-center justify-between">
@@ -289,84 +292,51 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
-import { renderAsync } from 'docx-preview'
-import { sessionService } from '~/services/sessionService'
-import { dataUrlToFile } from '~/utils/dataUrl'
-import { CONFORMANCE_LEVEL_OPTIONS, REGULATORY_PRIMARY_REFERENCES } from '~/constants/conformance'
+import { useDocxPreview } from '~/composables/useDocxPreview'
+import { usePreviewSections } from '~/composables/usePreviewSections'
+import { buildCoverPreviewPayload, uploadCoverImageIfNeeded } from '~/composables/useCoverPreview'
+import { getStatusColor, getSectionBorderClasses, getStatusLabel } from '~/utils/previewStatus'
 
 const workspaceService = useDocumentWorkspace()
 const toast = useToast()
 
+// Workspace state
 const workspace = ref(workspaceService.loadDocumentWorkspace())
 const loading = ref(false)
 const error = ref('')
 const success = ref('')
 const generatedFiles = ref<Array<{ filename: string; path: string; timestamp: string; section?: string }>>([])
 
-// DOCX Preview state
+// DOM refs for DOCX preview
 const docxPreviewContainer = ref<HTMLDivElement | null>(null)
 const previewShell = ref<HTMLDivElement | null>(null)
-const latestDocPath = ref<string | null>(null)
-const docxLoading = ref(false)
-const docxError = ref('')
-const hasGeneratedDocx = ref(false)
-const zoomLevel = ref(100)
-const currentPage = ref(1)
-const totalPages = ref(1)
 
-const DOCX_PAGE_SELECTOR = '.docx-wrapper > section.docx'
-type SectionGroup = {
-  key: string
-  title: string
-  description: string
-  state: string
-  stateLabel: string
-  items: Array<ReturnType<typeof createStatus>>
-}
-const SECTION_GROUP_DEFINITIONS = [
-  {
-    key: 'cover-intro',
-    title: 'Cover & Introduction',
-    description: 'Cover metadata, document info, and purpose/scope.',
-    children: ['cover', 'document-info', 'purpose-scope', 'product-identification', 'manufacturer-information'],
-  },
-  {
-    key: 'product-overview',
-    title: 'Product Overview',
-    description: 'Description, architecture, and third-party components.',
-    children: ['product-overview-description', 'product-overview-architecture', 'third-party-components'],
-  },
-  {
-    key: 'conformance',
-    title: 'Conformance Claim',
-    description: 'Standards, regulatory references, and conformance level.',
-    children: ['conformance-standards', 'conformance-regulatory', 'conformance-level'],
-  },
-  {
-    key: 'document-convention',
-    title: 'Document Convention',
-    description: 'Terminology and notation settings.',
-    children: ['terminology', 'notation'],
-  },
-  {
-    key: 'evidence-management',
-    title: 'Evidence Tracking',
-    description: 'Supporting documentation readiness.',
-    children: ['evidence-tracker'],
-  },
-  {
-    key: 'risk-management',
-    title: 'Risk Management Elements',
-    description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture'],
-  },
-]
-const userId = sessionService.getUserToken()
+// Composables
+const docxPreview = useDocxPreview(docxPreviewContainer, previewShell)
+const workspaceComputed = computed(() => workspace.value)
+const { sectionList, sectionGroups, allMissing, completionPercentage } = usePreviewSections(workspaceComputed)
+
+// Accordion items for UAccordion
+const accordionItems = computed(() =>
+  sectionGroups.value.map((group) => ({
+    ...group,
+    label: group.title,
+    value: group.key,
+  }))
+)
+
+// Last updated label
+const lastUpdatedLabel = computed(() => {
+  const value = workspace.value.lastUpdated
+  if (!value) return 'Not set'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+})
 
 // Subscribe to workspace changes
 let unsubscribe: (() => void) | null = null
-const previewScrollHandler = () => updateCurrentPageFromScroll()
 
 onMounted(() => {
   unsubscribe = workspaceService.subscribeDocumentWorkspace((state) => {
@@ -376,711 +346,11 @@ onMounted(() => {
 
 onUnmounted(() => {
   unsubscribe?.()
-  previewShell.value?.removeEventListener('scroll', previewScrollHandler)
 })
 
-watch(
-  () => previewShell.value,
-  (next, previous) => {
-    previous?.removeEventListener('scroll', previewScrollHandler)
-    next?.addEventListener('scroll', previewScrollHandler, { passive: true })
-  }
-)
-
-const cover = computed(() => workspace.value.cover)
-const introduction = computed(() => workspace.value.introduction)
-const purposeScope = computed(() => workspace.value.purposeScope)
-const productIdentification = computed(() => workspace.value.productIdentification)
-const manufacturerInformation = computed(() => workspace.value.manufacturerInformation)
-const productOverview = computed(() => workspace.value.productOverview)
-const conformanceClaim = computed(() => workspace.value.conformanceClaim)
-const documentConvention = computed(() => workspace.value.documentConvention)
-const riskManagement = computed(() => workspace.value.riskManagement)
-const productContextState = computed(() => riskManagement.value.productContext)
-const productFunctionState = computed(() => riskManagement.value.productFunction)
-const operationalEnvironmentState = computed(() => riskManagement.value.operationalEnvironment)
-const productArchitectureState = computed(() => riskManagement.value.productArchitecture)
-const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
-const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
-const operationalEnvEvidenceSummary = computed(() => summarizeEvidenceEntries(operationalEnvironmentState.value?.evidenceEntries ?? []))
-const productArchitectureEvidenceSummary = computed(() => summarizeEvidenceEntries(productArchitectureState.value?.evidenceEntries ?? []))
-
-const sectionList = computed(() => buildSectionStatuses())
-const sectionGroups = computed(() => buildSectionGroups(sectionList.value))
-const accordionItems = computed(() =>
-  sectionGroups.value.map((group) => ({
-    ...group,
-    label: group.title,
-    value: group.key,
-  }))
-)
-const allMissing = computed(() => sectionList.value.every((section) => section.status === 'missing'))
-
-const completionPercentage = computed(() => {
-  const totals = sectionList.value.reduce(
-    (acc, section) => {
-      acc.filled += section.filled ?? 0
-      acc.total += section.total ?? 0
-      return acc
-    },
-    { filled: 0, total: 0 }
-  )
-  return totals.total > 0 ? Math.round((totals.filled / totals.total) * 100) : 0
-})
-
-const lastUpdatedLabel = computed(() => {
-  const value = workspace.value.lastUpdated
-  if (!value) return 'Not set'
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
-})
-
-function stripHtml(value?: string | null) {
-  if (!value) return ''
-  if (typeof window === 'undefined') {
-    return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-  }
-  const div = document.createElement('div')
-  div.innerHTML = value
-  return div.textContent?.trim() ?? ''
-}
-
-function normalizeHtml(value?: string | null) {
-  if (!value) return undefined
-  const trimmed = value.trim()
-  if (!trimmed) return undefined
-  return stripHtml(trimmed) ? trimmed : undefined
-}
-
-function normalizePlainText(value?: string | null) {
-  if (!value) return undefined
-  const trimmed = value.trim()
-  return trimmed.length ? trimmed : undefined
-}
-
-function escapeHtml(value?: string | null) {
-  if (!value) return ''
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
-
-function summarizeRegulatoryEntries(state?: any) {
-  if (!state || !Array.isArray(state.additionalRegulations)) return ''
-  return state.additionalRegulations
-    .map((entry: any) => entry.regulation || entry.description)
-    .map((value: string) => value?.trim() ?? '')
-    .filter((value: string) => value.length > 0)
-    .slice(0, 3)
-    .join(', ')
-}
-
-function buildRegulatoryHtml(state?: any) {
-  const baseList = REGULATORY_PRIMARY_REFERENCES.map((item) => `<li>${escapeHtml(item)}</li>`).join('')
-  const otherEntries = (state?.additionalRegulations ?? [])
-    .map((entry: any) => {
-      const regulation = entry.regulation?.trim() ?? ''
-      const description = entry.description?.trim() ?? ''
-      if (!regulation && !description) return ''
-      const label = regulation ? `<strong>${escapeHtml(regulation)}</strong>` : ''
-      const detail = description ? `${regulation ? ' — ' : ''}${escapeHtml(description)}` : ''
-      const content = label ? `${label}${detail}` : detail || '—'
-      return `<li>${content}</li>`
-    })
-    .filter(Boolean)
-    .join('')
-  const otherSection = otherEntries ? `<p>Other Applicable Regulations:</p><ul>${otherEntries}</ul>` : ''
-
-  return `<p>[Reference: Annex C - Relationship with CRA]</p>
-<p>This product is intended to conform to the essential cybersecurity requirements of:</p>
-<ul>${baseList}</ul>
-${otherSection}`
-}
-
-function buildConformanceLevelHtml(state?: any) {
-  const statuses = state?.statuses ?? []
-  const statusLine = CONFORMANCE_LEVEL_OPTIONS.map((option) => {
-    const symbol = statuses.includes(option.value) ? '☑' : '☐'
-    return `${symbol} ${option.label}`
-  }).join(' ')
-  const justificationHtml =
-    state?.justificationHtml && stripHtml(state.justificationHtml) ? state.justificationHtml : ''
-  const justificationBlock =
-    justificationHtml || '<p>[Explain which requirements are not met and why]</p>'
-
-  return `<p><strong>Overall Conformance Status:</strong></p>
-<p>${statusLine}</p>
-<p><strong>Justification for Partial Conformance (if applicable):</strong></p>
-${justificationBlock}`
-}
-
-function summarizeEvidenceEntries(entries: any[]) {
-  if (!entries.length) {
-    return { total: 0, completed: 0, state: 'missing' as const }
-  }
-  const completed = entries.filter((entry) => entry.status === 'complete').length
-  const inProgress = entries.filter((entry) => entry.status === 'in_progress').length
-  const state =
-    completed === entries.length
-      ? ('completed' as const)
-      : completed > 0 || inProgress > 0
-        ? ('partial' as const)
-        : ('missing' as const)
-  return { total: entries.length, completed, state }
-}
-
-function buildRiskManagementPayload(state?: any) {
-  if (!state) return undefined
-  const generalHtml = normalizeHtml(state.generalApproachHtml)
-  
-  // Product Context
-  const productContext = state.productContext
-  const intendedPurposeHtml = normalizeHtml(productContext?.intendedPurposeHtml)
-  const specificUsesHtml = normalizeHtml(productContext?.specificIntendedUsesHtml)
-  const foreseeableUseHtml = normalizeHtml(productContext?.foreseeableUseHtml)
-  const contextEvidenceEntries = normalizeEvidencePayload(productContext?.evidenceEntries)
-  const hasProductContext = intendedPurposeHtml || specificUsesHtml || foreseeableUseHtml || contextEvidenceEntries.length
-
-  // Product Function
-  const productFunction = state.productFunction
-  const primaryFunctionsHtml = normalizeHtml(productFunction?.primaryFunctionsHtml)
-  const securityFunctionsHtml = normalizeHtml(productFunction?.securityFunctionsHtml)
-  const functionEvidenceEntries = normalizeEvidencePayload(productFunction?.evidenceEntries)
-  const hasProductFunction = primaryFunctionsHtml || securityFunctionsHtml || functionEvidenceEntries.length
-
-  // Operational Environment
-  const operationalEnvironment = state.operationalEnvironment
-  const physicalEnvHtml = normalizeHtml(operationalEnvironment?.physicalEnvironmentHtml)
-  const networkEnvHtml = normalizeHtml(operationalEnvironment?.networkEnvironmentHtml)
-  const systemEnvHtml = normalizeHtml(operationalEnvironment?.systemEnvironmentHtml)
-  const constraintsHtml = normalizeHtml(operationalEnvironment?.operationalConstraintsHtml)
-  const rdpsEnvHtml = normalizeHtml(operationalEnvironment?.rdpsEnvironmentHtml)
-  const opEnvEvidenceEntries = normalizeEvidencePayload(operationalEnvironment?.evidenceEntries)
-  const hasOperationalEnvironment = physicalEnvHtml || networkEnvHtml || systemEnvHtml || constraintsHtml || rdpsEnvHtml || opEnvEvidenceEntries.length
-
-  // Product Architecture
-  const productArchitecture = state.productArchitecture
-  const archDescHtml = normalizeHtml(productArchitecture?.architectureDescriptionHtml)
-  const archDiagramHtml = normalizeHtml(productArchitecture?.architectureDiagramHtml)
-  const hwComponents = productArchitecture?.hardwareComponents || []
-  const swComponents = productArchitecture?.softwareComponents || []
-  const rdpsComponents = productArchitecture?.rdpsComponents || []
-  const compInterfaces = productArchitecture?.componentInterfaces || []
-  const archEvidenceEntries = normalizeEvidencePayload(productArchitecture?.evidenceEntries)
-  const hasProductArchitecture = archDescHtml || archDiagramHtml || hwComponents.length || swComponents.length || rdpsComponents.length || compInterfaces.length || archEvidenceEntries.length
-
-  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture) {
-    return undefined
-  }
-
-  const payload: {
-    general_approach_html?: string
-    product_context?: Record<string, unknown>
-    product_function?: Record<string, unknown>
-    operational_environment?: Record<string, unknown>
-    product_architecture?: Record<string, unknown>
-  } = {}
-
-  if (generalHtml) {
-    payload.general_approach_html = generalHtml
-  }
-
-  if (hasProductContext) {
-    payload.product_context = {
-      intended_purpose_html: intendedPurposeHtml,
-      specific_intended_uses_html: specificUsesHtml,
-      foreseeable_use_html: foreseeableUseHtml,
-      evidence_entries: contextEvidenceEntries,
-    }
-  }
-
-  if (hasProductFunction) {
-    payload.product_function = {
-      primary_functions_html: primaryFunctionsHtml,
-      security_functions_html: securityFunctionsHtml,
-      evidence_entries: functionEvidenceEntries,
-    }
-  }
-
-  if (hasOperationalEnvironment) {
-    payload.operational_environment = {
-      physical_environment_html: physicalEnvHtml,
-      network_environment_html: networkEnvHtml,
-      system_environment_html: systemEnvHtml,
-      operational_constraints_html: constraintsHtml,
-      rdps_environment_html: rdpsEnvHtml,
-      evidence_entries: opEnvEvidenceEntries,
-    }
-  }
-
-  if (hasProductArchitecture) {
-    payload.product_architecture = {
-      architecture_description_html: archDescHtml,
-      no_hardware_components: productArchitecture?.noHardwareComponents || false,
-      hardware_components: hwComponents.map((c: any) => ({
-        component_name: c.componentName,
-        function: c.function,
-        interfaces: c.interfaces,
-        security_functions: c.securityFunctions,
-      })),
-      software_components: swComponents.map((c: any) => ({
-        type: c.type,
-        function: c.function,
-        third_party: c.thirdParty,
-        interfaces: c.interfaces,
-        security_functions: c.securityFunctions,
-      })),
-      no_rdps_components: productArchitecture?.noRdpsComponents || false,
-      rdps_components: rdpsComponents.map((c: any) => ({
-        component: c.component,
-        provider: c.provider,
-        function: c.function,
-        location: c.location,
-        development_responsibility: c.developmentResponsibility,
-        operation_responsibility: c.operationResponsibility,
-      })),
-      component_interfaces: compInterfaces.map((c: any) => ({
-        interface: c.interface,
-        component_a: c.componentA,
-        component_b: c.componentB,
-        protocol: c.protocol,
-        authentication: c.authentication,
-        data_exchanged: c.dataExchanged,
-      })),
-      architecture_diagram_html: archDiagramHtml,
-      evidence_entries: archEvidenceEntries,
-    }
-  }
-
-  return payload
-}
-
-function normalizeEvidencePayload(entries?: any[]) {
-  if (!entries) return []
-  return entries
-    .map((entry) => {
-      const reference = normalizePlainText(entry.referenceId)
-      const title = normalizePlainText(entry.title)
-      const notesHtml = normalizeHtml(entry.descriptionHtml)
-      if (!reference && !title && !notesHtml) {
-        return null
-      }
-      return {
-        section_key: entry.sectionKey || 'risk-product-context',
-        reference_id: reference,
-        title,
-        status: entry.status,
-        notes_html: notesHtml,
-      }
-    })
-    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
-}
-
-function evaluateCompletion(values: Array<string | undefined | null>) {
-  const normalized = values.map((value) => {
-    if (typeof value === 'string') {
-      return stripHtml(value.trim())
-    }
-    if (value === null || value === undefined) {
-      return ''
-    }
-    return String(value).trim()
-  })
-  const total = normalized.length
-  const filled = normalized.filter((value) => value.length > 0).length
-  if (total === 0 || filled === 0) {
-    return { state: 'missing' as const, filled, total }
-  }
-  if (filled === total) {
-    return { state: 'completed' as const, filled, total }
-  }
-  return { state: 'partial' as const, filled, total }
-}
-
-function createStatus(
-  key: string,
-  title: string,
-  description: string,
-  values: Array<string | undefined | null>,
-  to: string,
-  summaryOverride?: string
-) {
-  const completion = evaluateCompletion(values)
-  const status = completion.state === 'completed' ? 'done' : completion.state
-  const summary =
-    summaryOverride ||
-    (completion.total
-      ? `${completion.filled} of ${completion.total} fields completed`
-      : 'No data yet')
-  return {
-    key,
-    title,
-    description,
-    status,
-    summary,
-    to,
-    filled: completion.filled,
-    total: completion.total,
-  }
-}
-
-function buildSectionStatuses() {
-  const introductionState = introduction.value
-  const purposeScopeState = purposeScope.value
-  const productIdentificationState = productIdentification.value
-  const manufacturerInformationState = manufacturerInformation.value
-  const productOverviewState = productOverview.value
-  const conformanceClaimState = conformanceClaim.value
-  const documentConventionState = documentConvention.value
-
-  return [
-    createStatus(
-      'cover',
-      'Cover',
-      'Device metadata, versioning, and lab details.',
-      [
-        cover.value.deviceName,
-        cover.value.deviceDescription,
-        cover.value.versionNumber,
-        cover.value.labName,
-        cover.value.labAddress,
-      ],
-      '/document/cover'
-    ),
-    createStatus(
-      'document-info',
-      'Document Information',
-      'Product identification, manufacturer, and responsible parties.',
-      [
-        introductionState.productName,
-        introductionState.productVersion,
-        introductionState.productType,
-        introductionState.manufacturerName,
-        introductionState.manufacturerAddress,
-        introductionState.status,
-        introductionState.preparedBy,
-        introductionState.reviewedBy,
-        introductionState.approvedBy,
-      ],
-      '/document/introduction'
-    ),
-    createStatus(
-      'purpose-scope',
-      'Purpose & Scope',
-      'Lifecycle phases, assessment period, and methodology.',
-      [
-        purposeScopeState.scopeSelections.length > 0 ? 'yes' : '',
-        purposeScopeState.assessmentStart,
-        purposeScopeState.assessmentEnd,
-        stripHtml(purposeScopeState.methodologyHtml),
-      ],
-      '/document/purpose-scope'
-    ),
-    createStatus(
-      'product-identification',
-      'Product Identification',
-      'Product description, key functions, and target market.',
-      [
-        introductionState.productName,
-        introductionState.productVersion,
-        introductionState.productType,
-        stripHtml(productIdentificationState.productDescriptionHtml),
-        stripHtml(productIdentificationState.keyFunctionsHtml),
-        productIdentificationState.targetMarket,
-      ],
-      '/document/product-identification'
-    ),
-    createStatus(
-      'manufacturer-information',
-      'Manufacturer Information',
-      'Legal entity details and primary contact information.',
-      [
-        manufacturerInformationState.legalEntity,
-        manufacturerInformationState.registrationNumber,
-        manufacturerInformationState.address,
-        manufacturerInformationState.contactPerson,
-        manufacturerInformationState.phone,
-      ],
-      '/document/manufacturer-information'
-    ),
-    createStatus(
-      'product-overview-description',
-      'Product Description',
-      'Narrative covering physical, software, and data-processing characteristics.',
-      [stripHtml(productOverviewState.productDescriptionHtml)],
-      '/product-overview/description'
-    ),
-    createStatus(
-      'product-overview-architecture',
-      'Product Architecture Overview',
-      'High-level components, interfaces, and remote services.',
-      [stripHtml(productOverviewState.productArchitectureHtml)],
-      '/product-overview/architecture'
-    ),
-    createStatus(
-      'third-party-components',
-      'Third-Party Components',
-      'Component inventory, management approach, and evidence.',
-      [
-        productOverviewState.thirdPartyComponents.entries.length ? 'entries' : '',
-        stripHtml(productOverviewState.thirdPartyComponents.managementApproachHtml),
-        stripHtml(productOverviewState.thirdPartyComponents.evidenceReferenceHtml),
-      ],
-      '/product-overview/third-party-components'
-    ),
-    createStatus(
-      'conformance-standards',
-      'Standards Conformance',
-      'Primary standard plus related standards applied.',
-      [
-        [
-          conformanceClaimState.standardsConformance.primaryStandard.code,
-          conformanceClaimState.standardsConformance.primaryStandard.description,
-        ]
-          .filter((value) => !!value && value.trim().length)
-          .join(' '),
-        conformanceClaimState.standardsConformance.relatedStandards.length
-          ? 'related'
-          : conformanceClaimState.standardsConformance.includeOther &&
-              conformanceClaimState.standardsConformance.otherNotes
-            ? conformanceClaimState.standardsConformance.otherNotes
-            : '',
-      ],
-      '/conformance/standards'
-    ),
-    createStatus(
-      'conformance-regulatory',
-      'Regulatory Conformance',
-      'CRA clauses plus other applicable regulations.',
-      [summarizeRegulatoryEntries(conformanceClaimState.regulatoryConformance)],
-      '/conformance/regulatory'
-    ),
-    createStatus(
-      'conformance-level',
-      'Conformance Level',
-      'Claimed assurance tier and supporting evidence.',
-      [
-        conformanceClaimState.conformanceLevel.statuses.length ? 'status' : '',
-        stripHtml(conformanceClaimState.conformanceLevel.justificationHtml),
-      ],
-      '/conformance/level',
-      conformanceClaimState.conformanceLevel.statuses.length
-        ? `Status: ${conformanceClaimState.conformanceLevel.statuses.join(', ')}`
-        : 'No conformance level declared'
-    ),
-    createStatus(
-      'terminology',
-      'Terminology',
-      'Terms and definitions used throughout the document.',
-      [
-        documentConventionState.terminologyEntries.length
-          ? String(documentConventionState.terminologyEntries.length)
-          : '',
-      ],
-      '/convention/terminology'
-    ),
-    createStatus(
-      'notation',
-      'Notation',
-      'Evidence, requirement, and assessment verdict guidance.',
-      [
-        stripHtml(documentConventionState.evidenceNotationHtml),
-        stripHtml(documentConventionState.requirementNotationHtml),
-        stripHtml(documentConventionState.assessmentVerdictsHtml),
-      ],
-      '/convention/notation'
-    ),
-    createStatus(
-      'risk-general',
-      'General Approach to Risk Management',
-      'Lifecycle risk management narrative and references.',
-      [stripHtml(riskManagement.value.generalApproachHtml)],
-      '/risk/general-approach'
-    ),
-    createStatus(
-      'risk-product-context',
-      'Product Context (Section 5.2.1)',
-      'Intended purpose, foreseeable use, and supporting evidence.',
-      [
-        stripHtml(productContextState.value?.intendedPurposeHtml || ''),
-        stripHtml(productContextState.value?.specificIntendedUsesHtml || ''),
-        stripHtml(productContextState.value?.foreseeableUseHtml || ''),
-        evidenceSummary.value.total
-          ? evidenceSummary.value.state === 'completed'
-            ? 'complete'
-            : evidenceSummary.value.state === 'partial'
-              ? 'progress'
-              : ''
-          : '',
-      ],
-      '/pcontext/intended-purpose',
-      evidenceSummary.value.total
-        ? `${evidenceSummary.value.completed}/${evidenceSummary.value.total} evidence items ready`
-        : 'No evidence captured yet'
-    ),
-    createStatus(
-      'risk-product-function',
-      'Product Functions (Section 5.2.2)',
-      'Primary and security functions of the product.',
-      [
-        stripHtml(productFunctionState.value?.primaryFunctionsHtml || ''),
-        stripHtml(productFunctionState.value?.securityFunctionsHtml || ''),
-        productFunctionEvidenceSummary.value.total
-          ? productFunctionEvidenceSummary.value.state === 'completed'
-            ? 'complete'
-            : productFunctionEvidenceSummary.value.state === 'partial'
-              ? 'progress'
-              : ''
-          : '',
-      ],
-      '/pcontext/product-function',
-      productFunctionEvidenceSummary.value.total
-        ? `${productFunctionEvidenceSummary.value.completed}/${productFunctionEvidenceSummary.value.total} evidence items ready`
-        : 'No evidence captured yet'
-    ),
-    createStatus(
-      'risk-operational-environment',
-      'Operational Environment (Section 5.2.3)',
-      'Physical, network, system environments and RDPS dependencies.',
-      [
-        stripHtml(operationalEnvironmentState.value?.physicalEnvironmentHtml || ''),
-        stripHtml(operationalEnvironmentState.value?.networkEnvironmentHtml || ''),
-        stripHtml(operationalEnvironmentState.value?.systemEnvironmentHtml || ''),
-        stripHtml(operationalEnvironmentState.value?.operationalConstraintsHtml || ''),
-        stripHtml(operationalEnvironmentState.value?.rdpsEnvironmentHtml || ''),
-        operationalEnvEvidenceSummary.value.total
-          ? operationalEnvEvidenceSummary.value.state === 'completed'
-            ? 'complete'
-            : operationalEnvEvidenceSummary.value.state === 'partial'
-              ? 'progress'
-              : ''
-          : '',
-      ],
-      '/pcontext/operational-environment',
-      operationalEnvEvidenceSummary.value.total
-        ? `${operationalEnvEvidenceSummary.value.completed}/${operationalEnvEvidenceSummary.value.total} evidence items ready`
-        : 'No evidence captured yet'
-    ),
-    createStatus(
-      'risk-product-architecture',
-      'Product Architecture (Section 5.2.4)',
-      'Hardware, software, RDPS components and interfaces.',
-      [
-        stripHtml(productArchitectureState.value?.architectureDescriptionHtml || ''),
-        productArchitectureState.value?.hardwareComponents?.length ? 'hw' : '',
-        productArchitectureState.value?.softwareComponents?.length ? 'sw' : '',
-        productArchitectureState.value?.rdpsComponents?.length ? 'rdps' : '',
-        productArchitectureState.value?.componentInterfaces?.length ? 'iface' : '',
-        stripHtml(productArchitectureState.value?.architectureDiagramHtml || ''),
-        productArchitectureEvidenceSummary.value.total
-          ? productArchitectureEvidenceSummary.value.state === 'completed'
-            ? 'complete'
-            : productArchitectureEvidenceSummary.value.state === 'partial'
-              ? 'progress'
-              : ''
-          : '',
-      ],
-      '/pcontext/product-architecture',
-      productArchitectureEvidenceSummary.value.total
-        ? `${productArchitectureEvidenceSummary.value.completed}/${productArchitectureEvidenceSummary.value.total} evidence items ready`
-        : 'No evidence captured yet'
-    ),
-    createStatus(
-      'evidence-tracker',
-      'Evidence List',
-      'Central record of supporting documentation.',
-      [
-        evidenceSummary.value.total ? String(evidenceSummary.value.total) : '',
-        evidenceSummary.value.state === 'completed'
-          ? 'complete'
-          : evidenceSummary.value.state === 'partial'
-            ? 'progress'
-            : '',
-      ],
-      '/document/evidence',
-      evidenceSummary.value.total
-        ? `${evidenceSummary.value.total} evidence items (${evidenceSummary.value.state})`
-        : 'No evidence items added'
-    ),
-  ]
-}
-
-function buildSectionGroups(statuses: Array<ReturnType<typeof createStatus>>): SectionGroup[] {
-  return SECTION_GROUP_DEFINITIONS.map((definition) => {
-    const items = definition.children
-      .map((childKey) => statuses.find((status) => status.key === childKey))
-      .filter((item): item is ReturnType<typeof createStatus> => Boolean(item))
-    if (!items.length) {
-      return null
-    }
-    const totals = items.reduce(
-      (acc, item) => {
-        if (item.status === 'done' || item.status === 'completed') acc.done += 1
-        else if (item.status === 'partial') acc.partial += 1
-        else acc.missing += 1
-        return acc
-      },
-      { done: 0, partial: 0, missing: 0 }
-    )
-    const state = totals.done === items.length ? 'done' : totals.done > 0 || totals.partial > 0 ? 'partial' : 'missing'
-    const stateLabel = state === 'done' ? 'Completed' : state === 'partial' ? 'Partial' : 'Missing'
-    return {
-      key: definition.key,
-      title: definition.title,
-      description: definition.description,
-      state,
-      stateLabel,
-      items,
-    }
-  }).filter((group): group is SectionGroup => Boolean(group))
-}
-
-// Get status color for badges
-function getStatusColor(status: string) {
-  switch (status) {
-    case 'done':
-    case 'completed':
-      return 'success'
-    case 'partial': return 'warning'
-    case 'missing': return 'error'
-    default: return 'neutral'
-  }
-}
-
-// Get border color for section cards
-function getSectionBorderColor(section: any): string {
-  switch (section.status) {
-    case 'done':
-    case 'completed':
-      return 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950'
-    case 'partial': return 'border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950'
-    case 'missing': return 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950'
-    default: return 'border-gray-300 dark:border-gray-700'
-  }
-}
-
-function getGroupStatusColor(state: string) {
-  switch (state) {
-    case 'done':
-    case 'completed':
-      return 'success'
-    case 'partial': return 'warning'
-    case 'missing': return 'error'
-    default: return 'neutral'
-  }
-}
-
-function getStatusLabel(status: string): string {
-  if (status === 'done' || status === 'completed') return 'Completed'
-  if (status === 'partial') return 'Partial'
-  return 'Missing'
-}
-
+// Preview refresh
 function buildFullPreview() {
-  if (!latestDocPath.value) {
+  if (!docxPreview.latestDocPath.value) {
     toast.add({
       title: 'No Document Yet',
       description: 'Generate a DOCX first to preview.',
@@ -1090,92 +360,11 @@ function buildFullPreview() {
     return
   }
 
-  hasGeneratedDocx.value = false
-  renderDocxPreview(latestDocPath.value)
+  docxPreview.hasGenerated.value = false
+  docxPreview.render(docxPreview.latestDocPath.value)
 }
 
-// DOCX Preview functions
-function zoomIn() {
-  if (zoomLevel.value < 200) {
-    zoomLevel.value = Math.min(200, zoomLevel.value + 25)
-  }
-}
-
-function zoomOut() {
-  if (zoomLevel.value > 50) {
-    zoomLevel.value = Math.max(50, zoomLevel.value - 25)
-  }
-}
-
-function resetZoom() {
-  zoomLevel.value = 100
-}
-
-function nextPage() {
-  if (!hasGeneratedDocx.value) return
-  const next = Math.min(totalPages.value, currentPage.value + 1)
-  if (next !== currentPage.value) {
-    scrollToPage(next)
-  }
-}
-
-function previousPage() {
-  if (!hasGeneratedDocx.value) return
-  const previous = Math.max(1, currentPage.value - 1)
-  if (previous !== currentPage.value) {
-    scrollToPage(previous)
-  }
-}
-
-function scrollToPage(pageNumber: number) {
-  const pages = getRenderedPages()
-  if (!pages.length) return
-  const target = pages[pageNumber - 1]
-  const shell = previewShell.value
-  if (target && shell) {
-    const sectionTop = target.offsetTop
-    shell.scrollTo({
-      top: sectionTop - 32,
-      behavior: 'smooth'
-    })
-    currentPage.value = pageNumber
-    highlightActivePage(pageNumber)
-  }
-}
-
-async function renderDocxPreview(path: string) {
-  docxLoading.value = true
-  docxError.value = ''
-
-  try {
-    const buffer = await $fetch(`http://localhost:8000${path}`, {
-      responseType: 'arrayBuffer'
-    })
-
-    if (docxPreviewContainer.value) {
-      docxPreviewContainer.value.innerHTML = ''
-      await renderAsync(buffer as ArrayBuffer, docxPreviewContainer.value, undefined, {
-        inWrapper: true,
-        ignoreWidth: false,
-        ignoreHeight: false,
-        renderHeaders: true,
-        renderFooters: true,
-        renderFootnotes: true,
-        renderEndnotes: true
-      })
-      hasGeneratedDocx.value = true
-      requestAnimationFrame(() => {
-        annotateRenderedPages()
-      })
-    }
-  } catch (e: any) {
-    console.error('DOCX rendering error:', e)
-    docxError.value = 'Failed to render DOCX preview. Please ensure the backend is running.'
-  } finally {
-    docxLoading.value = false
-  }
-}
-
+// Generate full document
 async function generateFullDocument() {
   loading.value = true
   error.value = ''
@@ -1183,7 +372,7 @@ async function generateFullDocument() {
 
   try {
     workspace.value = workspaceService.loadDocumentWorkspace()
-    const productTitle = introduction.value.productName?.trim() || cover.value.deviceName?.trim() || ''
+    const productTitle = workspace.value.introduction.productName?.trim() || workspace.value.cover.deviceName?.trim() || ''
 
     if (!productTitle) {
       error.value =
@@ -1197,8 +386,11 @@ async function generateFullDocument() {
       return
     }
 
-    const imagePath = await uploadCoverImageIfNeeded()
-    const payload = buildCoverPreviewPayload(imagePath)
+    const imagePath = await uploadCoverImageIfNeeded(
+      workspace.value.cover,
+      (state) => workspaceService.updateCoverState(state)
+    )
+    const payload = buildCoverPreviewPayload(workspace.value, imagePath)
 
     const response = await $fetch<{ status: string; path: string; filename: string }>('http://localhost:8000/api/cover/preview', {
       method: 'POST',
@@ -1214,9 +406,8 @@ async function generateFullDocument() {
         section: 'full'
       })
       
-      latestDocPath.value = docPath
-      hasGeneratedDocx.value = false
-      await renderDocxPreview(docPath)
+      docxPreview.hasGenerated.value = false
+      await docxPreview.render(docPath)
       
       success.value = 'Full document generated successfully!'
       
@@ -1245,12 +436,14 @@ async function generateFullDocument() {
   }
 }
 
+// Download functions
 function downloadLatest() {
-  if (!generatedFiles.value.length) return
-  downloadFile(generatedFiles.value[0])
+  const latest = generatedFiles.value[0]
+  if (!latest) return
+  downloadFile(latest)
 }
 
-async function downloadFile(file: any) {
+async function downloadFile(file: { filename: string; path: string }) {
   try {
     const downloadUrl = `http://localhost:8000${file.path}`
     window.open(downloadUrl, '_blank')
@@ -1273,257 +466,6 @@ async function downloadFile(file: any) {
       icon: 'i-heroicons-x-circle'
     })
   }
-}
-
-function getRenderedPages(): HTMLElement[] {
-  const nodes = docxPreviewContainer.value?.querySelectorAll<HTMLElement>('.docx-rendered-page')
-  return nodes ? Array.from(nodes) : []
-}
-
-function annotateRenderedPages() {
-  if (!docxPreviewContainer.value) {
-    totalPages.value = 1
-    currentPage.value = 1
-    return
-  }
-  const rawPages = docxPreviewContainer.value.querySelectorAll<HTMLElement>(DOCX_PAGE_SELECTOR)
-  const pages = Array.from(rawPages)
-  if (!pages.length) {
-    totalPages.value = 1
-    currentPage.value = 1
-    return
-  }
-  pages.forEach((page, index) => {
-    page.classList.add('docx-rendered-page')
-    page.setAttribute('data-page-label', `Page ${index + 1} / ${pages.length}`)
-    page.setAttribute('data-page-number', String(index + 1))
-  })
-  totalPages.value = pages.length
-  currentPage.value = 1
-  previewShell.value?.scrollTo({ top: 0 })
-  highlightActivePage(1)
-  previewScrollHandler()
-}
-
-function highlightActivePage(pageNumber: number) {
-  const pages = getRenderedPages()
-  pages.forEach((page, index) => {
-    if (index === pageNumber - 1) {
-      page.classList.add('is-active')
-    } else {
-      page.classList.remove('is-active')
-    }
-  })
-}
-
-function updateCurrentPageFromScroll() {
-  const shell = previewShell.value
-  if (!shell) return
-  const pages = getRenderedPages()
-  if (!pages.length) return
-  const midpoint = shell.scrollTop + shell.clientHeight / 2
-  let activePage = 1
-  pages.forEach((page, index) => {
-    if (midpoint >= page.offsetTop) {
-      activePage = index + 1
-    }
-  })
-  if (activePage !== currentPage.value) {
-    currentPage.value = activePage
-    highlightActivePage(activePage)
-  }
-}
-
-async function uploadCoverImageIfNeeded(force = false) {
-  const currentCover = cover.value
-  if (!currentCover.imageData) {
-    return sanitizeImagePath(currentCover.imagePath)
-  }
-  if (!force && currentCover.imagePath) {
-    return sanitizeImagePath(currentCover.imagePath)
-  }
-
-  const file = dataUrlToFile(currentCover.imageData, 'cover-image')
-  if (!file) {
-    return sanitizeImagePath(currentCover.imagePath)
-  }
-
-  const formData = new FormData()
-  formData.append('file', file)
-
-  try {
-    const response = await $fetch('http://localhost:8000/api/cover/upload', {
-      method: 'POST',
-      body: formData,
-      params: { user_id: userId }
-    })
-    const newPath: string | null = (response as any)?.path ?? null
-    if (newPath) {
-      workspace.value = workspaceService.updateCoverState({ imagePath: newPath })
-    }
-    return sanitizeImagePath(newPath) ?? undefined
-  } catch (uploadError) {
-    console.error('Cover upload failed', uploadError)
-    return sanitizeImagePath(currentCover.imagePath)
-  }
-}
-
-function buildCoverPreviewPayload(imagePath?: string | null) {
-  const productTitle = introduction.value.productName?.trim() || cover.value.deviceName?.trim() || 'CRA Documentation'
-  const normalize = normalizePlainText
-  const standardsState = conformanceClaim.value.standardsConformance
-  const introductionPayload = {
-    product_name: normalize(introduction.value.productName),
-    product_version: normalize(introduction.value.productVersion),
-    product_type: normalize(introduction.value.productType),
-    manufacturer: normalize(introduction.value.manufacturerName),
-    manufacturer_address: normalize(introduction.value.manufacturerAddress),
-    status: normalize(introduction.value.status),
-    prepared_by: normalize(introduction.value.preparedBy),
-    reviewed_by: normalize(introduction.value.reviewedBy),
-    approved_by: normalize(introduction.value.approvedBy),
-  }
-
-  const methodologyHtml = purposeScope.value.methodologyHtml?.trim()
-  const purposeScopePayload = {
-    product_name: productTitle,
-    scope_selections: [...purposeScope.value.scopeSelections],
-    assessment_start: normalize(purposeScope.value.assessmentStart),
-    assessment_end: normalize(purposeScope.value.assessmentEnd),
-    methodology_html: methodologyHtml && stripHtml(methodologyHtml) ? methodologyHtml : undefined,
-  }
-
-  const productIdentificationPayload = {
-    product_description_html: normalizeHtml(productIdentification.value.productDescriptionHtml),
-    key_functions_html: normalizeHtml(productIdentification.value.keyFunctionsHtml),
-    target_market: normalize(productIdentification.value.targetMarket),
-  }
-
-  const thirdPartyState = productOverview.value.thirdPartyComponents
-  const thirdPartyComponentsPayload = {
-    entries: thirdPartyState.entries
-      .map((entry) => ({
-        component_name: normalize(entry.componentName),
-        component_type: normalize(entry.componentType),
-        version: normalize(entry.version),
-        supplier: normalize(entry.supplier),
-        purpose: normalize(entry.purpose),
-        license: normalize(entry.license),
-      }))
-      .filter((entry) => Object.values(entry).some((value) => !!value)),
-    management_approach_html: normalizeHtml(thirdPartyState.managementApproachHtml),
-    evidence_reference_html: normalizeHtml(thirdPartyState.evidenceReferenceHtml),
-  }
-
-  const productOverviewPayload = {
-    product_description_html: normalizeHtml(productOverview.value.productDescriptionHtml),
-    product_architecture_html: normalizeHtml(productOverview.value.productArchitectureHtml),
-    third_party_components: thirdPartyComponentsPayload,
-  }
-
-  const manufacturerInformationPayload = {
-    legal_entity: normalize(manufacturerInformation.value.legalEntity),
-    registration_number: normalize(manufacturerInformation.value.registrationNumber),
-    address: normalize(manufacturerInformation.value.address),
-    contact_person: normalize(manufacturerInformation.value.contactPerson),
-    phone: normalize(manufacturerInformation.value.phone),
-  }
-
-  const normalizeStandardEntry = (
-    entry?: { code?: string | null; description?: string | null } | null
-  ) => {
-    if (!entry) return undefined
-    const codeValue = normalize(entry.code)
-    const descriptionValue = normalize(entry.description)
-    if (!codeValue && !descriptionValue) {
-      return undefined
-    }
-    return {
-      ...(codeValue ? { code: codeValue } : {}),
-      ...(descriptionValue ? { description: descriptionValue } : {}),
-    }
-  }
-
-  const normalizedPrimaryStandard = normalizeStandardEntry(standardsState.primaryStandard)
-  const normalizedRelatedStandards = standardsState.relatedStandards
-    .map((entry) => normalizeStandardEntry(entry))
-    .filter((entry): entry is { code?: string; description?: string } => !!entry)
-  const normalizedOtherNotes = normalize(standardsState.otherNotes)
-  const includeOtherFlag = Boolean(standardsState.includeOther && normalizedOtherNotes)
-  const standardsConformancePayload =
-    normalizedPrimaryStandard || normalizedRelatedStandards.length || includeOtherFlag
-      ? {
-          ...(normalizedPrimaryStandard ? { primary_standard: normalizedPrimaryStandard } : {}),
-          related_standards: normalizedRelatedStandards,
-          include_other: includeOtherFlag,
-          other_notes: includeOtherFlag ? normalizedOtherNotes : undefined,
-        }
-      : undefined
-
-  const regulatoryState = conformanceClaim.value.regulatoryConformance
-  const regulatoryHtml = normalizeHtml(buildRegulatoryHtml(regulatoryState))
-  const conformanceLevelHtml = normalizeHtml(buildConformanceLevelHtml(conformanceClaim.value.conformanceLevel))
-  const conformanceClaimPayload =
-    standardsConformancePayload || regulatoryHtml || conformanceLevelHtml
-      ? {
-          standards_conformance: standardsConformancePayload,
-          regulatory_conformance_html: regulatoryHtml,
-          conformance_level_html: conformanceLevelHtml,
-        }
-      : undefined
-
-  const documentConventionPayload = {
-    terminology_entries: documentConvention.value.terminologyEntries
-      .map((entry) => ({
-        term: normalize(entry.term),
-        definition: normalize(entry.definition),
-        reference: normalize(entry.reference),
-      }))
-      .filter((entry) => entry.term || entry.definition || entry.reference),
-    evidence_notation_html: normalizeHtml(documentConvention.value.evidenceNotationHtml),
-    requirement_notation_html: normalizeHtml(documentConvention.value.requirementNotationHtml),
-    assessment_verdicts_html: normalizeHtml(documentConvention.value.assessmentVerdictsHtml),
-  }
-
-  const riskManagementSection = buildRiskManagementPayload(riskManagement.value)
-
-  const manufacturerBlock = [normalize(cover.value.labName), normalize(cover.value.labAddress)]
-    .filter(Boolean)
-    .join('\n')
-  const safeImagePath = sanitizeImagePath(imagePath ?? cover.value.imagePath)
-
-  const payload: Record<string, unknown> = {
-    user_id: userId,
-    title: productTitle,
-    description: cover.value.deviceDescription,
-    version: cover.value.versionNumber,
-    revision: cover.value.revisionDate,
-    manufacturer: manufacturerBlock || undefined,
-    date: cover.value.revisionDate,
-    image_path: safeImagePath,
-    introduction: introductionPayload,
-    purpose_scope: purposeScopePayload,
-    product_identification: productIdentificationPayload,
-    product_overview: productOverviewPayload,
-    manufacturer_information: manufacturerInformationPayload,
-    conformance_claim: conformanceClaimPayload,
-    document_convention: documentConventionPayload,
-  }
-
-  if (riskManagementSection) {
-    ;(payload as any).risk_management = riskManagementSection
-  }
-
-  return payload
-}
-
-function sanitizeImagePath(path?: string | null) {
-  if (!path) return undefined
-  const expectedPrefix = `/cover/uploads/${userId}/`
-  if (!path.startsWith(expectedPrefix)) {
-    return undefined
-  }
-  return path
 }
 </script>
 

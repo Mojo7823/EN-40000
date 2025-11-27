@@ -193,6 +193,19 @@ function buildEvidenceRows(state: DocumentWorkspaceState) {
     })
   }
 
+  // Product Architecture evidence
+  const productArchitecture = state.riskManagement?.productArchitecture
+  if (productArchitecture?.evidenceEntries?.length) {
+    productArchitecture.evidenceEntries.forEach((entry) => {
+      rows.push({
+        ...entry,
+        sectionLabel: 'Product Architecture (Section 5.2.4)',
+        referenceLine: '[Reference: Clause 6.2.3]',
+        route: '/pcontext/product-architecture',
+      })
+    })
+  }
+
   return rows
 }
 

@@ -76,12 +76,21 @@
           </UButton>
         </div>
 
-        <UTable v-if="hardwareComponents.length > 0" :data="hardwareComponents" :columns="hardwareColumns">
+        <UTable v-if="hardwareComponents.length > 0" :data="hardwareComponents" :columns="hardwareColumns" @select="(e: Event, row: any) => openHardwareModal(row.original)">
+          <template #componentName-cell="{ row }">
+            <span class="font-medium cursor-pointer">{{ (row.original as HardwareComponentEntry).componentName || '—' }}</span>
+          </template>
+          <template #function-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as HardwareComponentEntry).function || '—' }}</span>
+          </template>
+          <template #interfaces-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as HardwareComponentEntry).interfaces || '—' }}</span>
+          </template>
+          <template #securityFunctions-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as HardwareComponentEntry).securityFunctions || '—' }}</span>
+          </template>
           <template #actions-cell="{ row }">
-            <div class="flex gap-2">
-              <UButton size="xs" color="neutral" variant="ghost" icon="i-heroicons-pencil" @click="openHardwareModal(row.original as HardwareComponentEntry)" />
-              <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click="removeHardwareComponent((row.original as HardwareComponentEntry).id)" />
-            </div>
+            <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click.stop="removeHardwareComponent((row.original as HardwareComponentEntry).id)" />
           </template>
         </UTable>
 
@@ -115,17 +124,26 @@
         </UButton>
       </div>
 
-      <UTable v-if="softwareComponents.length > 0" :data="softwareComponents" :columns="softwareColumns">
+      <UTable v-if="softwareComponents.length > 0" :data="softwareComponents" :columns="softwareColumns" @select="(e: Event, row: any) => openSoftwareModal(row.original)">
+        <template #type-cell="{ row }">
+          <span class="font-medium cursor-pointer">{{ (row.original as SoftwareComponentEntry).type || '—' }}</span>
+        </template>
+        <template #function-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as SoftwareComponentEntry).function || '—' }}</span>
+        </template>
         <template #thirdParty-cell="{ row }">
-          <UBadge :color="(row.original as SoftwareComponentEntry).thirdParty ? 'warning' : 'success'" variant="subtle">
+          <UBadge class="cursor-pointer" :color="(row.original as SoftwareComponentEntry).thirdParty ? 'warning' : 'success'" variant="subtle">
             {{ (row.original as SoftwareComponentEntry).thirdParty ? 'Yes' : 'No' }}
           </UBadge>
         </template>
+        <template #interfaces-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as SoftwareComponentEntry).interfaces || '—' }}</span>
+        </template>
+        <template #securityFunctions-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as SoftwareComponentEntry).securityFunctions || '—' }}</span>
+        </template>
         <template #actions-cell="{ row }">
-          <div class="flex gap-2">
-            <UButton size="xs" color="neutral" variant="ghost" icon="i-heroicons-pencil" @click="openSoftwareModal(row.original as SoftwareComponentEntry)" />
-            <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click="removeSoftwareComponent((row.original as SoftwareComponentEntry).id)" />
-          </div>
+          <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click.stop="removeSoftwareComponent((row.original as SoftwareComponentEntry).id)" />
         </template>
       </UTable>
 
@@ -156,12 +174,27 @@
           </UButton>
         </div>
 
-        <UTable v-if="rdpsComponents.length > 0" :data="rdpsComponents" :columns="rdpsColumns">
+        <UTable v-if="rdpsComponents.length > 0" :data="rdpsComponents" :columns="rdpsColumns" @select="(e: Event, row: any) => openRdpsModal(row.original)">
+          <template #component-cell="{ row }">
+            <span class="font-medium cursor-pointer">{{ (row.original as RdpsComponentEntry).component || '—' }}</span>
+          </template>
+          <template #provider-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as RdpsComponentEntry).provider || '—' }}</span>
+          </template>
+          <template #function-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as RdpsComponentEntry).function || '—' }}</span>
+          </template>
+          <template #location-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as RdpsComponentEntry).location || '—' }}</span>
+          </template>
+          <template #developmentResponsibility-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as RdpsComponentEntry).developmentResponsibility || '—' }}</span>
+          </template>
+          <template #operationResponsibility-cell="{ row }">
+            <span class="cursor-pointer">{{ (row.original as RdpsComponentEntry).operationResponsibility || '—' }}</span>
+          </template>
           <template #actions-cell="{ row }">
-            <div class="flex gap-2">
-              <UButton size="xs" color="neutral" variant="ghost" icon="i-heroicons-pencil" @click="openRdpsModal(row.original as RdpsComponentEntry)" />
-              <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click="removeRdpsComponent((row.original as RdpsComponentEntry).id)" />
-            </div>
+            <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click.stop="removeRdpsComponent((row.original as RdpsComponentEntry).id)" />
           </template>
         </UTable>
 
@@ -195,12 +228,27 @@
         </UButton>
       </div>
 
-      <UTable v-if="componentInterfaces.length > 0" :data="componentInterfaces" :columns="interfaceColumns">
+      <UTable v-if="componentInterfaces.length > 0" :data="componentInterfaces" :columns="interfaceColumns" @select="(e: Event, row: any) => openInterfaceModal(row.original)">
+        <template #interface-cell="{ row }">
+          <span class="font-medium cursor-pointer">{{ (row.original as ComponentInterfaceEntry).interface || '—' }}</span>
+        </template>
+        <template #componentA-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as ComponentInterfaceEntry).componentA || '—' }}</span>
+        </template>
+        <template #componentB-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as ComponentInterfaceEntry).componentB || '—' }}</span>
+        </template>
+        <template #protocol-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as ComponentInterfaceEntry).protocol || '—' }}</span>
+        </template>
+        <template #authentication-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as ComponentInterfaceEntry).authentication || '—' }}</span>
+        </template>
+        <template #dataExchanged-cell="{ row }">
+          <span class="cursor-pointer">{{ (row.original as ComponentInterfaceEntry).dataExchanged || '—' }}</span>
+        </template>
         <template #actions-cell="{ row }">
-          <div class="flex gap-2">
-            <UButton size="xs" color="neutral" variant="ghost" icon="i-heroicons-pencil" @click="openInterfaceModal(row.original as ComponentInterfaceEntry)" />
-            <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click="removeInterface((row.original as ComponentInterfaceEntry).id)" />
-          </div>
+          <UButton size="xs" color="error" variant="ghost" icon="i-heroicons-trash" @click.stop="removeInterface((row.original as ComponentInterfaceEntry).id)" />
         </template>
       </UTable>
 
