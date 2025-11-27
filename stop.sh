@@ -60,8 +60,9 @@ fi
 
 echo ""
 echo "[2/5] Scanning for cra-tool related processes..."
-# Find and kill all cra-tool related processes
-CRATOOL_PIDS=$(ps aux | grep -E "cra-tool.*(uvicorn|nuxt|npm|node)" | grep -v grep | awk '{print $2}')
+# Find and kill cra-tool related processes - more targeted approach
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CRATOOL_PIDS=$(ps aux | grep -E "$SCRIPT_DIR.*(uvicorn|nuxt|npm run dev)" | grep -v grep | awk '{print $2}')
 if [ -n "$CRATOOL_PIDS" ]; then
     echo "  → Found cra-tool processes: $CRATOOL_PIDS"
     for PID in $CRATOOL_PIDS; do
@@ -73,16 +74,18 @@ fi
 
 echo ""
 echo "[3/5] Killing specific process patterns..."
-# Aggressive Cleanup - kill by process name pattern
-pkill -9 -f "uvicorn backend.main:app" 2>/dev/null && echo "  → Killed uvicorn processes"
-pkill -9 -f "nuxi dev" 2>/dev/null && echo "  → Killed nuxi processes"
-pkill -9 -f "nuxt dev" 2>/dev/null && echo "  → Killed nuxt processes"
-pkill -9 -f "node.*nuxt" 2>/dev/null && echo "  → Killed node nuxt processes"
-pkill -9 -f "@nuxt/cli" 2>/dev/null && echo "  → Killed @nuxt/cli processes"
-pkill -9 -f "esbuild.*service" 2>/dev/null && echo "  → Killed esbuild processes"
+# More targeted cleanup - only kill processes in THIS directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Check if any survived
-REMAINING=$(ps aux | grep -E "(uvicorn backend.main|nuxt dev)" | grep -v grep)
+# Kill uvicorn only if running from this project's backend
+pkill -9 -f "uvicorn main:app.*--port 8000" 2>/dev/null && echo "  → Killed uvicorn processes"
+
+# Kill nuxt processes only from this project directory
+pgrep -f "nuxi.*$SCRIPT_DIR" | xargs -r kill -9 2>/dev/null && echo "  → Killed nuxi processes"
+pgrep -f "nuxt.*$SCRIPT_DIR" | xargs -r kill -9 2>/dev/null && echo "  → Killed nuxt processes"
+
+# Check if any survived in this project
+REMAINING=$(ps aux | grep -E "(uvicorn main:app.*8000|$SCRIPT_DIR.*nuxt)" | grep -v grep)
 if [ -z "$REMAINING" ]; then
     echo "  ✓ All target processes terminated"
 else
