@@ -36,6 +36,38 @@ const columns = [
 </template>
 ```
 
+### UTable Row Click to Edit Pattern
+For tables where clicking a row should open an edit modal:
+```vue
+<UTable
+  :data="items"
+  :columns="columns"
+  @select="(e: Event, row: any) => openEditModal(row.original)"
+>
+  <!-- Add cursor-pointer to cells for visual feedback -->
+  <template #name-cell="{ row }">
+    <span class="font-medium cursor-pointer">{{ row.original.name || '—' }}</span>
+  </template>
+  
+  <!-- Use @click.stop on delete button to prevent row selection -->
+  <template #actions-cell="{ row }">
+    <UButton
+      icon="i-heroicons-trash"
+      color="error"
+      variant="ghost"
+      size="sm"
+      @click.stop="removeItem(row.original.id)"
+    />
+  </template>
+</UTable>
+```
+Key points:
+- Use `@select` event handler on UTable for row click
+- Add `cursor-pointer` class to cell content for hover feedback
+- Use `@click.stop` on action buttons to prevent triggering row select
+- Show `—` for empty values
+- Remove separate edit icon when row click opens edit modal
+
 ### USelectMenu v4 Usage
 ```vue
 <USelectMenu
@@ -173,6 +205,8 @@ state.cover.title = 'New Title'
 | Use `{ flush: 'sync' }` on watchers | Use default flush to prevent recursive updates |
 | Access UTable row directly | Use `row.original` to access actual data |
 | Use `key` in column definitions | Use `accessorKey` for data columns, `id` for custom columns |
+| Add edit icon when row is clickable | Use `@select` on UTable for row-click-to-edit pattern |
+| Forget `@click.stop` on action buttons | Use `@click.stop` to prevent row select when clicking delete |
 
 ## Development Commands
 ```bash
@@ -227,3 +261,29 @@ const saving = ref(false)
 4. Add clone helper for deep copying
 5. Update backend `schemas.py` with Pydantic models
 6. Update `preview.vue` with computed status and rendering
+7. Update `evidence.vue` to include evidence entries in `buildEvidenceRows()`
+
+### Adding Evidence to Evidence List Page
+When adding a new section with evidence entries, update `/document/evidence.vue`:
+```typescript
+function buildEvidenceRows(state: DocumentWorkspaceState) {
+  const rows = []
+  
+  // ... existing sections ...
+
+  // New Section evidence
+  const newSection = state.riskManagement?.newSection
+  if (newSection?.evidenceEntries?.length) {
+    newSection.evidenceEntries.forEach((entry) => {
+      rows.push({
+        ...entry,
+        sectionLabel: 'Section Name (Section X.X.X)',
+        referenceLine: '[Reference: Clause X.X.X]',
+        route: '/path/to/section-page',
+      })
+    })
+  }
+
+  return rows
+}
+```
