@@ -206,6 +206,19 @@ function buildEvidenceRows(state: DocumentWorkspaceState) {
     })
   }
 
+  // Product User Description evidence
+  const productUserDescription = state.riskManagement?.productUserDescription
+  if (productUserDescription?.evidenceEntries?.length) {
+    productUserDescription.evidenceEntries.forEach((entry) => {
+      rows.push({
+        ...entry,
+        sectionLabel: 'Product User Description (Section 5.2.5)',
+        referenceLine: '[Reference: Clause 6.2.1.6]',
+        route: '/pcontext/user-description',
+      })
+    })
+  }
+
   return rows
 }
 

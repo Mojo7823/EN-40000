@@ -142,7 +142,15 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
   const archEvidenceEntries = normalizeEvidencePayload(productArchitecture?.evidenceEntries)
   const hasProductArchitecture = archDescHtml || archDiagramHtml || hwComponents.length || swComponents.length || rdpsComponents.length || compInterfaces.length || archEvidenceEntries.length
 
-  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture) {
+  // Product User Description
+  const productUserDescription = state.productUserDescription
+  const userDescHtml = normalizeHtml(productUserDescription?.userDescriptionHtml)
+  const noRdps = productUserDescription?.noRdps || false
+  const rdpsConsiderationsHtml = normalizeHtml(productUserDescription?.rdpsConsiderationsHtml)
+  const userDescEvidenceEntries = normalizeEvidencePayload(productUserDescription?.evidenceEntries)
+  const hasProductUserDescription = userDescHtml || noRdps || rdpsConsiderationsHtml || userDescEvidenceEntries.length
+
+  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture && !hasProductUserDescription) {
     return undefined
   }
 
@@ -216,6 +224,15 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
       })),
       architecture_diagram_html: archDiagramHtml,
       evidence_entries: archEvidenceEntries,
+    }
+  }
+
+  if (hasProductUserDescription) {
+    payload.product_user_description = {
+      user_description_html: userDescHtml,
+      no_rdps: noRdps,
+      rdps_considerations_html: rdpsConsiderationsHtml,
+      evidence_entries: userDescEvidenceEntries,
     }
   }
 

@@ -26,12 +26,14 @@ def append_risk_management_section(
     product_function_payload = getattr(payload, "product_function", None)
     operational_environment_payload = getattr(payload, "operational_environment", None)
     product_architecture_payload = getattr(payload, "product_architecture", None)
+    product_user_description_payload = getattr(payload, "product_user_description", None)
     has_product_context = _product_context_has_content(product_context_payload)
     has_product_function = _product_function_has_content(product_function_payload)
     has_operational_environment = _operational_environment_has_content(operational_environment_payload)
     has_product_architecture = _product_architecture_has_content(product_architecture_payload)
+    has_product_user_description = _product_user_description_has_content(product_user_description_payload)
 
-    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture:
+    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture and not has_product_user_description:
         return
 
     document.add_page_break()
@@ -90,6 +92,9 @@ def append_risk_management_section(
 
     if has_product_architecture:
         _append_product_architecture_section(document, product_architecture_payload)
+
+    if has_product_user_description:
+        _append_product_user_description_section(document, product_user_description_payload)
 
 
 def _append_product_context_section(
@@ -279,6 +284,19 @@ def _product_architecture_has_content(payload: Optional[object]) -> bool:
             bool(getattr(payload, "rdps_components", None)),
             bool(getattr(payload, "component_interfaces", None)),
             bool(_extract_value(payload, "architecture_diagram_html")),
+            bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
+        ]
+    )
+
+
+def _product_user_description_has_content(payload: Optional[object]) -> bool:
+    if not payload:
+        return False
+    return any(
+        [
+            bool(_extract_value(payload, "user_description_html")),
+            getattr(payload, "no_rdps", False),
+            bool(_extract_value(payload, "rdps_considerations_html")),
             bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
         ]
     )
@@ -625,3 +643,54 @@ def _strip_html(value: Optional[str]) -> str:
     if not value:
         return ""
     return re.sub(r"<[^>]+>", " ", value).strip()
+
+
+def _append_product_user_description_section(document: Document, payload: Optional[object]) -> None:
+    """Append Section 5.2.5 Product User Description."""
+    from docx.shared import RGBColor
+    
+    if not payload:
+        return
+
+    # Start 5.2.5 Product User Description on a new page
+    document.add_page_break()
+
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("5.2.5 Product User Description")
+    heading_run.font.size = Pt(16)
+    heading_run.font.bold = True
+    heading.space_after = Pt(6)
+
+    reference = document.add_paragraph("[Reference: Clause 6.2.1.6 - Product user description]")
+    reference.runs[0].font.bold = True
+    reference.space_after = Pt(10)
+
+    # User Description
+    user_desc_html = _extract_value(payload, "user_description_html")
+    if user_desc_html:
+        append_html_to_document(document, user_desc_html)
+
+    # RDPS Considerations
+    no_rdps = getattr(payload, "no_rdps", False)
+    rdps_label = document.add_paragraph()
+    rdps_run = rdps_label.add_run("RDPS Considerations:")
+    rdps_run.font.size = Pt(13)
+    rdps_run.font.bold = True
+    rdps_label.space_before = Pt(10)
+    rdps_label.space_after = Pt(4)
+
+    if no_rdps:
+        no_rdps_para = document.add_paragraph("This product does not rely on any RDPS.")
+        no_rdps_para.runs[0].font.italic = True
+        no_rdps_para.space_after = Pt(8)
+    else:
+        rdps_html = _extract_value(payload, "rdps_considerations_html")
+        if rdps_html:
+            append_html_to_document(document, rdps_html)
+        else:
+            no_content_para = document.add_paragraph("No RDPS considerations specified.")
+            no_content_para.runs[0].font.italic = True
+            no_content_para.space_after = Pt(8)
+
+    # Evidence Reference
+    _append_evidence_tracker(document, getattr(payload, "evidence_entries", None))

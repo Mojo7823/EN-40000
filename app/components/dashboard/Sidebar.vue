@@ -130,6 +130,11 @@ const items = ref([[{
       to: '/pcontext/product-architecture',
       icon: 'i-heroicons-cube-transparent',
       description: 'Hardware, software, RDPS components'
+    }, {
+      label: 'Product User Description',
+      to: '/pcontext/user-description',
+      icon: 'i-heroicons-user-group',
+      description: 'Intended users and RDPS considerations'
     }]
   }]
 }, {

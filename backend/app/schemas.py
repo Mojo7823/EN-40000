@@ -206,6 +206,14 @@ class ProductArchitectureSection(BaseModel):
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 
+class ProductUserDescriptionSection(BaseModel):
+    """Product User Description (Section 5.2.5)."""
+    user_description_html: Optional[str] = None
+    no_rdps: bool = False
+    rdps_considerations_html: Optional[str] = None
+    evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
@@ -213,6 +221,7 @@ class RiskManagementSection(BaseModel):
     product_function: Optional[ProductFunctionSection] = None
     operational_environment: Optional[OperationalEnvironmentSection] = None
     product_architecture: Optional[ProductArchitectureSection] = None
+    product_user_description: Optional[ProductUserDescriptionSection] = None
 
 
 class CoverPreviewRequest(BaseModel):

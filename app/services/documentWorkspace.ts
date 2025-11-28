@@ -198,12 +198,20 @@ export interface ProductArchitectureState {
   evidenceEntries: RiskEvidenceEntry[]
 }
 
+export interface ProductUserDescriptionState {
+  userDescriptionHtml: string
+  noRdps: boolean
+  rdpsConsiderationsHtml: string
+  evidenceEntries: RiskEvidenceEntry[]
+}
+
 export interface RiskManagementState {
   generalApproachHtml: string
   productContext: ProductContextState
   productFunction: ProductFunctionState
   operationalEnvironment: ProductOperationalEnvironmentState
   productArchitecture: ProductArchitectureState
+  productUserDescription?: ProductUserDescriptionState
 }
 
 export interface DocumentWorkspaceState {
@@ -235,6 +243,7 @@ export const RISK_PRODUCT_CONTEXT_SECTION_KEY = 'risk-product-context'
 export const RISK_PRODUCT_FUNCTION_SECTION_KEY = 'risk-product-function'
 export const RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY = 'risk-operational-environment'
 export const RISK_PRODUCT_ARCHITECTURE_SECTION_KEY = 'risk-product-architecture'
+export const RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY = 'risk-product-user-description'
 
 export const RISK_EVIDENCE_STATUS_OPTIONS = [
   { value: 'not_started', label: 'Not Started' },
@@ -411,12 +420,29 @@ const defaultProductArchitectureState: ProductArchitectureState = {
   ],
 }
 
+const defaultProductUserDescriptionState: ProductUserDescriptionState = {
+  userDescriptionHtml: '',
+  noRdps: false,
+  rdpsConsiderationsHtml: '',
+  evidenceEntries: [
+    {
+      id: `${RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY}-evidence`,
+      sectionKey: RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
+      title: 'Product User Description Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ],
+}
+
 const defaultRiskManagementState: RiskManagementState = {
   generalApproachHtml: '',
   productContext: cloneProductContextState(defaultProductContextState),
   productFunction: cloneProductFunctionState(defaultProductFunctionState),
   operationalEnvironment: cloneOperationalEnvironmentState(defaultOperationalEnvironmentState),
   productArchitecture: cloneProductArchitectureState(defaultProductArchitectureState),
+  productUserDescription: cloneProductUserDescriptionState(defaultProductUserDescriptionState),
 }
 
 const defaultState: DocumentWorkspaceState = {
@@ -568,6 +594,21 @@ function cloneProductArchitectureState(state?: ProductArchitectureState): Produc
   }
 }
 
+function cloneProductUserDescriptionState(state?: ProductUserDescriptionState): ProductUserDescriptionState {
+  const source = state ?? defaultProductUserDescriptionState
+  const evidenceSource =
+    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
+      ? source.evidenceEntries
+      : defaultProductUserDescriptionState.evidenceEntries
+
+  return {
+    userDescriptionHtml: source.userDescriptionHtml ?? '',
+    noRdps: source.noRdps ?? false,
+    rdpsConsiderationsHtml: source.rdpsConsiderationsHtml ?? '',
+    evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY),
+  }
+}
+
 function cloneRiskManagementState(state?: RiskManagementState): RiskManagementState {
   const source = state ?? defaultRiskManagementState
   return {
@@ -576,6 +617,7 @@ function cloneRiskManagementState(state?: RiskManagementState): RiskManagementSt
     productFunction: cloneProductFunctionState(source.productFunction),
     operationalEnvironment: cloneOperationalEnvironmentState(source.operationalEnvironment),
     productArchitecture: cloneProductArchitectureState(source.productArchitecture),
+    productUserDescription: cloneProductUserDescriptionState(source.productUserDescription),
   }
 }
 
@@ -1155,12 +1197,41 @@ export function updateRiskManagementState(
     )
   }
 
+  const currentProductUserDescription = current.productUserDescription || cloneProductUserDescriptionState()
+  let nextProductUserDescription: ProductUserDescriptionState
+  if (patch.productUserDescription) {
+    const userDescPatch = patch.productUserDescription
+    const patchedEvidence =
+      userDescPatch.evidenceEntries !== undefined
+        ? userDescPatch.evidenceEntries.length
+          ? cloneEvidenceEntries(userDescPatch.evidenceEntries, RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY)
+          : cloneEvidenceEntries(defaultProductUserDescriptionState.evidenceEntries, RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY)
+        : cloneEvidenceEntries(currentProductUserDescription.evidenceEntries, RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY)
+
+    nextProductUserDescription = {
+      userDescriptionHtml: userDescPatch.userDescriptionHtml ?? currentProductUserDescription.userDescriptionHtml,
+      noRdps: userDescPatch.noRdps ?? currentProductUserDescription.noRdps,
+      rdpsConsiderationsHtml: userDescPatch.rdpsConsiderationsHtml ?? currentProductUserDescription.rdpsConsiderationsHtml,
+      evidenceEntries: patchedEvidence,
+    }
+  } else {
+    nextProductUserDescription = cloneProductUserDescriptionState(currentProductUserDescription)
+  }
+
+  if (!nextProductUserDescription.evidenceEntries.length) {
+    nextProductUserDescription.evidenceEntries = cloneEvidenceEntries(
+      defaultProductUserDescriptionState.evidenceEntries,
+      RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY
+    )
+  }
+
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
     productContext: nextProductContext,
     productFunction: nextProductFunction,
     operationalEnvironment: nextOperationalEnvironment,
     productArchitecture: nextProductArchitecture,
+    productUserDescription: nextProductUserDescription,
   }
 
   const next: DocumentWorkspaceState = {

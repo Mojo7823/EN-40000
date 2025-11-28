@@ -47,7 +47,7 @@ export const SECTION_GROUP_DEFINITIONS = [
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture'],
+    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description'],
   },
 ]
 
@@ -66,11 +66,13 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
   const productFunctionState = computed(() => riskManagement.value.productFunction)
   const operationalEnvironmentState = computed(() => riskManagement.value.operationalEnvironment)
   const productArchitectureState = computed(() => riskManagement.value.productArchitecture)
+  const productUserDescriptionState = computed(() => riskManagement.value.productUserDescription)
 
   const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
   const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
   const operationalEnvEvidenceSummary = computed(() => summarizeEvidenceEntries(operationalEnvironmentState.value?.evidenceEntries ?? []))
   const productArchitectureEvidenceSummary = computed(() => summarizeEvidenceEntries(productArchitectureState.value?.evidenceEntries ?? []))
+  const productUserDescriptionEvidenceSummary = computed(() => summarizeEvidenceEntries(productUserDescriptionState.value?.evidenceEntries ?? []))
 
   const sectionList = computed<SectionStatusItem[]>(() => {
     const introductionState = introduction.value
@@ -331,6 +333,26 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
         '/pcontext/product-architecture',
         productArchitectureEvidenceSummary.value.total
           ? `${productArchitectureEvidenceSummary.value.completed}/${productArchitectureEvidenceSummary.value.total} evidence items ready`
+          : 'No evidence captured yet'
+      ),
+      createSectionStatus(
+        'risk-product-user-description',
+        'Product User Description (Section 5.2.5)',
+        'Intended users and RDPS considerations.',
+        [
+          stripHtml(productUserDescriptionState.value?.userDescriptionHtml || ''),
+          productUserDescriptionState.value?.noRdps ? 'no-rdps' : stripHtml(productUserDescriptionState.value?.rdpsConsiderationsHtml || ''),
+          productUserDescriptionEvidenceSummary.value.total
+            ? productUserDescriptionEvidenceSummary.value.state === 'completed'
+              ? 'complete'
+              : productUserDescriptionEvidenceSummary.value.state === 'partial'
+                ? 'progress'
+                : ''
+            : '',
+        ],
+        '/pcontext/user-description',
+        productUserDescriptionEvidenceSummary.value.total
+          ? `${productUserDescriptionEvidenceSummary.value.completed}/${productUserDescriptionEvidenceSummary.value.total} evidence items ready`
           : 'No evidence captured yet'
       ),
       createSectionStatus(
