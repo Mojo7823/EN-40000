@@ -299,6 +299,21 @@ export interface RiskAssessmentMethodologyState {
 }
 
 // ============================================================================
+// Risk Management - Risk Acceptance Criteria
+// ============================================================================
+
+export interface RiskAcceptanceCriteriaState {
+  riskAcceptanceCriteriaHtml: string
+  regulatoryFactorsHtml: string
+  contractualFactorsHtml: string
+  natureOfKnownRisksHtml: string
+  natureOfUsersHtml: string
+  natureOfProductHtml: string
+  stateOfTheArtHtml: string
+  evidenceEntries: RiskEvidenceEntry[]
+}
+
+// ============================================================================
 // Risk Management - Combined State
 // ============================================================================
 
@@ -311,6 +326,7 @@ export interface RiskManagementState {
   productUserDescription?: ProductUserDescriptionState
   productContextAssessment?: ProductContextAssessmentState
   riskAssessmentMethodology?: RiskAssessmentMethodologyState
+  riskAcceptanceCriteria?: RiskAcceptanceCriteriaState
 }
 
 // ============================================================================

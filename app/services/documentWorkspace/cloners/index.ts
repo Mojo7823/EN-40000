@@ -21,6 +21,7 @@ export {
   cloneProductUserDescriptionState,
   cloneProductContextAssessmentState,
   cloneRiskAssessmentMethodologyState,
+  cloneRiskAcceptanceCriteriaState,
   cloneRiskManagementState,
 } from './riskManagementCloners'
 

@@ -6,6 +6,7 @@ import type {
   ProductUserDescriptionState,
   ProductContextAssessmentState,
   RiskAssessmentMethodologyState,
+  RiskAcceptanceCriteriaState,
   RequirementAssessmentEntry,
   NonConformityEntry,
   RiskManagementState,
@@ -19,6 +20,7 @@ import {
   RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
   RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
   RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
+  RISK_ACCEPTANCE_CRITERIA_SECTION_KEY,
 } from '../constants'
 import { cloneEvidenceEntries } from './baseCloners'
 
@@ -84,6 +86,17 @@ const defaultRiskAssessmentMethodologyState: RiskAssessmentMethodologyState = {
   consistentApplicationHtml: '',
   individualAggregateRiskHtml: '',
   evidenceEntries: [getDefaultEvidenceEntry(RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY, 'Risk Assessment Methodology Evidence Reference')],
+}
+
+const defaultRiskAcceptanceCriteriaState: RiskAcceptanceCriteriaState = {
+  riskAcceptanceCriteriaHtml: '',
+  regulatoryFactorsHtml: '',
+  contractualFactorsHtml: '',
+  natureOfKnownRisksHtml: '',
+  natureOfUsersHtml: '',
+  natureOfProductHtml: '',
+  stateOfTheArtHtml: '',
+  evidenceEntries: [getDefaultEvidenceEntry(RISK_ACCEPTANCE_CRITERIA_SECTION_KEY, 'Risk Acceptance Criteria Evidence Reference')],
 }
 
 // ============================================================================
@@ -258,6 +271,29 @@ export function cloneRiskAssessmentMethodologyState(state?: RiskAssessmentMethod
 }
 
 // ============================================================================
+// Risk Acceptance Criteria Cloner
+// ============================================================================
+
+export function cloneRiskAcceptanceCriteriaState(state?: RiskAcceptanceCriteriaState): RiskAcceptanceCriteriaState {
+  const source = state ?? defaultRiskAcceptanceCriteriaState
+  const evidenceSource =
+    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
+      ? source.evidenceEntries
+      : defaultRiskAcceptanceCriteriaState.evidenceEntries
+
+  return {
+    riskAcceptanceCriteriaHtml: source.riskAcceptanceCriteriaHtml ?? '',
+    regulatoryFactorsHtml: source.regulatoryFactorsHtml ?? '',
+    contractualFactorsHtml: source.contractualFactorsHtml ?? '',
+    natureOfKnownRisksHtml: source.natureOfKnownRisksHtml ?? '',
+    natureOfUsersHtml: source.natureOfUsersHtml ?? '',
+    natureOfProductHtml: source.natureOfProductHtml ?? '',
+    stateOfTheArtHtml: source.stateOfTheArtHtml ?? '',
+    evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_ACCEPTANCE_CRITERIA_SECTION_KEY),
+  }
+}
+
+// ============================================================================
 // Risk Management State Cloner (Combined)
 // ============================================================================
 
@@ -271,6 +307,7 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     productUserDescription: defaultProductUserDescriptionState,
     productContextAssessment: defaultProductContextAssessmentState,
     riskAssessmentMethodology: defaultRiskAssessmentMethodologyState,
+    riskAcceptanceCriteria: defaultRiskAcceptanceCriteriaState,
   }
   return {
     generalApproachHtml: source.generalApproachHtml ?? '',
@@ -281,5 +318,6 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     productUserDescription: cloneProductUserDescriptionState(source.productUserDescription),
     productContextAssessment: cloneProductContextAssessmentState(source.productContextAssessment),
     riskAssessmentMethodology: cloneRiskAssessmentMethodologyState(source.riskAssessmentMethodology),
+    riskAcceptanceCriteria: cloneRiskAcceptanceCriteriaState(source.riskAcceptanceCriteria),
   }
 }

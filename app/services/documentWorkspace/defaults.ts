@@ -10,6 +10,7 @@ import {
   RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
   RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
   RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
+  RISK_ACCEPTANCE_CRITERIA_SECTION_KEY,
 } from './constants'
 import type {
   CoverFormState,
@@ -31,6 +32,7 @@ import type {
   ProductUserDescriptionState,
   ProductContextAssessmentState,
   RiskAssessmentMethodologyState,
+  RiskAcceptanceCriteriaState,
   RiskManagementState,
   DocumentWorkspaceState,
 } from './types'
@@ -307,6 +309,26 @@ export const defaultRiskAssessmentMethodologyState: RiskAssessmentMethodologySta
   ],
 }
 
+export const defaultRiskAcceptanceCriteriaState: RiskAcceptanceCriteriaState = {
+  riskAcceptanceCriteriaHtml: '',
+  regulatoryFactorsHtml: '',
+  contractualFactorsHtml: '',
+  natureOfKnownRisksHtml: '',
+  natureOfUsersHtml: '',
+  natureOfProductHtml: '',
+  stateOfTheArtHtml: '',
+  evidenceEntries: [
+    {
+      id: `${RISK_ACCEPTANCE_CRITERIA_SECTION_KEY}-evidence`,
+      sectionKey: RISK_ACCEPTANCE_CRITERIA_SECTION_KEY,
+      title: 'Risk Acceptance Criteria Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ],
+}
+
 export function defaultProductContextAssessmentState(): ProductContextAssessmentState {
   return {
     assessments: [],
@@ -342,6 +364,10 @@ export const defaultRiskManagementState: RiskManagementState = {
   riskAssessmentMethodology: {
     ...defaultRiskAssessmentMethodologyState,
     evidenceEntries: defaultRiskAssessmentMethodologyState.evidenceEntries.map((e) => ({ ...e })),
+  },
+  riskAcceptanceCriteria: {
+    ...defaultRiskAcceptanceCriteriaState,
+    evidenceEntries: defaultRiskAcceptanceCriteriaState.evidenceEntries.map((e) => ({ ...e })),
   },
 }
 

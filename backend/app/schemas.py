@@ -253,6 +253,18 @@ class RiskAssessmentMethodologySection(BaseModel):
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 
+class RiskAcceptanceCriteriaSection(BaseModel):
+    """Risk Acceptance Criteria (Section 5.3.2)."""
+    risk_acceptance_criteria_html: Optional[str] = None
+    regulatory_factors_html: Optional[str] = None
+    contractual_factors_html: Optional[str] = None
+    nature_of_known_risks_html: Optional[str] = None
+    nature_of_users_html: Optional[str] = None
+    nature_of_product_html: Optional[str] = None
+    state_of_the_art_html: Optional[str] = None
+    evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
@@ -263,6 +275,7 @@ class RiskManagementSection(BaseModel):
     product_user_description: Optional[ProductUserDescriptionSection] = None
     product_context_assessment: Optional[ProductContextAssessmentSection] = None
     risk_assessment_methodology: Optional[RiskAssessmentMethodologySection] = None
+    risk_acceptance_criteria: Optional[RiskAcceptanceCriteriaSection] = None
 
 
 class CoverPreviewRequest(BaseModel):

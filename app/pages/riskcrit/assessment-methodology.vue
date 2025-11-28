@@ -67,6 +67,7 @@
       <RichTextEditor v-model="form.methodologyDescriptionHtml" min-height="400px" placeholder="Describe the risk methodology..." />
     </UCard>
 
+
     <!-- Justification Card -->
     <UCard>
       <template #header>
@@ -126,6 +127,7 @@
 
       <RichTextEditor v-model="form.individualAggregateRiskHtml" min-height="280px" placeholder="Describe individual and aggregate risk approach..." />
     </UCard>
+
 
     <!-- Evidence Reference Card -->
     <UCard>
@@ -261,6 +263,7 @@ const METHODOLOGY_TEMPLATE = `<p>[Provide a detailed description of the risk met
 <li>Historical evidence of similar attacks</li>
 </ul>`
 
+
 const JUSTIFICATION_TEMPLATE = `<p>[Explain why this methodology is appropriate for your product. For example:]</p>
 <p>This methodology has been selected because:</p>
 <ol>
@@ -310,6 +313,7 @@ function insertConsistentApplicationTemplate() {
 function insertAggregateRiskTemplate() {
   form.individualAggregateRiskHtml = AGGREGATE_RISK_TEMPLATE
 }
+
 
 function hydrate(state: DocumentWorkspaceState) {
   hydrating.value = true
@@ -366,6 +370,7 @@ function saveState() {
     },
   })
 }
+
 
 onMounted(() => {
   if (import.meta.client) {

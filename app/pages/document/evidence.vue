@@ -227,7 +227,20 @@ function buildEvidenceRows(state: DocumentWorkspaceState) {
         ...entry,
         sectionLabel: 'Risk Assessment Methodology (Section 5.3.1)',
         referenceLine: '[Reference: Clause 6.3.1]',
-        route: '/risk/assessment-methodology',
+        route: '/riskcrit/assessment-methodology',
+      })
+    })
+  }
+
+  // Risk Acceptance Criteria evidence
+  const riskAcceptanceCriteria = state.riskManagement?.riskAcceptanceCriteria
+  if (riskAcceptanceCriteria?.evidenceEntries?.length) {
+    riskAcceptanceCriteria.evidenceEntries.forEach((entry) => {
+      rows.push({
+        ...entry,
+        sectionLabel: 'Risk Acceptance Criteria (Section 5.3.2)',
+        referenceLine: '[Reference: Clause 6.3.3]',
+        route: '/riskcrit/acceptance-criteria',
       })
     })
   }

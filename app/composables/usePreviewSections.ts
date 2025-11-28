@@ -47,7 +47,7 @@ export const SECTION_GROUP_DEFINITIONS = [
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description', 'risk-product-context-assessment', 'risk-assessment-methodology'],
+    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description', 'risk-product-context-assessment', 'risk-assessment-methodology', 'risk-acceptance-criteria'],
   },
 ]
 
@@ -69,6 +69,7 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
   const productUserDescriptionState = computed(() => riskManagement.value.productUserDescription)
   const productContextAssessmentState = computed(() => riskManagement.value.productContextAssessment)
   const riskAssessmentMethodologyState = computed(() => riskManagement.value.riskAssessmentMethodology)
+  const riskAcceptanceCriteriaState = computed(() => riskManagement.value.riskAcceptanceCriteria)
 
   const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
   const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
@@ -76,6 +77,7 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
   const productArchitectureEvidenceSummary = computed(() => summarizeEvidenceEntries(productArchitectureState.value?.evidenceEntries ?? []))
   const productUserDescriptionEvidenceSummary = computed(() => summarizeEvidenceEntries(productUserDescriptionState.value?.evidenceEntries ?? []))
   const riskAssessmentMethodologyEvidenceSummary = computed(() => summarizeEvidenceEntries(riskAssessmentMethodologyState.value?.evidenceEntries ?? []))
+  const riskAcceptanceCriteriaEvidenceSummary = computed(() => summarizeEvidenceEntries(riskAcceptanceCriteriaState.value?.evidenceEntries ?? []))
 
   const sectionList = computed<SectionStatusItem[]>(() => {
     const introductionState = introduction.value
@@ -390,9 +392,34 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
                 : ''
             : '',
         ],
-        '/risk/assessment-methodology',
+        '/riskcrit/assessment-methodology',
         riskAssessmentMethodologyEvidenceSummary.value.total
           ? `${riskAssessmentMethodologyEvidenceSummary.value.completed}/${riskAssessmentMethodologyEvidenceSummary.value.total} evidence items ready`
+          : 'No evidence captured yet'
+      ),
+      createSectionStatus(
+        'risk-acceptance-criteria',
+        'Risk Acceptance Criteria (Section 5.3.2)',
+        'Criteria for determining acceptable residual risk levels.',
+        [
+          stripHtml(riskAcceptanceCriteriaState.value?.riskAcceptanceCriteriaHtml || ''),
+          stripHtml(riskAcceptanceCriteriaState.value?.regulatoryFactorsHtml || ''),
+          stripHtml(riskAcceptanceCriteriaState.value?.contractualFactorsHtml || ''),
+          stripHtml(riskAcceptanceCriteriaState.value?.natureOfKnownRisksHtml || ''),
+          stripHtml(riskAcceptanceCriteriaState.value?.natureOfUsersHtml || ''),
+          stripHtml(riskAcceptanceCriteriaState.value?.natureOfProductHtml || ''),
+          stripHtml(riskAcceptanceCriteriaState.value?.stateOfTheArtHtml || ''),
+          riskAcceptanceCriteriaEvidenceSummary.value.total
+            ? riskAcceptanceCriteriaEvidenceSummary.value.state === 'completed'
+              ? 'complete'
+              : riskAcceptanceCriteriaEvidenceSummary.value.state === 'partial'
+                ? 'progress'
+                : ''
+            : '',
+        ],
+        '/riskcrit/acceptance-criteria',
+        riskAcceptanceCriteriaEvidenceSummary.value.total
+          ? `${riskAcceptanceCriteriaEvidenceSummary.value.completed}/${riskAcceptanceCriteriaEvidenceSummary.value.total} evidence items ready`
           : 'No evidence captured yet'
       ),
       createSectionStatus(

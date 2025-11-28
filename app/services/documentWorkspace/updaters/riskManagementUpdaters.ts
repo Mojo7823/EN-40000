@@ -8,6 +8,7 @@ import type {
   ProductUserDescriptionState,
   ProductContextAssessmentState,
   RiskAssessmentMethodologyState,
+  RiskAcceptanceCriteriaState,
 } from '../types'
 import {
   RISK_PRODUCT_CONTEXT_SECTION_KEY,
@@ -16,6 +17,7 @@ import {
   RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
   RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
   RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
+  RISK_ACCEPTANCE_CRITERIA_SECTION_KEY,
 } from '../constants'
 import {
   defaultProductContextState,
@@ -25,6 +27,7 @@ import {
   defaultProductUserDescriptionState,
   defaultProductContextAssessmentState,
   defaultRiskAssessmentMethodologyState,
+  defaultRiskAcceptanceCriteriaState,
 } from '../defaults'
 import {
   getInMemoryState,
@@ -39,6 +42,7 @@ import {
   cloneProductUserDescriptionState,
   cloneProductContextAssessmentState,
   cloneRiskAssessmentMethodologyState,
+  cloneRiskAcceptanceCriteriaState,
 } from '../cloners'
 
 // ============================================================================
@@ -264,6 +268,39 @@ export function updateRiskManagementState(
     )
   }
 
+  // Risk Acceptance Criteria
+  const currentRiskAcceptanceCriteria = current.riskAcceptanceCriteria || cloneRiskAcceptanceCriteriaState()
+  let nextRiskAcceptanceCriteria: RiskAcceptanceCriteriaState
+  if (patch.riskAcceptanceCriteria) {
+    const criteriaPatch = patch.riskAcceptanceCriteria
+    const patchedEvidence =
+      criteriaPatch.evidenceEntries !== undefined
+        ? criteriaPatch.evidenceEntries.length
+          ? cloneEvidenceEntries(criteriaPatch.evidenceEntries, RISK_ACCEPTANCE_CRITERIA_SECTION_KEY)
+          : cloneEvidenceEntries(defaultRiskAcceptanceCriteriaState.evidenceEntries, RISK_ACCEPTANCE_CRITERIA_SECTION_KEY)
+        : cloneEvidenceEntries(currentRiskAcceptanceCriteria.evidenceEntries, RISK_ACCEPTANCE_CRITERIA_SECTION_KEY)
+
+    nextRiskAcceptanceCriteria = {
+      riskAcceptanceCriteriaHtml: criteriaPatch.riskAcceptanceCriteriaHtml ?? currentRiskAcceptanceCriteria.riskAcceptanceCriteriaHtml,
+      regulatoryFactorsHtml: criteriaPatch.regulatoryFactorsHtml ?? currentRiskAcceptanceCriteria.regulatoryFactorsHtml,
+      contractualFactorsHtml: criteriaPatch.contractualFactorsHtml ?? currentRiskAcceptanceCriteria.contractualFactorsHtml,
+      natureOfKnownRisksHtml: criteriaPatch.natureOfKnownRisksHtml ?? currentRiskAcceptanceCriteria.natureOfKnownRisksHtml,
+      natureOfUsersHtml: criteriaPatch.natureOfUsersHtml ?? currentRiskAcceptanceCriteria.natureOfUsersHtml,
+      natureOfProductHtml: criteriaPatch.natureOfProductHtml ?? currentRiskAcceptanceCriteria.natureOfProductHtml,
+      stateOfTheArtHtml: criteriaPatch.stateOfTheArtHtml ?? currentRiskAcceptanceCriteria.stateOfTheArtHtml,
+      evidenceEntries: patchedEvidence,
+    }
+  } else {
+    nextRiskAcceptanceCriteria = cloneRiskAcceptanceCriteriaState(currentRiskAcceptanceCriteria)
+  }
+
+  if (!nextRiskAcceptanceCriteria.evidenceEntries.length) {
+    nextRiskAcceptanceCriteria.evidenceEntries = cloneEvidenceEntries(
+      defaultRiskAcceptanceCriteriaState.evidenceEntries,
+      RISK_ACCEPTANCE_CRITERIA_SECTION_KEY
+    )
+  }
+
   // Combine all
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
@@ -274,6 +311,7 @@ export function updateRiskManagementState(
     productUserDescription: nextProductUserDescription,
     productContextAssessment: nextProductContextAssessment,
     riskAssessmentMethodology: nextRiskAssessmentMethodology,
+    riskAcceptanceCriteria: nextRiskAcceptanceCriteria,
   }
 
   const next: DocumentWorkspaceState = {

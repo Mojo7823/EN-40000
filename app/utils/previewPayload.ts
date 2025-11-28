@@ -239,7 +239,18 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
     normalizeHtml(riskAssessmentMethodologyEarly?.individualAggregateRiskHtml) ||
     normalizeEvidencePayload(riskAssessmentMethodologyEarly?.evidenceEntries).length
 
-  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture && !hasProductUserDescription && !hasProductContextAssessment && !hasRiskAssessmentMethodologyEarly) {
+  // Risk Acceptance Criteria (early check for empty payload)
+  const riskAcceptanceCriteriaEarly = state.riskAcceptanceCriteria
+  const hasRiskAcceptanceCriteriaEarly = normalizeHtml(riskAcceptanceCriteriaEarly?.riskAcceptanceCriteriaHtml) ||
+    normalizeHtml(riskAcceptanceCriteriaEarly?.regulatoryFactorsHtml) ||
+    normalizeHtml(riskAcceptanceCriteriaEarly?.contractualFactorsHtml) ||
+    normalizeHtml(riskAcceptanceCriteriaEarly?.natureOfKnownRisksHtml) ||
+    normalizeHtml(riskAcceptanceCriteriaEarly?.natureOfUsersHtml) ||
+    normalizeHtml(riskAcceptanceCriteriaEarly?.natureOfProductHtml) ||
+    normalizeHtml(riskAcceptanceCriteriaEarly?.stateOfTheArtHtml) ||
+    normalizeEvidencePayload(riskAcceptanceCriteriaEarly?.evidenceEntries).length
+
+  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture && !hasProductUserDescription && !hasProductContextAssessment && !hasRiskAssessmentMethodologyEarly && !hasRiskAcceptanceCriteriaEarly) {
     return undefined
   }
 
@@ -350,6 +361,31 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
       consistent_application_html: consistentAppHtml,
       individual_aggregate_risk_html: individualAggregateHtml,
       evidence_entries: methodologyEvidenceEntries,
+    }
+  }
+
+  // Risk Acceptance Criteria
+  const riskAcceptanceCriteria = state.riskAcceptanceCriteria
+  const riskAcceptanceCriteriaHtml = normalizeHtml(riskAcceptanceCriteria?.riskAcceptanceCriteriaHtml)
+  const regulatoryFactorsHtml = normalizeHtml(riskAcceptanceCriteria?.regulatoryFactorsHtml)
+  const contractualFactorsHtml = normalizeHtml(riskAcceptanceCriteria?.contractualFactorsHtml)
+  const natureOfKnownRisksHtml = normalizeHtml(riskAcceptanceCriteria?.natureOfKnownRisksHtml)
+  const natureOfUsersHtml = normalizeHtml(riskAcceptanceCriteria?.natureOfUsersHtml)
+  const natureOfProductHtml = normalizeHtml(riskAcceptanceCriteria?.natureOfProductHtml)
+  const stateOfTheArtHtml = normalizeHtml(riskAcceptanceCriteria?.stateOfTheArtHtml)
+  const acceptanceCriteriaEvidenceEntries = normalizeEvidencePayload(riskAcceptanceCriteria?.evidenceEntries)
+  const hasRiskAcceptanceCriteria = riskAcceptanceCriteriaHtml || regulatoryFactorsHtml || contractualFactorsHtml || natureOfKnownRisksHtml || natureOfUsersHtml || natureOfProductHtml || stateOfTheArtHtml || acceptanceCriteriaEvidenceEntries.length
+
+  if (hasRiskAcceptanceCriteria) {
+    payload.risk_acceptance_criteria = {
+      risk_acceptance_criteria_html: riskAcceptanceCriteriaHtml,
+      regulatory_factors_html: regulatoryFactorsHtml,
+      contractual_factors_html: contractualFactorsHtml,
+      nature_of_known_risks_html: natureOfKnownRisksHtml,
+      nature_of_users_html: natureOfUsersHtml,
+      nature_of_product_html: natureOfProductHtml,
+      state_of_the_art_html: stateOfTheArtHtml,
+      evidence_entries: acceptanceCriteriaEvidenceEntries,
     }
   }
 

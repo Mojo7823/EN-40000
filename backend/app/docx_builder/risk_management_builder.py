@@ -83,8 +83,10 @@ def append_risk_management_section(
     has_product_user_description = _product_user_description_has_content(product_user_description_payload)
     has_product_context_assessment = _product_context_assessment_has_content(product_context_assessment_payload)
     has_risk_assessment_methodology = _risk_assessment_methodology_has_content(risk_assessment_methodology_payload)
+    risk_acceptance_criteria_payload = getattr(payload, "risk_acceptance_criteria", None)
+    has_risk_acceptance_criteria = _risk_acceptance_criteria_has_content(risk_acceptance_criteria_payload)
 
-    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture and not has_product_user_description and not has_product_context_assessment and not has_risk_assessment_methodology:
+    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture and not has_product_user_description and not has_product_context_assessment and not has_risk_assessment_methodology and not has_risk_acceptance_criteria:
         return
 
     document.add_page_break()
@@ -152,6 +154,9 @@ def append_risk_management_section(
 
     if has_risk_assessment_methodology:
         _append_risk_assessment_methodology_section(document, risk_assessment_methodology_payload)
+
+    if has_risk_acceptance_criteria:
+        _append_risk_acceptance_criteria_section(document, risk_acceptance_criteria_payload)
 
 
 def _append_product_context_section(
@@ -397,6 +402,24 @@ def _risk_assessment_methodology_has_content(payload: Optional[object]) -> bool:
             bool(_extract_value(payload, "justification_html")),
             bool(_extract_value(payload, "consistent_application_html")),
             bool(_extract_value(payload, "individual_aggregate_risk_html")),
+            bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
+        ]
+    )
+
+
+def _risk_acceptance_criteria_has_content(payload: Optional[object]) -> bool:
+    """Check if Risk Acceptance Criteria section has content."""
+    if not payload:
+        return False
+    return any(
+        [
+            bool(_extract_value(payload, "risk_acceptance_criteria_html")),
+            bool(_extract_value(payload, "regulatory_factors_html")),
+            bool(_extract_value(payload, "contractual_factors_html")),
+            bool(_extract_value(payload, "nature_of_known_risks_html")),
+            bool(_extract_value(payload, "nature_of_users_html")),
+            bool(_extract_value(payload, "nature_of_product_html")),
+            bool(_extract_value(payload, "state_of_the_art_html")),
             bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
         ]
     )
@@ -1086,6 +1109,137 @@ def _append_risk_assessment_methodology_section(document: Document, payload: Opt
         agg_label.space_before = Pt(10)
         agg_label.space_after = Pt(4)
         append_html_to_document(document, aggregate_html)
+
+    # Evidence Reference
+    _append_evidence_tracker(document, getattr(payload, "evidence_entries", None))
+
+
+def _append_risk_acceptance_criteria_section(document: Document, payload: Optional[object]) -> None:
+    """Append Section 5.3.2 Risk Acceptance Criteria."""
+    from docx.shared import RGBColor
+    
+    if not payload:
+        return
+
+    # Start 5.3.2 Risk Acceptance Criteria on a new page
+    document.add_page_break()
+
+    # Section 5.3.2 heading
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("5.3.2 Risk Acceptance Criteria")
+    heading_run.font.size = Pt(16)
+    heading_run.font.bold = True
+    heading.space_after = Pt(6)
+
+    reference = document.add_paragraph("[Reference: Clause 6.3.3]")
+    reference.runs[0].font.bold = True
+    reference.space_after = Pt(10)
+
+    # Blue requirement section
+    req_para = document.add_paragraph()
+    req_run = req_para.add_run("Requirement [Clause 6.3.3]:")
+    req_run.font.color.rgb = RGBColor(0, 0, 255)
+    req_para.space_after = Pt(4)
+    
+    req_text = document.add_paragraph(
+        '"The risk acceptance criteria shall be defined and documented considering at least the assumptions and expectations regarding the:'
+    )
+    req_text.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+    req_text.space_after = Pt(2)
+    
+    bullets = [
+        "relevant regulatory factors;",
+        "relevant contractual factors;",
+        "nature of known risks;",
+        "nature of the users;",
+        "the nature of the product; and,",
+        "state of the art and current values of society."
+    ]
+    for bullet in bullets:
+        bullet_para = document.add_paragraph(bullet, style='List Bullet')
+        bullet_para.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+        bullet_para.space_after = Pt(2)
+    
+    closing_quote = document.add_paragraph('"')
+    closing_quote.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+    closing_quote.space_after = Pt(12)
+
+    # Risk Acceptance Criteria
+    criteria_html = _extract_value(payload, "risk_acceptance_criteria_html")
+    if criteria_html:
+        criteria_label = document.add_paragraph()
+        criteria_run = criteria_label.add_run("Risk Acceptance Criteria:")
+        criteria_run.font.size = Pt(13)
+        criteria_run.font.bold = True
+        criteria_label.space_before = Pt(6)
+        criteria_label.space_after = Pt(4)
+        append_html_to_document(document, criteria_html)
+
+    # Regulatory Factors
+    regulatory_html = _extract_value(payload, "regulatory_factors_html")
+    if regulatory_html:
+        reg_label = document.add_paragraph()
+        reg_run = reg_label.add_run("2. Regulatory Factors:")
+        reg_run.font.size = Pt(13)
+        reg_run.font.bold = True
+        reg_label.space_before = Pt(10)
+        reg_label.space_after = Pt(4)
+        append_html_to_document(document, regulatory_html)
+
+    # Contractual Factors
+    contractual_html = _extract_value(payload, "contractual_factors_html")
+    if contractual_html:
+        contract_label = document.add_paragraph()
+        contract_run = contract_label.add_run("3. Contractual Factors:")
+        contract_run.font.size = Pt(13)
+        contract_run.font.bold = True
+        contract_label.space_before = Pt(10)
+        contract_label.space_after = Pt(4)
+        append_html_to_document(document, contractual_html)
+
+    # Nature of Known Risks
+    known_risks_html = _extract_value(payload, "nature_of_known_risks_html")
+    if known_risks_html:
+        risks_label = document.add_paragraph()
+        risks_run = risks_label.add_run("4. Nature of Known Risks:")
+        risks_run.font.size = Pt(13)
+        risks_run.font.bold = True
+        risks_label.space_before = Pt(10)
+        risks_label.space_after = Pt(4)
+        append_html_to_document(document, known_risks_html)
+
+    # Nature of the Users
+    users_html = _extract_value(payload, "nature_of_users_html")
+    if users_html:
+        users_label = document.add_paragraph()
+        users_run = users_label.add_run("5. Nature of the Users:")
+        users_run.font.size = Pt(13)
+        users_run.font.bold = True
+        users_label.space_before = Pt(10)
+        users_label.space_after = Pt(4)
+        append_html_to_document(document, users_html)
+
+    # Nature of the Product
+    product_html = _extract_value(payload, "nature_of_product_html")
+    if product_html:
+        product_label = document.add_paragraph()
+        product_run = product_label.add_run("6. Nature of the Product:")
+        product_run.font.size = Pt(13)
+        product_run.font.bold = True
+        product_label.space_before = Pt(10)
+        product_label.space_after = Pt(4)
+        append_html_to_document(document, product_html)
+
+    # State of the Art
+    state_art_html = _extract_value(payload, "state_of_the_art_html")
+    if state_art_html:
+        state_label = document.add_paragraph()
+        state_run = state_label.add_run("7. State of the Art and Current Values of Society:")
+        state_run.font.size = Pt(13)
+        state_run.font.bold = True
+        state_label.space_before = Pt(10)
+        state_label.space_after = Pt(4)
+        append_html_to_document(document, state_art_html)
 
     # Evidence Reference
     _append_evidence_tracker(document, getattr(payload, "evidence_entries", None))
