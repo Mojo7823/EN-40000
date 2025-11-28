@@ -47,7 +47,7 @@ export const SECTION_GROUP_DEFINITIONS = [
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description', 'risk-product-context-assessment'],
+    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description', 'risk-product-context-assessment', 'risk-assessment-methodology'],
   },
 ]
 
@@ -68,12 +68,14 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
   const productArchitectureState = computed(() => riskManagement.value.productArchitecture)
   const productUserDescriptionState = computed(() => riskManagement.value.productUserDescription)
   const productContextAssessmentState = computed(() => riskManagement.value.productContextAssessment)
+  const riskAssessmentMethodologyState = computed(() => riskManagement.value.riskAssessmentMethodology)
 
   const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
   const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
   const operationalEnvEvidenceSummary = computed(() => summarizeEvidenceEntries(operationalEnvironmentState.value?.evidenceEntries ?? []))
   const productArchitectureEvidenceSummary = computed(() => summarizeEvidenceEntries(productArchitectureState.value?.evidenceEntries ?? []))
   const productUserDescriptionEvidenceSummary = computed(() => summarizeEvidenceEntries(productUserDescriptionState.value?.evidenceEntries ?? []))
+  const riskAssessmentMethodologyEvidenceSummary = computed(() => summarizeEvidenceEntries(riskAssessmentMethodologyState.value?.evidenceEntries ?? []))
 
   const sectionList = computed<SectionStatusItem[]>(() => {
     const introductionState = introduction.value
@@ -370,6 +372,28 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
         productContextAssessmentState.value?.overallVerdict && productContextAssessmentState.value.overallVerdict !== 'not_assessed'
           ? `Verdict: ${productContextAssessmentState.value.overallVerdict.toUpperCase()}`
           : 'Assessment not started'
+      ),
+      createSectionStatus(
+        'risk-assessment-methodology',
+        'Risk Assessment Methodology (Section 5.3.1)',
+        'Risk assessment and treatment methodology definition.',
+        [
+          stripHtml(riskAssessmentMethodologyState.value?.methodologyDescriptionHtml || ''),
+          stripHtml(riskAssessmentMethodologyState.value?.justificationHtml || ''),
+          stripHtml(riskAssessmentMethodologyState.value?.consistentApplicationHtml || ''),
+          stripHtml(riskAssessmentMethodologyState.value?.individualAggregateRiskHtml || ''),
+          riskAssessmentMethodologyEvidenceSummary.value.total
+            ? riskAssessmentMethodologyEvidenceSummary.value.state === 'completed'
+              ? 'complete'
+              : riskAssessmentMethodologyEvidenceSummary.value.state === 'partial'
+                ? 'progress'
+                : ''
+            : '',
+        ],
+        '/risk/assessment-methodology',
+        riskAssessmentMethodologyEvidenceSummary.value.total
+          ? `${riskAssessmentMethodologyEvidenceSummary.value.completed}/${riskAssessmentMethodologyEvidenceSummary.value.total} evidence items ready`
+          : 'No evidence captured yet'
       ),
       createSectionStatus(
         'evidence-tracker',

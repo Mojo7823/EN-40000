@@ -5,6 +5,7 @@ import type {
   ProductArchitectureState,
   ProductUserDescriptionState,
   ProductContextAssessmentState,
+  RiskAssessmentMethodologyState,
   RequirementAssessmentEntry,
   NonConformityEntry,
   RiskManagementState,
@@ -17,6 +18,7 @@ import {
   RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY,
   RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
   RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
+  RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
 } from '../constants'
 import { cloneEvidenceEntries } from './baseCloners'
 
@@ -74,6 +76,14 @@ const defaultProductUserDescriptionState: ProductUserDescriptionState = {
   noRdps: false,
   rdpsConsiderationsHtml: '',
   evidenceEntries: [getDefaultEvidenceEntry(RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY, 'Product User Description Evidence Reference')],
+}
+
+const defaultRiskAssessmentMethodologyState: RiskAssessmentMethodologyState = {
+  methodologyDescriptionHtml: '',
+  justificationHtml: '',
+  consistentApplicationHtml: '',
+  individualAggregateRiskHtml: '',
+  evidenceEntries: [getDefaultEvidenceEntry(RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY, 'Risk Assessment Methodology Evidence Reference')],
 }
 
 // ============================================================================
@@ -228,6 +238,26 @@ export function cloneProductContextAssessmentState(state?: ProductContextAssessm
 }
 
 // ============================================================================
+// Risk Assessment Methodology Cloner
+// ============================================================================
+
+export function cloneRiskAssessmentMethodologyState(state?: RiskAssessmentMethodologyState): RiskAssessmentMethodologyState {
+  const source = state ?? defaultRiskAssessmentMethodologyState
+  const evidenceSource =
+    Array.isArray(source.evidenceEntries) && source.evidenceEntries.length
+      ? source.evidenceEntries
+      : defaultRiskAssessmentMethodologyState.evidenceEntries
+
+  return {
+    methodologyDescriptionHtml: source.methodologyDescriptionHtml ?? '',
+    justificationHtml: source.justificationHtml ?? '',
+    consistentApplicationHtml: source.consistentApplicationHtml ?? '',
+    individualAggregateRiskHtml: source.individualAggregateRiskHtml ?? '',
+    evidenceEntries: cloneEvidenceEntries(evidenceSource, RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY),
+  }
+}
+
+// ============================================================================
 // Risk Management State Cloner (Combined)
 // ============================================================================
 
@@ -240,6 +270,7 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     productArchitecture: defaultProductArchitectureState,
     productUserDescription: defaultProductUserDescriptionState,
     productContextAssessment: defaultProductContextAssessmentState,
+    riskAssessmentMethodology: defaultRiskAssessmentMethodologyState,
   }
   return {
     generalApproachHtml: source.generalApproachHtml ?? '',
@@ -249,5 +280,6 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     productArchitecture: cloneProductArchitectureState(source.productArchitecture),
     productUserDescription: cloneProductUserDescriptionState(source.productUserDescription),
     productContextAssessment: cloneProductContextAssessmentState(source.productContextAssessment),
+    riskAssessmentMethodology: cloneRiskAssessmentMethodologyState(source.riskAssessmentMethodology),
   }
 }

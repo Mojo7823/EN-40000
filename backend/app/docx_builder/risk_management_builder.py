@@ -75,14 +75,16 @@ def append_risk_management_section(
     product_architecture_payload = getattr(payload, "product_architecture", None)
     product_user_description_payload = getattr(payload, "product_user_description", None)
     product_context_assessment_payload = getattr(payload, "product_context_assessment", None)
+    risk_assessment_methodology_payload = getattr(payload, "risk_assessment_methodology", None)
     has_product_context = _product_context_has_content(product_context_payload)
     has_product_function = _product_function_has_content(product_function_payload)
     has_operational_environment = _operational_environment_has_content(operational_environment_payload)
     has_product_architecture = _product_architecture_has_content(product_architecture_payload)
     has_product_user_description = _product_user_description_has_content(product_user_description_payload)
     has_product_context_assessment = _product_context_assessment_has_content(product_context_assessment_payload)
+    has_risk_assessment_methodology = _risk_assessment_methodology_has_content(risk_assessment_methodology_payload)
 
-    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture and not has_product_user_description and not has_product_context_assessment:
+    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture and not has_product_user_description and not has_product_context_assessment and not has_risk_assessment_methodology:
         return
 
     document.add_page_break()
@@ -147,6 +149,9 @@ def append_risk_management_section(
 
     if has_product_context_assessment:
         _append_product_context_assessment_section(document, product_context_assessment_payload)
+
+    if has_risk_assessment_methodology:
+        _append_risk_assessment_methodology_section(document, risk_assessment_methodology_payload)
 
 
 def _append_product_context_section(
@@ -380,6 +385,21 @@ def _product_context_assessment_has_content(payload: Optional[object]) -> bool:
     has_non_conformities = len(non_conformities) > 0
     
     return any([has_assessments, has_verdict, has_summary, has_non_conformities])
+
+
+def _risk_assessment_methodology_has_content(payload: Optional[object]) -> bool:
+    """Check if Risk Assessment Methodology section has content."""
+    if not payload:
+        return False
+    return any(
+        [
+            bool(_extract_value(payload, "methodology_description_html")),
+            bool(_extract_value(payload, "justification_html")),
+            bool(_extract_value(payload, "consistent_application_html")),
+            bool(_extract_value(payload, "individual_aggregate_risk_html")),
+            bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
+        ]
+    )
 
 
 def _append_product_function_section(document: Document, payload: Optional[object]) -> None:
@@ -952,3 +972,120 @@ def _append_non_conformities_table(document: Document, non_conformities: list) -
             severity_run.font.color.rgb = RGBColor(255, 165, 0)  # Orange
         
         row[4].text = corrective_action
+
+
+def _append_risk_assessment_methodology_section(document: Document, payload: Optional[object]) -> None:
+    """Append Section 5.3.1 Risk Assessment and Treatment Methodology."""
+    from docx.shared import RGBColor
+    
+    if not payload:
+        return
+
+    # Start 5.3 Risk Acceptance Criteria and Risk Management Methodology on a new page
+    document.add_page_break()
+
+    # Section 5.3 heading
+    heading_53 = document.add_paragraph()
+    heading_53_run = heading_53.add_run("5.3 Risk Acceptance Criteria and Risk Management Methodology")
+    heading_53_run.font.size = Pt(18)
+    heading_53_run.font.bold = True
+    heading_53.space_after = Pt(6)
+
+    reference_53 = document.add_paragraph("[Reference: Clause 6.3 - Risk acceptance criteria and risk management methodology]")
+    reference_53.runs[0].font.bold = True
+    reference_53.space_after = Pt(10)
+
+    intro_para = document.add_paragraph(
+        "This section describes the criteria used to determine whether risks are acceptable "
+        "and the methodology used to assess and treat risks."
+    )
+    intro_para.space_after = Pt(12)
+
+    # Section 5.3.1 heading
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("5.3.1 Risk Assessment and Treatment Methodology")
+    heading_run.font.size = Pt(16)
+    heading_run.font.bold = True
+    heading.space_after = Pt(6)
+
+    reference = document.add_paragraph("[Reference: Clause 6.3.1 - General]")
+    reference.runs[0].font.bold = True
+    reference.space_after = Pt(10)
+
+    # Blue requirement section
+    req_para = document.add_paragraph()
+    req_run = req_para.add_run("Requirement [Clause 6.3.3]:")
+    req_run.font.color.rgb = RGBColor(0, 0, 255)
+    req_para.space_after = Pt(4)
+    
+    req_text = document.add_paragraph(
+        '"A risk assessment and treatment methodology covering how risks are defined and measured shall be defined.'
+    )
+    req_text.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+    req_text.space_after = Pt(2)
+    
+    req_text2 = document.add_paragraph("This methodology shall be:")
+    req_text2.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+    req_text2.space_after = Pt(2)
+    
+    bullets = [
+        "Applied consistently on the product throughout its lifecycle;",
+        "Justified for the product;",
+        "Aligned with the state of the art and current values of society for the product;",
+        "Applied to both individual risks and aggregate risks."
+    ]
+    for bullet in bullets:
+        bullet_para = document.add_paragraph(bullet, style='List Bullet')
+        bullet_para.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+        bullet_para.space_after = Pt(2)
+    
+    closing_quote = document.add_paragraph('"')
+    closing_quote.runs[0].font.color.rgb = RGBColor(0, 0, 255)
+    closing_quote.space_after = Pt(12)
+
+    # Risk Methodology Description
+    methodology_html = _extract_value(payload, "methodology_description_html")
+    if methodology_html:
+        method_label = document.add_paragraph()
+        method_run = method_label.add_run("Risk Methodology Description:")
+        method_run.font.size = Pt(13)
+        method_run.font.bold = True
+        method_label.space_before = Pt(6)
+        method_label.space_after = Pt(4)
+        append_html_to_document(document, methodology_html)
+
+    # Justification for Methodology
+    justification_html = _extract_value(payload, "justification_html")
+    if justification_html:
+        just_label = document.add_paragraph()
+        just_run = just_label.add_run("Justification for Methodology:")
+        just_run.font.size = Pt(13)
+        just_run.font.bold = True
+        just_label.space_before = Pt(10)
+        just_label.space_after = Pt(4)
+        append_html_to_document(document, justification_html)
+
+    # Consistent Application
+    consistent_html = _extract_value(payload, "consistent_application_html")
+    if consistent_html:
+        cons_label = document.add_paragraph()
+        cons_run = cons_label.add_run("Consistent Application:")
+        cons_run.font.size = Pt(13)
+        cons_run.font.bold = True
+        cons_label.space_before = Pt(10)
+        cons_label.space_after = Pt(4)
+        append_html_to_document(document, consistent_html)
+
+    # Individual and Aggregate Risk
+    aggregate_html = _extract_value(payload, "individual_aggregate_risk_html")
+    if aggregate_html:
+        agg_label = document.add_paragraph()
+        agg_run = agg_label.add_run("Individual and Aggregate Risk:")
+        agg_run.font.size = Pt(13)
+        agg_run.font.bold = True
+        agg_label.space_before = Pt(10)
+        agg_label.space_after = Pt(4)
+        append_html_to_document(document, aggregate_html)
+
+    # Evidence Reference
+    _append_evidence_tracker(document, getattr(payload, "evidence_entries", None))

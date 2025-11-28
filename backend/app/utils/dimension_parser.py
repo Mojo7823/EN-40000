@@ -14,7 +14,7 @@ def extract_dimension_px(element, attr_name: str) -> Optional[float]:
     Checks in order:
     1. CSS style attribute
     2. Direct width/height attribute
-    3. data-colwidth attribute (for table columns)
+    3. colwidth attribute (for TipTap table columns)
     
     Args:
         element: lxml HTML element
@@ -44,12 +44,13 @@ def extract_dimension_px(element, attr_name: str) -> Optional[float]:
         except (TypeError, ValueError):
             pass
     
-    # Check data-colwidth for table columns (TipTap specific)
+    # Check colwidth for table columns (TipTap specific)
+    # TipTap uses "colwidth" attribute (not "data-colwidth")
     if attr_name == "width":
-        colwidth = element.get("data-colwidth")
+        colwidth = element.get("colwidth") or element.get("data-colwidth")
         if colwidth:
             try:
-                parts = [float(part) for part in colwidth.split(",") if part.strip()]
+                parts = [float(part) for part in str(colwidth).split(",") if part.strip()]
                 if parts:
                     return parts[0]
             except (TypeError, ValueError):

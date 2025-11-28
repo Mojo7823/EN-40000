@@ -231,11 +231,16 @@
 
 .editor :deep(th),
 .editor :deep(td) {
-  border: 1px solid var(--panel-border);
+  border: 1px solid #d1d5db;
   padding: 6px 10px;
   position: relative;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   cursor: text;
+}
+
+.dark .editor :deep(th),
+.dark .editor :deep(td) {
+  border-color: #4b5563;
 }
 
 .editor :deep(th:hover),

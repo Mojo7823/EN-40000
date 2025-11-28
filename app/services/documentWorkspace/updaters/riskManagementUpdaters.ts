@@ -7,6 +7,7 @@ import type {
   ProductArchitectureState,
   ProductUserDescriptionState,
   ProductContextAssessmentState,
+  RiskAssessmentMethodologyState,
 } from '../types'
 import {
   RISK_PRODUCT_CONTEXT_SECTION_KEY,
@@ -14,6 +15,7 @@ import {
   RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY,
   RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
   RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
+  RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
 } from '../constants'
 import {
   defaultProductContextState,
@@ -22,6 +24,7 @@ import {
   defaultProductArchitectureState,
   defaultProductUserDescriptionState,
   defaultProductContextAssessmentState,
+  defaultRiskAssessmentMethodologyState,
 } from '../defaults'
 import {
   getInMemoryState,
@@ -35,6 +38,7 @@ import {
   cloneProductArchitectureState,
   cloneProductUserDescriptionState,
   cloneProductContextAssessmentState,
+  cloneRiskAssessmentMethodologyState,
 } from '../cloners'
 
 // ============================================================================
@@ -230,6 +234,36 @@ export function updateRiskManagementState(
     nextProductContextAssessment = cloneProductContextAssessmentState(currentProductContextAssessment)
   }
 
+  // Risk Assessment Methodology
+  const currentRiskAssessmentMethodology = current.riskAssessmentMethodology || cloneRiskAssessmentMethodologyState()
+  let nextRiskAssessmentMethodology: RiskAssessmentMethodologyState
+  if (patch.riskAssessmentMethodology) {
+    const methodologyPatch = patch.riskAssessmentMethodology
+    const patchedEvidence =
+      methodologyPatch.evidenceEntries !== undefined
+        ? methodologyPatch.evidenceEntries.length
+          ? cloneEvidenceEntries(methodologyPatch.evidenceEntries, RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY)
+          : cloneEvidenceEntries(defaultRiskAssessmentMethodologyState.evidenceEntries, RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY)
+        : cloneEvidenceEntries(currentRiskAssessmentMethodology.evidenceEntries, RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY)
+
+    nextRiskAssessmentMethodology = {
+      methodologyDescriptionHtml: methodologyPatch.methodologyDescriptionHtml ?? currentRiskAssessmentMethodology.methodologyDescriptionHtml,
+      justificationHtml: methodologyPatch.justificationHtml ?? currentRiskAssessmentMethodology.justificationHtml,
+      consistentApplicationHtml: methodologyPatch.consistentApplicationHtml ?? currentRiskAssessmentMethodology.consistentApplicationHtml,
+      individualAggregateRiskHtml: methodologyPatch.individualAggregateRiskHtml ?? currentRiskAssessmentMethodology.individualAggregateRiskHtml,
+      evidenceEntries: patchedEvidence,
+    }
+  } else {
+    nextRiskAssessmentMethodology = cloneRiskAssessmentMethodologyState(currentRiskAssessmentMethodology)
+  }
+
+  if (!nextRiskAssessmentMethodology.evidenceEntries.length) {
+    nextRiskAssessmentMethodology.evidenceEntries = cloneEvidenceEntries(
+      defaultRiskAssessmentMethodologyState.evidenceEntries,
+      RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY
+    )
+  }
+
   // Combine all
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
@@ -239,6 +273,7 @@ export function updateRiskManagementState(
     productArchitecture: nextProductArchitecture,
     productUserDescription: nextProductUserDescription,
     productContextAssessment: nextProductContextAssessment,
+    riskAssessmentMethodology: nextRiskAssessmentMethodology,
   }
 
   const next: DocumentWorkspaceState = {

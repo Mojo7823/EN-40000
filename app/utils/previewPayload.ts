@@ -231,7 +231,15 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
   const productContextAssessment = state.productContextAssessment
   const hasProductContextAssessment = productContextAssessmentHasContent(productContextAssessment)
 
-  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture && !hasProductUserDescription && !hasProductContextAssessment) {
+  // Risk Assessment Methodology (early check for empty payload)
+  const riskAssessmentMethodologyEarly = state.riskAssessmentMethodology
+  const hasRiskAssessmentMethodologyEarly = normalizeHtml(riskAssessmentMethodologyEarly?.methodologyDescriptionHtml) ||
+    normalizeHtml(riskAssessmentMethodologyEarly?.justificationHtml) ||
+    normalizeHtml(riskAssessmentMethodologyEarly?.consistentApplicationHtml) ||
+    normalizeHtml(riskAssessmentMethodologyEarly?.individualAggregateRiskHtml) ||
+    normalizeEvidencePayload(riskAssessmentMethodologyEarly?.evidenceEntries).length
+
+  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture && !hasProductUserDescription && !hasProductContextAssessment && !hasRiskAssessmentMethodologyEarly) {
     return undefined
   }
 
@@ -323,6 +331,25 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
       overall_verdict: productContextAssessment.overallVerdict || 'not_assessed',
       summary_of_findings_html: normalizeHtml(productContextAssessment.summaryOfFindingsHtml) || '',
       non_conformities: normalizeNonConformityEntries(productContextAssessment.nonConformities),
+    }
+  }
+
+  // Risk Assessment Methodology
+  const riskAssessmentMethodology = state.riskAssessmentMethodology
+  const methodologyDescHtml = normalizeHtml(riskAssessmentMethodology?.methodologyDescriptionHtml)
+  const justificationHtml = normalizeHtml(riskAssessmentMethodology?.justificationHtml)
+  const consistentAppHtml = normalizeHtml(riskAssessmentMethodology?.consistentApplicationHtml)
+  const individualAggregateHtml = normalizeHtml(riskAssessmentMethodology?.individualAggregateRiskHtml)
+  const methodologyEvidenceEntries = normalizeEvidencePayload(riskAssessmentMethodology?.evidenceEntries)
+  const hasRiskAssessmentMethodology = methodologyDescHtml || justificationHtml || consistentAppHtml || individualAggregateHtml || methodologyEvidenceEntries.length
+
+  if (hasRiskAssessmentMethodology) {
+    payload.risk_assessment_methodology = {
+      methodology_description_html: methodologyDescHtml,
+      justification_html: justificationHtml,
+      consistent_application_html: consistentAppHtml,
+      individual_aggregate_risk_html: individualAggregateHtml,
+      evidence_entries: methodologyEvidenceEntries,
     }
   }
 

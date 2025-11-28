@@ -14,6 +14,7 @@ export const RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY = 'risk-operational-enviro
 export const RISK_PRODUCT_ARCHITECTURE_SECTION_KEY = 'risk-product-architecture'
 export const RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY = 'risk-product-user-description'
 export const RISK_PRODUCT_CONTEXT_ASSESSMENT_SECTION_KEY = 'risk-product-context-assessment'
+export const RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY = 'risk-assessment-methodology'
 
 // ============================================================================
 // ID Prefixes

@@ -194,7 +194,7 @@
     - Add clause reference "[Reference: Clause 6.2]"
     - _Requirements: 8.1_
 
-- [-] 16. Final Integration Checkpoint
+- [ ] 16. Final Integration Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
   - Verify DOCX export includes Product Context Assessment section
   - Verify preview section status shows assessment completion state

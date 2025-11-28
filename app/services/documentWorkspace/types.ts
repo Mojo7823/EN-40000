@@ -287,6 +287,18 @@ export interface ProductContextAssessmentState {
 }
 
 // ============================================================================
+// Risk Management - Risk Assessment and Treatment Methodology
+// ============================================================================
+
+export interface RiskAssessmentMethodologyState {
+  methodologyDescriptionHtml: string
+  justificationHtml: string
+  consistentApplicationHtml: string
+  individualAggregateRiskHtml: string
+  evidenceEntries: RiskEvidenceEntry[]
+}
+
+// ============================================================================
 // Risk Management - Combined State
 // ============================================================================
 
@@ -298,6 +310,7 @@ export interface RiskManagementState {
   productArchitecture: ProductArchitectureState
   productUserDescription?: ProductUserDescriptionState
   productContextAssessment?: ProductContextAssessmentState
+  riskAssessmentMethodology?: RiskAssessmentMethodologyState
 }
 
 // ============================================================================

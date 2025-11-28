@@ -82,13 +82,14 @@
           }"
         >
           <template #default="{ item }">
-            <div class="flex items-start justify-between w-full gap-3">
-              <div class="min-w-0">
+            <div class="flex items-center justify-between w-full gap-3 pr-2">
+              <div class="min-w-0 flex-1">
                 <p class="font-semibold leading-tight">{{ item.title }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.description }}</p>
               </div>
               <UBadge
-                class="shrink-0 whitespace-nowrap self-start"
+                :key="`group-${item.key}-${item.state}-${hydrated}`"
+                class="shrink-0 whitespace-nowrap"
                 :color="getStatusColor(item.state) as any"
                 variant="subtle"
               >
@@ -101,7 +102,7 @@
             <div class="space-y-2">
               <div
                 v-for="section in item.items"
-                :key="section.key"
+                :key="`${section.key}-${section.status}-${hydrated}`"
                 class="relative p-3 rounded-lg border transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                 :class="getSectionBorderClasses(section.status)"
                 role="link"
@@ -120,6 +121,7 @@
                     </p>
                   </div>
                   <UBadge
+                    :key="`section-${section.key}-${section.status}-${hydrated}`"
                     class="absolute top-3 right-3 shrink-0 whitespace-nowrap"
                     :color="getStatusColor(section.status) as any"
                     variant="soft"
@@ -203,14 +205,6 @@
                 @click="buildFullPreview"
               >
                 Refresh Preview
-              </UButton>
-              <UButton
-                color="primary"
-                icon="i-heroicons-eye"
-                :disabled="allMissing"
-                @click="buildFullPreview"
-              >
-                Preview All
               </UButton>
             </div>
           </div>
@@ -308,6 +302,7 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 const generatedFiles = ref<Array<{ filename: string; path: string; timestamp: string; section?: string }>>([])
+const hydrated = ref(false)
 
 // DOM refs for DOCX preview
 const docxPreviewContainer = ref<HTMLDivElement | null>(null)
@@ -339,6 +334,10 @@ const lastUpdatedLabel = computed(() => {
 let unsubscribe: (() => void) | null = null
 
 onMounted(() => {
+  // Reload workspace from localStorage on client to fix SSR hydration
+  workspace.value = workspaceService.loadDocumentWorkspace()
+  hydrated.value = true
+  
   unsubscribe = workspaceService.subscribeDocumentWorkspace((state) => {
     workspace.value = state
   })

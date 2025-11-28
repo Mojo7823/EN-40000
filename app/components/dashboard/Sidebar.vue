@@ -143,6 +143,16 @@ const items = ref([[{
     description: 'Product context assessment checklist'
   }]
 }, {
+  label: 'Risk Acceptance Criteria and Methodology',
+  icon: 'i-heroicons-calculator',
+  defaultOpen: true,
+  children: [{
+    label: 'Risk Assessment and Treatment Methodology',
+    to: '/risk/assessment-methodology',
+    icon: 'i-heroicons-chart-bar',
+    description: 'Risk assessment methodology definition'
+  }]
+}, {
   label: 'Document Management',
   icon: 'i-heroicons-folder-open',
   defaultOpen: true,

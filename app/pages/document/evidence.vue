@@ -219,6 +219,19 @@ function buildEvidenceRows(state: DocumentWorkspaceState) {
     })
   }
 
+  // Risk Assessment Methodology evidence
+  const riskAssessmentMethodology = state.riskManagement?.riskAssessmentMethodology
+  if (riskAssessmentMethodology?.evidenceEntries?.length) {
+    riskAssessmentMethodology.evidenceEntries.forEach((entry) => {
+      rows.push({
+        ...entry,
+        sectionLabel: 'Risk Assessment Methodology (Section 5.3.1)',
+        referenceLine: '[Reference: Clause 6.3.1]',
+        route: '/risk/assessment-methodology',
+      })
+    })
+  }
+
   return rows
 }
 

@@ -45,6 +45,7 @@ export type {
   RequirementAssessmentEntry,
   NonConformityEntry,
   ProductContextAssessmentState,
+  RiskAssessmentMethodologyState,
   RiskManagementState,
   DocumentWorkspaceState,
   WorkspaceListener,
@@ -59,6 +60,7 @@ export {
   RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
   RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
   RISK_PRODUCT_CONTEXT_ASSESSMENT_SECTION_KEY,
+  RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
   TERMINOLOGY_ID_PREFIX,
   EVIDENCE_ID_PREFIX,
   RISK_EVIDENCE_STATUS_OPTIONS,
@@ -95,9 +97,11 @@ export {
 // Re-export cloners (for external use when deep cloning is needed)
 export {
   cloneProductContextAssessmentState,
+  cloneRiskAssessmentMethodologyState,
 } from './cloners'
 
 // Re-export defaults (for external use when initializing state)
 export {
   defaultProductContextAssessmentState,
+  defaultRiskAssessmentMethodologyState,
 } from './defaults'

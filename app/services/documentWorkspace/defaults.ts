@@ -9,6 +9,7 @@ import {
   RISK_OPERATIONAL_ENVIRONMENT_SECTION_KEY,
   RISK_PRODUCT_ARCHITECTURE_SECTION_KEY,
   RISK_PRODUCT_USER_DESCRIPTION_SECTION_KEY,
+  RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
 } from './constants'
 import type {
   CoverFormState,
@@ -29,6 +30,7 @@ import type {
   ProductArchitectureState,
   ProductUserDescriptionState,
   ProductContextAssessmentState,
+  RiskAssessmentMethodologyState,
   RiskManagementState,
   DocumentWorkspaceState,
 } from './types'
@@ -288,6 +290,23 @@ export const defaultProductUserDescriptionState: ProductUserDescriptionState = {
   ],
 }
 
+export const defaultRiskAssessmentMethodologyState: RiskAssessmentMethodologyState = {
+  methodologyDescriptionHtml: '',
+  justificationHtml: '',
+  consistentApplicationHtml: '',
+  individualAggregateRiskHtml: '',
+  evidenceEntries: [
+    {
+      id: `${RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY}-evidence`,
+      sectionKey: RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
+      title: 'Risk Assessment Methodology Evidence Reference',
+      referenceId: '',
+      descriptionHtml: '',
+      status: 'not_started',
+    },
+  ],
+}
+
 export function defaultProductContextAssessmentState(): ProductContextAssessmentState {
   return {
     assessments: [],
@@ -320,6 +339,10 @@ export const defaultRiskManagementState: RiskManagementState = {
     evidenceEntries: defaultProductUserDescriptionState.evidenceEntries.map((e) => ({ ...e })),
   },
   productContextAssessment: defaultProductContextAssessmentState(),
+  riskAssessmentMethodology: {
+    ...defaultRiskAssessmentMethodologyState,
+    evidenceEntries: defaultRiskAssessmentMethodologyState.evidenceEntries.map((e) => ({ ...e })),
+  },
 }
 
 // ============================================================================

@@ -244,6 +244,15 @@ class ProductContextAssessmentSection(BaseModel):
     non_conformities: List[NonConformityEntry] = Field(default_factory=list)
 
 
+class RiskAssessmentMethodologySection(BaseModel):
+    """Risk Assessment and Treatment Methodology (Section 5.3.1)."""
+    methodology_description_html: Optional[str] = None
+    justification_html: Optional[str] = None
+    consistent_application_html: Optional[str] = None
+    individual_aggregate_risk_html: Optional[str] = None
+    evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
@@ -253,6 +262,7 @@ class RiskManagementSection(BaseModel):
     product_architecture: Optional[ProductArchitectureSection] = None
     product_user_description: Optional[ProductUserDescriptionSection] = None
     product_context_assessment: Optional[ProductContextAssessmentSection] = None
+    risk_assessment_methodology: Optional[RiskAssessmentMethodologySection] = None
 
 
 class CoverPreviewRequest(BaseModel):
