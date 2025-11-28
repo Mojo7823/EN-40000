@@ -21,7 +21,7 @@ app/
 ├── pages/           # Route pages
 ├── components/      # Reusable Vue components
 ├── composables/     # Business logic (use* prefix)
-├── services/        # State management (documentWorkspace.ts)
+├── services/        # State management (see documentWorkspace/ below)
 ├── utils/           # Helpers (previewPayload.ts for API payloads)
 ├── types/           # TypeScript interfaces
 └── constants/       # Static configuration
@@ -32,6 +32,39 @@ backend/app/
 ├── utils/           # Helper functions
 └── docx_builder/    # DOCX generation
 ```
+
+## Document Workspace Module
+
+The `documentWorkspace` module is the central state manager. It's modularized for maintainability:
+
+```
+app/services/documentWorkspace/
+├── index.ts          # Public API — all imports come from here
+├── types.ts          # TypeScript interfaces for all state shapes
+├── constants.ts      # Section keys, ID prefixes, generators
+├── defaults.ts       # Default values for each section
+├── storage.ts        # localStorage persistence & listeners
+├── cloners/          # Deep clone helpers (one per domain)
+│   ├── baseCloners.ts
+│   ├── conformanceCloners.ts
+│   ├── riskManagementCloners.ts
+│   └── documentConventionCloners.ts
+└── updaters/         # State update functions (one per domain)
+    ├── baseUpdaters.ts
+    ├── conformanceUpdaters.ts
+    └── riskManagementUpdaters.ts
+```
+
+**Import from the main module only:**
+```typescript
+import { 
+  loadDocumentWorkspace, 
+  updateCoverState,
+  type CoverFormState 
+} from '~/services/documentWorkspace'
+```
+
+**Do NOT import from submodules directly** — use the public API in `index.ts`.
 
 ## Nuxt UI v4 Quick Reference
 
@@ -62,9 +95,10 @@ const columns = [
 ## Critical Patterns
 
 ### State Management
-1. Never mutate state directly — deep clone before updating
-2. Use `documentWorkspace.ts` as central state manager
+1. Never mutate state directly — use update functions from `documentWorkspace`
+2. Import from `~/services/documentWorkspace` (not submodules)
 3. Wrap browser APIs in `if (import.meta.client)` for SSR safety
+4. Use cloners when you need a deep copy of state
 
 ### Preventing Infinite Loops
 ```typescript
@@ -80,14 +114,19 @@ When adding a new section (e.g., `productUserDescription`), update ALL of these:
 
 | # | File | What to Add |
 |---|------|-------------|
-| 1 | `app/services/documentWorkspace.ts` | Interface, default state, clone helper, section key constant |
-| 2 | `app/composables/usePreviewSections.ts` | Section status in `sectionList`, add to `SECTION_GROUP_DEFINITIONS` |
-| 3 | `app/utils/previewPayload.ts` | **Add to `buildRiskManagementPayload()`** — extracts data and adds to API payload |
-| 4 | `app/pages/document/evidence.vue` | Add evidence entries in `buildEvidenceRows()` |
-| 5 | `backend/app/schemas.py` | Pydantic model for the section |
-| 6 | `backend/app/docx_builder/risk_management_builder.py` | `_has_content()` check and `_append_section()` function |
+| 1 | `app/services/documentWorkspace/types.ts` | Interface for the new section state |
+| 2 | `app/services/documentWorkspace/constants.ts` | Section key constant (e.g., `RISK_NEW_SECTION_KEY`) |
+| 3 | `app/services/documentWorkspace/defaults.ts` | Default state value |
+| 4 | `app/services/documentWorkspace/cloners/riskManagementCloners.ts` | Clone function for the section |
+| 5 | `app/services/documentWorkspace/updaters/riskManagementUpdaters.ts` | Update `updateRiskManagementState()` to handle the new section |
+| 6 | `app/services/documentWorkspace/index.ts` | Export new types/constants if needed |
+| 7 | `app/composables/usePreviewSections.ts` | Section status in `sectionList`, add to `SECTION_GROUP_DEFINITIONS` |
+| 8 | `app/utils/previewPayload.ts` | **Add to `buildRiskManagementPayload()`** — extracts data for API |
+| 9 | `app/pages/document/evidence.vue` | Add evidence entries in `buildEvidenceRows()` |
+| 10 | `backend/app/schemas.py` | Pydantic model for the section |
+| 11 | `backend/app/docx_builder/risk_management_builder.py` | `_has_content()` check and `_append_section()` function |
 
-**Common mistake:** Forgetting step 3 (`previewPayload.ts`) — the section won't appear in DOCX even if backend is ready.
+**Common mistake:** Forgetting step 8 (`previewPayload.ts`) — the section won't appear in DOCX even if backend is ready.
 
 ## API Payload Flow
 
