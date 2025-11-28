@@ -135,22 +135,22 @@ const items = ref([[{
       to: '/pcontext/user-description',
       icon: 'i-heroicons-user-group',
       description: 'Intended users and RDPS considerations'
+    }, {
+      label: 'Product Context Assessment',
+      to: '/pcontext/product-context-assessment',
+      icon: 'i-heroicons-clipboard-document-check',
+      description: 'Product context assessment checklist'
     }]
   }, {
-    label: 'Product Context Assessment',
-    to: '/risk/product-context-assessment',
-    icon: 'i-heroicons-clipboard-document-check',
-    description: 'Product context assessment checklist'
-  }]
-}, {
-  label: 'Risk Acceptance Criteria and Methodology',
-  icon: 'i-heroicons-calculator',
-  defaultOpen: true,
-  children: [{
-    label: 'Risk Assessment and Treatment Methodology',
-    to: '/risk/assessment-methodology',
-    icon: 'i-heroicons-chart-bar',
-    description: 'Risk assessment methodology definition'
+    label: 'Risk Acceptance Criteria and Methodology',
+    icon: 'i-heroicons-calculator',
+    defaultOpen: true,
+    children: [{
+      label: 'Risk Assessment and Treatment Methodology',
+      to: '/risk/assessment-methodology',
+      icon: 'i-heroicons-chart-bar',
+      description: 'Risk assessment methodology definition'
+    }]
   }]
 }, {
   label: 'Document Management',

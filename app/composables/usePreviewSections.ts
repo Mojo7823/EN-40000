@@ -368,7 +368,7 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
           productContextAssessmentState.value?.assessments?.filter(a => a.status !== 'not_assessed').length ? 'assessments' : '',
           productContextAssessmentState.value?.nonConformities?.length ? 'nc' : '',
         ],
-        '/risk/product-context-assessment',
+        '/pcontext/product-context-assessment',
         productContextAssessmentState.value?.overallVerdict && productContextAssessmentState.value.overallVerdict !== 'not_assessed'
           ? `Verdict: ${productContextAssessmentState.value.overallVerdict.toUpperCase()}`
           : 'Assessment not started'
