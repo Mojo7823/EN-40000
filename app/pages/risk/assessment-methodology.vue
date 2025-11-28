@@ -7,7 +7,7 @@
       <template #header>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Section 5.3</p>
+            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Risk Assessment Criteria and Methodology</p>
             <h1 class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">Risk Acceptance Criteria and Risk Management Methodology</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
               [Reference: Clause 6.3 - Risk acceptance criteria and risk management methodology]

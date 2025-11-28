@@ -7,7 +7,7 @@
       <template #header>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Risk Management Elements</p>
+            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Prodcut COntext</p>
             <h1 class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">Product Architecture Overview</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
               Describe the architecture of {{ productName }}, including hardware, software, and RDPS components.

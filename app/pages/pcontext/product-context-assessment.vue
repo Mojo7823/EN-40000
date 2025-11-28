@@ -7,8 +7,8 @@
       <template #header>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Risk Management</p>
-            <h1 class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">Product Context - Assessment Summary</h1>
+            <p class="text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300 font-semibold">Product Context</p>
+            <h1 class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">Assessment Summary</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
               [Reference: Clause 6.2]
             </p>
