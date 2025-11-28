@@ -136,6 +136,11 @@ const items = ref([[{
       icon: 'i-heroicons-user-group',
       description: 'Intended users and RDPS considerations'
     }]
+  }, {
+    label: 'Product Context Assessment',
+    to: '/risk/product-context-assessment',
+    icon: 'i-heroicons-clipboard-document-check',
+    description: 'Product context assessment checklist'
   }]
 }, {
   label: 'Document Management',

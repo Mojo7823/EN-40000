@@ -214,6 +214,36 @@ class ProductUserDescriptionSection(BaseModel):
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 
+# ============================================================================
+# Product Context Assessment (Section 5.3)
+# ============================================================================
+
+class RequirementAssessmentEntry(BaseModel):
+    """Individual requirement assessment entry for Product Context Assessment."""
+    id: Optional[str] = None                    # e.g., "6.2.2-a"
+    evidence_id: Optional[str] = None           # Reference to evidence entry ID
+    evidence_ref_id: Optional[str] = None       # Display reference ID from evidence
+    status: Optional[str] = None                # 'not_assessed' | 'pass' | 'fail' | 'na'
+    comments_html: Optional[str] = None
+
+
+class NonConformityEntry(BaseModel):
+    """Non-conformity entry for Product Context Assessment."""
+    id: Optional[str] = None                    # e.g., "NC-6.2-01"
+    requirement_id: Optional[str] = None        # e.g., "6.2.3-f"
+    description: Optional[str] = None
+    severity: Optional[str] = None              # 'minor' | 'major' | 'critical'
+    corrective_action: Optional[str] = None
+
+
+class ProductContextAssessmentSection(BaseModel):
+    """Product Context Assessment Summary (Section 5.3)."""
+    assessments: List[RequirementAssessmentEntry] = Field(default_factory=list)
+    overall_verdict: Optional[str] = None       # 'pass' | 'partial' | 'fail' | 'na' | 'not_assessed'
+    summary_of_findings_html: Optional[str] = None
+    non_conformities: List[NonConformityEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
@@ -222,6 +252,7 @@ class RiskManagementSection(BaseModel):
     operational_environment: Optional[OperationalEnvironmentSection] = None
     product_architecture: Optional[ProductArchitectureSection] = None
     product_user_description: Optional[ProductUserDescriptionSection] = None
+    product_context_assessment: Optional[ProductContextAssessmentSection] = None
 
 
 class CoverPreviewRequest(BaseModel):

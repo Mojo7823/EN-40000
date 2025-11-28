@@ -19,6 +19,7 @@ export {
   cloneOperationalEnvironmentState,
   cloneProductArchitectureState,
   cloneProductUserDescriptionState,
+  cloneProductContextAssessmentState,
   cloneRiskManagementState,
 } from './riskManagementCloners'
 

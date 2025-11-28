@@ -47,7 +47,7 @@ export const SECTION_GROUP_DEFINITIONS = [
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description'],
+    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description', 'risk-product-context-assessment'],
   },
 ]
 
@@ -67,6 +67,7 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
   const operationalEnvironmentState = computed(() => riskManagement.value.operationalEnvironment)
   const productArchitectureState = computed(() => riskManagement.value.productArchitecture)
   const productUserDescriptionState = computed(() => riskManagement.value.productUserDescription)
+  const productContextAssessmentState = computed(() => riskManagement.value.productContextAssessment)
 
   const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
   const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
@@ -354,6 +355,21 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
         productUserDescriptionEvidenceSummary.value.total
           ? `${productUserDescriptionEvidenceSummary.value.completed}/${productUserDescriptionEvidenceSummary.value.total} evidence items ready`
           : 'No evidence captured yet'
+      ),
+      createSectionStatus(
+        'risk-product-context-assessment',
+        'Product Context Assessment (Section 5.3)',
+        'Clause 6.2 conformance assessment summary.',
+        [
+          productContextAssessmentState.value?.overallVerdict && productContextAssessmentState.value.overallVerdict !== 'not_assessed' ? productContextAssessmentState.value.overallVerdict : '',
+          stripHtml(productContextAssessmentState.value?.summaryOfFindingsHtml || ''),
+          productContextAssessmentState.value?.assessments?.filter(a => a.status !== 'not_assessed').length ? 'assessments' : '',
+          productContextAssessmentState.value?.nonConformities?.length ? 'nc' : '',
+        ],
+        '/risk/product-context-assessment',
+        productContextAssessmentState.value?.overallVerdict && productContextAssessmentState.value.overallVerdict !== 'not_assessed'
+          ? `Verdict: ${productContextAssessmentState.value.overallVerdict.toUpperCase()}`
+          : 'Assessment not started'
       ),
       createSectionStatus(
         'evidence-tracker',

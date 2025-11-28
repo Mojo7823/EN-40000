@@ -4,6 +4,9 @@ import type {
   ProductOperationalEnvironmentState,
   ProductArchitectureState,
   ProductUserDescriptionState,
+  ProductContextAssessmentState,
+  RequirementAssessmentEntry,
+  NonConformityEntry,
   RiskManagementState,
   LegacyProductContextState,
   RiskEvidenceEntry,
@@ -182,6 +185,49 @@ export function cloneProductUserDescriptionState(state?: ProductUserDescriptionS
 }
 
 // ============================================================================
+// Product Context Assessment Cloner
+// ============================================================================
+
+// Inline default to avoid circular dependency with defaults.ts
+const defaultProductContextAssessmentState: ProductContextAssessmentState = {
+  assessments: [],
+  overallVerdict: 'not_assessed',
+  summaryOfFindingsHtml: '',
+  nonConformities: [],
+}
+
+function cloneAssessmentEntry(entry: RequirementAssessmentEntry): RequirementAssessmentEntry {
+  return {
+    id: entry.id,
+    evidenceId: entry.evidenceId,
+    evidenceRefId: entry.evidenceRefId,
+    status: entry.status,
+    commentsHtml: entry.commentsHtml,
+  }
+}
+
+function cloneNonConformityEntry(entry: NonConformityEntry): NonConformityEntry {
+  return {
+    id: entry.id,
+    requirementId: entry.requirementId,
+    description: entry.description,
+    severity: entry.severity,
+    correctiveAction: entry.correctiveAction,
+  }
+}
+
+export function cloneProductContextAssessmentState(state?: ProductContextAssessmentState): ProductContextAssessmentState {
+  const source = state ?? defaultProductContextAssessmentState
+
+  return {
+    assessments: (source.assessments ?? []).map(cloneAssessmentEntry),
+    overallVerdict: source.overallVerdict ?? 'not_assessed',
+    summaryOfFindingsHtml: source.summaryOfFindingsHtml ?? '',
+    nonConformities: (source.nonConformities ?? []).map(cloneNonConformityEntry),
+  }
+}
+
+// ============================================================================
 // Risk Management State Cloner (Combined)
 // ============================================================================
 
@@ -193,6 +239,7 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     operationalEnvironment: defaultOperationalEnvironmentState,
     productArchitecture: defaultProductArchitectureState,
     productUserDescription: defaultProductUserDescriptionState,
+    productContextAssessment: defaultProductContextAssessmentState,
   }
   return {
     generalApproachHtml: source.generalApproachHtml ?? '',
@@ -201,5 +248,6 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     operationalEnvironment: cloneOperationalEnvironmentState(source.operationalEnvironment),
     productArchitecture: cloneProductArchitectureState(source.productArchitecture),
     productUserDescription: cloneProductUserDescriptionState(source.productUserDescription),
+    productContextAssessment: cloneProductContextAssessmentState(source.productContextAssessment),
   }
 }

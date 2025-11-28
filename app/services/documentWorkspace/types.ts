@@ -248,6 +248,45 @@ export interface ProductUserDescriptionState {
 }
 
 // ============================================================================
+// Risk Management - Product Context Assessment
+// ============================================================================
+
+// Assessment status for each requirement
+export type AssessmentStatus = 'not_assessed' | 'pass' | 'fail' | 'na'
+
+// Overall verdict for the clause
+export type OverallVerdict = 'pass' | 'partial' | 'fail' | 'na' | 'not_assessed'
+
+// Non-conformity severity levels
+export type NCSeverity = 'minor' | 'major' | 'critical'
+
+// Individual requirement assessment entry
+export interface RequirementAssessmentEntry {
+  id: string                    // e.g., "6.2.2-a"
+  evidenceId: string           // Reference to evidence entry ID
+  evidenceRefId: string        // Display reference ID from evidence
+  status: AssessmentStatus
+  commentsHtml: string
+}
+
+// Non-conformity entry
+export interface NonConformityEntry {
+  id: string                   // e.g., "NC-6.2-01"
+  requirementId: string        // e.g., "6.2.3-f"
+  description: string
+  severity: NCSeverity
+  correctiveAction: string
+}
+
+// Product Context Assessment state
+export interface ProductContextAssessmentState {
+  assessments: RequirementAssessmentEntry[]
+  overallVerdict: OverallVerdict
+  summaryOfFindingsHtml: string
+  nonConformities: NonConformityEntry[]
+}
+
+// ============================================================================
 // Risk Management - Combined State
 // ============================================================================
 
@@ -258,6 +297,7 @@ export interface RiskManagementState {
   operationalEnvironment: ProductOperationalEnvironmentState
   productArchitecture: ProductArchitectureState
   productUserDescription?: ProductUserDescriptionState
+  productContextAssessment?: ProductContextAssessmentState
 }
 
 // ============================================================================

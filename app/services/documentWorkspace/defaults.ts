@@ -28,6 +28,7 @@ import type {
   ProductOperationalEnvironmentState,
   ProductArchitectureState,
   ProductUserDescriptionState,
+  ProductContextAssessmentState,
   RiskManagementState,
   DocumentWorkspaceState,
 } from './types'
@@ -287,6 +288,15 @@ export const defaultProductUserDescriptionState: ProductUserDescriptionState = {
   ],
 }
 
+export function defaultProductContextAssessmentState(): ProductContextAssessmentState {
+  return {
+    assessments: [],
+    overallVerdict: 'not_assessed',
+    summaryOfFindingsHtml: '',
+    nonConformities: [],
+  }
+}
+
 export const defaultRiskManagementState: RiskManagementState = {
   generalApproachHtml: '',
   productContext: {
@@ -309,6 +319,7 @@ export const defaultRiskManagementState: RiskManagementState = {
     ...defaultProductUserDescriptionState,
     evidenceEntries: defaultProductUserDescriptionState.evidenceEntries.map((e) => ({ ...e })),
   },
+  productContextAssessment: defaultProductContextAssessmentState(),
 }
 
 // ============================================================================

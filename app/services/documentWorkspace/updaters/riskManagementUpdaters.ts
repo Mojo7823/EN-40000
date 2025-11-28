@@ -6,6 +6,7 @@ import type {
   ProductOperationalEnvironmentState,
   ProductArchitectureState,
   ProductUserDescriptionState,
+  ProductContextAssessmentState,
 } from '../types'
 import {
   RISK_PRODUCT_CONTEXT_SECTION_KEY,
@@ -20,6 +21,7 @@ import {
   defaultOperationalEnvironmentState,
   defaultProductArchitectureState,
   defaultProductUserDescriptionState,
+  defaultProductContextAssessmentState,
 } from '../defaults'
 import {
   getInMemoryState,
@@ -32,6 +34,7 @@ import {
   cloneOperationalEnvironmentState,
   cloneProductArchitectureState,
   cloneProductUserDescriptionState,
+  cloneProductContextAssessmentState,
 } from '../cloners'
 
 // ============================================================================
@@ -208,6 +211,25 @@ export function updateRiskManagementState(
     )
   }
 
+  // Product Context Assessment
+  const currentProductContextAssessment = current.productContextAssessment || cloneProductContextAssessmentState()
+  let nextProductContextAssessment: ProductContextAssessmentState
+  if (patch.productContextAssessment) {
+    const assessmentPatch = patch.productContextAssessment
+    nextProductContextAssessment = {
+      assessments: assessmentPatch.assessments !== undefined
+        ? assessmentPatch.assessments.map((a) => ({ ...a }))
+        : currentProductContextAssessment.assessments.map((a) => ({ ...a })),
+      overallVerdict: assessmentPatch.overallVerdict ?? currentProductContextAssessment.overallVerdict,
+      summaryOfFindingsHtml: assessmentPatch.summaryOfFindingsHtml ?? currentProductContextAssessment.summaryOfFindingsHtml,
+      nonConformities: assessmentPatch.nonConformities !== undefined
+        ? assessmentPatch.nonConformities.map((nc) => ({ ...nc }))
+        : currentProductContextAssessment.nonConformities.map((nc) => ({ ...nc })),
+    }
+  } else {
+    nextProductContextAssessment = cloneProductContextAssessmentState(currentProductContextAssessment)
+  }
+
   // Combine all
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
@@ -216,6 +238,7 @@ export function updateRiskManagementState(
     operationalEnvironment: nextOperationalEnvironment,
     productArchitecture: nextProductArchitecture,
     productUserDescription: nextProductUserDescription,
+    productContextAssessment: nextProductContextAssessment,
   }
 
   const next: DocumentWorkspaceState = {

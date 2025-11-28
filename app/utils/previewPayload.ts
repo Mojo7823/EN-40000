@@ -100,6 +100,83 @@ export function normalizeEvidencePayload(entries?: Array<{
 }
 
 /**
+ * Check if product context assessment has content
+ */
+export function productContextAssessmentHasContent(state?: DocumentWorkspaceState['riskManagement']['productContextAssessment']): boolean {
+  if (!state) return false
+  
+  // Check if any assessments have been filled in
+  const hasAssessments = state.assessments?.some(
+    (a) => a.status !== 'not_assessed' || a.evidenceId || a.commentsHtml
+  )
+  
+  // Check if verdict is set
+  const hasVerdict = state.overallVerdict && state.overallVerdict !== 'not_assessed'
+  
+  // Check if summary has content
+  const hasSummary = normalizeHtml(state.summaryOfFindingsHtml)
+  
+  // Check if there are non-conformities
+  const hasNonConformities = state.nonConformities?.length > 0
+  
+  return Boolean(hasAssessments || hasVerdict || hasSummary || hasNonConformities)
+}
+
+/**
+ * Normalize assessment entries for API payload
+ */
+export function normalizeAssessmentEntries(entries?: Array<{
+  id?: string
+  evidenceId?: string
+  evidenceRefId?: string
+  status?: string
+  commentsHtml?: string
+}>): Array<{
+  id: string
+  evidence_id: string
+  evidence_ref_id: string
+  status: string
+  comments_html: string
+}> {
+  if (!entries) return []
+  return entries.map((entry) => ({
+    id: entry.id || '',
+    evidence_id: entry.evidenceId || '',
+    evidence_ref_id: entry.evidenceRefId || '',
+    status: entry.status || 'not_assessed',
+    comments_html: normalizeHtml(entry.commentsHtml) || '',
+  }))
+}
+
+/**
+ * Normalize non-conformity entries for API payload
+ */
+export function normalizeNonConformityEntries(entries?: Array<{
+  id?: string
+  requirementId?: string
+  description?: string
+  severity?: string
+  correctiveAction?: string
+}>): Array<{
+  id: string
+  requirement_id: string
+  description: string
+  severity: string
+  corrective_action: string
+}> {
+  if (!entries) return []
+  return entries
+    .filter((entry) => entry.id || entry.requirementId || entry.description)
+    .map((entry) => ({
+      id: entry.id || '',
+      requirement_id: entry.requirementId || '',
+      description: normalizePlainText(entry.description) || '',
+      severity: entry.severity || 'minor',
+      corrective_action: normalizePlainText(entry.correctiveAction) || '',
+    }))
+}
+
+/**
  * Build risk management section payload
  */
 export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskManagement']) {
@@ -150,7 +227,11 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
   const userDescEvidenceEntries = normalizeEvidencePayload(productUserDescription?.evidenceEntries)
   const hasProductUserDescription = userDescHtml || noRdps || rdpsConsiderationsHtml || userDescEvidenceEntries.length
 
-  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture && !hasProductUserDescription) {
+  // Product Context Assessment
+  const productContextAssessment = state.productContextAssessment
+  const hasProductContextAssessment = productContextAssessmentHasContent(productContextAssessment)
+
+  if (!generalHtml && !hasProductContext && !hasProductFunction && !hasOperationalEnvironment && !hasProductArchitecture && !hasProductUserDescription && !hasProductContextAssessment) {
     return undefined
   }
 
@@ -233,6 +314,15 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
       no_rdps: noRdps,
       rdps_considerations_html: rdpsConsiderationsHtml,
       evidence_entries: userDescEvidenceEntries,
+    }
+  }
+
+  if (hasProductContextAssessment && productContextAssessment) {
+    payload.product_context_assessment = {
+      assessments: normalizeAssessmentEntries(productContextAssessment.assessments),
+      overall_verdict: productContextAssessment.overallVerdict || 'not_assessed',
+      summary_of_findings_html: normalizeHtml(productContextAssessment.summaryOfFindingsHtml) || '',
+      non_conformities: normalizeNonConformityEntries(productContextAssessment.nonConformities),
     }
   }
 
