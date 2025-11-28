@@ -47,6 +47,7 @@ export type {
   ProductContextAssessmentState,
   RiskAssessmentMethodologyState,
   RiskAcceptanceCriteriaState,
+  RiskAcceptanceCriteriaAssessmentState,
   RiskManagementState,
   DocumentWorkspaceState,
   WorkspaceListener,
@@ -63,10 +64,12 @@ export {
   RISK_PRODUCT_CONTEXT_ASSESSMENT_SECTION_KEY,
   RISK_ASSESSMENT_METHODOLOGY_SECTION_KEY,
   RISK_ACCEPTANCE_CRITERIA_SECTION_KEY,
+  RISK_ACCEPTANCE_CRITERIA_ASSESSMENT_SECTION_KEY,
   TERMINOLOGY_ID_PREFIX,
   EVIDENCE_ID_PREFIX,
   RISK_EVIDENCE_STATUS_OPTIONS,
   PRODUCT_CONTEXT_REQUIREMENTS,
+  RISK_ACCEPTANCE_CRITERIA_REQUIREMENTS,
   generateEvidenceEntryId,
   generateTerminologyEntryId,
 } from './constants'
@@ -101,6 +104,7 @@ export {
   cloneProductContextAssessmentState,
   cloneRiskAssessmentMethodologyState,
   cloneRiskAcceptanceCriteriaState,
+  cloneRiskAcceptanceCriteriaAssessmentState,
 } from './cloners'
 
 // Re-export defaults (for external use when initializing state)
@@ -108,4 +112,5 @@ export {
   defaultProductContextAssessmentState,
   defaultRiskAssessmentMethodologyState,
   defaultRiskAcceptanceCriteriaState,
+  defaultRiskAcceptanceCriteriaAssessmentState,
 } from './defaults'

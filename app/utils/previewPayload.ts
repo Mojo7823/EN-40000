@@ -123,6 +123,29 @@ export function productContextAssessmentHasContent(state?: DocumentWorkspaceStat
 }
 
 /**
+ * Check if risk acceptance criteria assessment has content
+ */
+export function riskAcceptanceCriteriaAssessmentHasContent(state?: DocumentWorkspaceState['riskManagement']['riskAcceptanceCriteriaAssessment']): boolean {
+  if (!state) return false
+  
+  // Check if any assessments have been filled in
+  const hasAssessments = state.assessments?.some(
+    (a) => a.status !== 'not_assessed' || a.evidenceId || a.commentsHtml
+  )
+  
+  // Check if verdict is set
+  const hasVerdict = state.overallVerdict && state.overallVerdict !== 'not_assessed'
+  
+  // Check if summary has content
+  const hasSummary = normalizeHtml(state.summaryOfFindingsHtml)
+  
+  // Check if there are non-conformities
+  const hasNonConformities = state.nonConformities?.length > 0
+  
+  return Boolean(hasAssessments || hasVerdict || hasSummary || hasNonConformities)
+}
+
+/**
  * Normalize assessment entries for API payload
  */
 export function normalizeAssessmentEntries(entries?: Array<{
@@ -386,6 +409,19 @@ export function buildRiskManagementPayload(state?: DocumentWorkspaceState['riskM
       nature_of_product_html: natureOfProductHtml,
       state_of_the_art_html: stateOfTheArtHtml,
       evidence_entries: acceptanceCriteriaEvidenceEntries,
+    }
+  }
+
+  // Risk Acceptance Criteria Assessment
+  const riskAcceptanceCriteriaAssessment = state.riskAcceptanceCriteriaAssessment
+  const hasRiskAcceptanceCriteriaAssessment = riskAcceptanceCriteriaAssessmentHasContent(riskAcceptanceCriteriaAssessment)
+
+  if (hasRiskAcceptanceCriteriaAssessment && riskAcceptanceCriteriaAssessment) {
+    payload.risk_acceptance_criteria_assessment = {
+      assessments: normalizeAssessmentEntries(riskAcceptanceCriteriaAssessment.assessments),
+      overall_verdict: riskAcceptanceCriteriaAssessment.overallVerdict || 'not_assessed',
+      summary_of_findings_html: normalizeHtml(riskAcceptanceCriteriaAssessment.summaryOfFindingsHtml) || '',
+      non_conformities: normalizeNonConformityEntries(riskAcceptanceCriteriaAssessment.nonConformities),
     }
   }
 

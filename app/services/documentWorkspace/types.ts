@@ -314,6 +314,18 @@ export interface RiskAcceptanceCriteriaState {
 }
 
 // ============================================================================
+// Risk Management - Risk Acceptance Criteria Assessment
+// ============================================================================
+
+// Risk Acceptance Criteria Assessment state (Clause 6.3)
+export interface RiskAcceptanceCriteriaAssessmentState {
+  assessments: RequirementAssessmentEntry[]
+  overallVerdict: OverallVerdict
+  summaryOfFindingsHtml: string
+  nonConformities: NonConformityEntry[]
+}
+
+// ============================================================================
 // Risk Management - Combined State
 // ============================================================================
 
@@ -327,6 +339,7 @@ export interface RiskManagementState {
   productContextAssessment?: ProductContextAssessmentState
   riskAssessmentMethodology?: RiskAssessmentMethodologyState
   riskAcceptanceCriteria?: RiskAcceptanceCriteriaState
+  riskAcceptanceCriteriaAssessment?: RiskAcceptanceCriteriaAssessmentState
 }
 
 // ============================================================================

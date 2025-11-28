@@ -33,6 +33,7 @@ import type {
   ProductContextAssessmentState,
   RiskAssessmentMethodologyState,
   RiskAcceptanceCriteriaState,
+  RiskAcceptanceCriteriaAssessmentState,
   RiskManagementState,
   DocumentWorkspaceState,
 } from './types'
@@ -338,6 +339,15 @@ export function defaultProductContextAssessmentState(): ProductContextAssessment
   }
 }
 
+export function defaultRiskAcceptanceCriteriaAssessmentState(): RiskAcceptanceCriteriaAssessmentState {
+  return {
+    assessments: [],
+    overallVerdict: 'not_assessed',
+    summaryOfFindingsHtml: '',
+    nonConformities: [],
+  }
+}
+
 export const defaultRiskManagementState: RiskManagementState = {
   generalApproachHtml: '',
   productContext: {
@@ -369,6 +379,7 @@ export const defaultRiskManagementState: RiskManagementState = {
     ...defaultRiskAcceptanceCriteriaState,
     evidenceEntries: defaultRiskAcceptanceCriteriaState.evidenceEntries.map((e) => ({ ...e })),
   },
+  riskAcceptanceCriteriaAssessment: defaultRiskAcceptanceCriteriaAssessmentState(),
 }
 
 // ============================================================================

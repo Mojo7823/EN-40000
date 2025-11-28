@@ -7,6 +7,7 @@ import type {
   ProductContextAssessmentState,
   RiskAssessmentMethodologyState,
   RiskAcceptanceCriteriaState,
+  RiskAcceptanceCriteriaAssessmentState,
   RequirementAssessmentEntry,
   NonConformityEntry,
   RiskManagementState,
@@ -251,6 +252,29 @@ export function cloneProductContextAssessmentState(state?: ProductContextAssessm
 }
 
 // ============================================================================
+// Risk Acceptance Criteria Assessment Cloner
+// ============================================================================
+
+// Inline default to avoid circular dependency with defaults.ts
+const defaultRiskAcceptanceCriteriaAssessmentState: RiskAcceptanceCriteriaAssessmentState = {
+  assessments: [],
+  overallVerdict: 'not_assessed',
+  summaryOfFindingsHtml: '',
+  nonConformities: [],
+}
+
+export function cloneRiskAcceptanceCriteriaAssessmentState(state?: RiskAcceptanceCriteriaAssessmentState): RiskAcceptanceCriteriaAssessmentState {
+  const source = state ?? defaultRiskAcceptanceCriteriaAssessmentState
+
+  return {
+    assessments: (source.assessments ?? []).map(cloneAssessmentEntry),
+    overallVerdict: source.overallVerdict ?? 'not_assessed',
+    summaryOfFindingsHtml: source.summaryOfFindingsHtml ?? '',
+    nonConformities: (source.nonConformities ?? []).map(cloneNonConformityEntry),
+  }
+}
+
+// ============================================================================
 // Risk Assessment Methodology Cloner
 // ============================================================================
 
@@ -308,6 +332,7 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     productContextAssessment: defaultProductContextAssessmentState,
     riskAssessmentMethodology: defaultRiskAssessmentMethodologyState,
     riskAcceptanceCriteria: defaultRiskAcceptanceCriteriaState,
+    riskAcceptanceCriteriaAssessment: defaultRiskAcceptanceCriteriaAssessmentState,
   }
   return {
     generalApproachHtml: source.generalApproachHtml ?? '',
@@ -319,5 +344,6 @@ export function cloneRiskManagementState(state?: RiskManagementState): RiskManag
     productContextAssessment: cloneProductContextAssessmentState(source.productContextAssessment),
     riskAssessmentMethodology: cloneRiskAssessmentMethodologyState(source.riskAssessmentMethodology),
     riskAcceptanceCriteria: cloneRiskAcceptanceCriteriaState(source.riskAcceptanceCriteria),
+    riskAcceptanceCriteriaAssessment: cloneRiskAcceptanceCriteriaAssessmentState(source.riskAcceptanceCriteriaAssessment),
   }
 }

@@ -265,6 +265,14 @@ class RiskAcceptanceCriteriaSection(BaseModel):
     evidence_entries: List[RiskEvidenceEntry] = Field(default_factory=list)
 
 
+class RiskAcceptanceCriteriaAssessmentSection(BaseModel):
+    """Risk Acceptance Criteria Assessment Summary (Section 5.3.3)."""
+    assessments: List[RequirementAssessmentEntry] = Field(default_factory=list)
+    overall_verdict: Optional[str] = None       # 'pass' | 'partial' | 'fail' | 'na' | 'not_assessed'
+    summary_of_findings_html: Optional[str] = None
+    non_conformities: List[NonConformityEntry] = Field(default_factory=list)
+
+
 class RiskManagementSection(BaseModel):
     """Risk Management Elements (Section 5)."""
     general_approach_html: Optional[str] = None
@@ -276,6 +284,7 @@ class RiskManagementSection(BaseModel):
     product_context_assessment: Optional[ProductContextAssessmentSection] = None
     risk_assessment_methodology: Optional[RiskAssessmentMethodologySection] = None
     risk_acceptance_criteria: Optional[RiskAcceptanceCriteriaSection] = None
+    risk_acceptance_criteria_assessment: Optional[RiskAcceptanceCriteriaAssessmentSection] = None
 
 
 class CoverPreviewRequest(BaseModel):

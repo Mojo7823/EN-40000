@@ -101,7 +101,8 @@ const items = ref<TreeItem[]>([
         defaultExpanded: true,
         children: [
           { id: 'assessment-methodology', label: 'Risk Assessment and Treatment Methodology', icon: 'i-heroicons-chart-bar', to: '/riskcrit/assessment-methodology' },
-          { id: 'acceptance-criteria', label: 'Risk Acceptance Criteria', icon: 'i-heroicons-check-circle', to: '/riskcrit/acceptance-criteria' }
+          { id: 'acceptance-criteria', label: 'Risk Acceptance Criteria', icon: 'i-heroicons-check-circle', to: '/riskcrit/acceptance-criteria' },
+          { id: 'assessment-summary', label: 'Assessment Summary', icon: 'i-heroicons-clipboard-document-check', to: '/riskcrit/assessment-summary' }
         ]
       }
     ]

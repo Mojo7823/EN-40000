@@ -47,7 +47,7 @@ export const SECTION_GROUP_DEFINITIONS = [
     key: 'risk-management',
     title: 'Risk Management Elements',
     description: 'Clause 6 risk management approach and methodology.',
-    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description', 'risk-product-context-assessment', 'risk-assessment-methodology', 'risk-acceptance-criteria'],
+    children: ['risk-general', 'risk-product-context', 'risk-product-function', 'risk-operational-environment', 'risk-product-architecture', 'risk-product-user-description', 'risk-product-context-assessment', 'risk-assessment-methodology', 'risk-acceptance-criteria', 'risk-acceptance-criteria-assessment'],
   },
 ]
 
@@ -70,6 +70,7 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
   const productContextAssessmentState = computed(() => riskManagement.value.productContextAssessment)
   const riskAssessmentMethodologyState = computed(() => riskManagement.value.riskAssessmentMethodology)
   const riskAcceptanceCriteriaState = computed(() => riskManagement.value.riskAcceptanceCriteria)
+  const riskAcceptanceCriteriaAssessmentState = computed(() => riskManagement.value.riskAcceptanceCriteriaAssessment)
 
   const evidenceSummary = computed(() => summarizeEvidenceEntries(productContextState.value?.evidenceEntries ?? []))
   const productFunctionEvidenceSummary = computed(() => summarizeEvidenceEntries(productFunctionState.value?.evidenceEntries ?? []))
@@ -421,6 +422,21 @@ export function usePreviewSections(workspace: ComputedRef<DocumentWorkspaceState
         riskAcceptanceCriteriaEvidenceSummary.value.total
           ? `${riskAcceptanceCriteriaEvidenceSummary.value.completed}/${riskAcceptanceCriteriaEvidenceSummary.value.total} evidence items ready`
           : 'No evidence captured yet'
+      ),
+      createSectionStatus(
+        'risk-acceptance-criteria-assessment',
+        'Risk Acceptance Criteria Assessment (Section 5.3.3)',
+        'Clause 6.3 conformance assessment summary.',
+        [
+          riskAcceptanceCriteriaAssessmentState.value?.overallVerdict && riskAcceptanceCriteriaAssessmentState.value.overallVerdict !== 'not_assessed' ? riskAcceptanceCriteriaAssessmentState.value.overallVerdict : '',
+          stripHtml(riskAcceptanceCriteriaAssessmentState.value?.summaryOfFindingsHtml || ''),
+          riskAcceptanceCriteriaAssessmentState.value?.assessments?.filter(a => a.status !== 'not_assessed').length ? 'assessments' : '',
+          riskAcceptanceCriteriaAssessmentState.value?.nonConformities?.length ? 'nc' : '',
+        ],
+        '/riskcrit/assessment-summary',
+        riskAcceptanceCriteriaAssessmentState.value?.overallVerdict && riskAcceptanceCriteriaAssessmentState.value.overallVerdict !== 'not_assessed'
+          ? `Verdict: ${riskAcceptanceCriteriaAssessmentState.value.overallVerdict.toUpperCase()}`
+          : 'Assessment not started'
       ),
       createSectionStatus(
         'evidence-tracker',

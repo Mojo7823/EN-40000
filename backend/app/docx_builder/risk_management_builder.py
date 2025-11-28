@@ -60,6 +60,43 @@ PRODUCT_CONTEXT_REQUIREMENTS = [
     {"id": "6.2.5-b", "subsection": "6.2.5", "label": "Assessment Criteria", "description": "Product context is traceable to requirements"},
 ]
 
+# Risk Acceptance Criteria Assessment Requirements (Clause 6.3)
+RISK_ACCEPTANCE_CRITERIA_REQUIREMENTS = [
+    # 6.3.2 Input
+    {"id": "6.3.2-a", "subsection": "6.3.2", "label": "Input", "description": "Product context from 6.2.4 available"},
+    {"id": "6.3.2-b", "subsection": "6.3.2", "label": "Input", "description": "Legal requirements identified"},
+    {"id": "6.3.2-c", "subsection": "6.3.2", "label": "Input", "description": "Contractual agreements documented (if available)"},
+    {"id": "6.3.2-d", "subsection": "6.3.2", "label": "Input", "description": "Stakeholder expectations documented"},
+    {"id": "6.3.2-e", "subsection": "6.3.2", "label": "Input", "description": "Existing business practices documented"},
+    # 6.3.3 Risk Methodology Requirements
+    {"id": "6.3.3-a", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Risk assessment and treatment methodology defined"},
+    {"id": "6.3.3-b", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology covers how risks are defined"},
+    {"id": "6.3.3-c", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology covers how risks are measured"},
+    {"id": "6.3.3-d", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology applied consistently throughout lifecycle"},
+    {"id": "6.3.3-e", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology justified for the product"},
+    {"id": "6.3.3-f", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology aligned with state of the art"},
+    {"id": "6.3.3-g", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology aligned with current values of society"},
+    {"id": "6.3.3-h", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology applied to individual risks"},
+    {"id": "6.3.3-i", "subsection": "6.3.3", "label": "Risk Methodology Requirements", "description": "Methodology applied to aggregate risks"},
+    # 6.3-03 Risk Acceptance Criteria Requirements
+    {"id": "6.3-03-a", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Risk acceptance criteria defined and documented"},
+    {"id": "6.3-03-b", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Criteria consider relevant regulatory factors"},
+    {"id": "6.3-03-c", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Criteria consider relevant contractual factors"},
+    {"id": "6.3-03-d", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Criteria consider nature of known risks"},
+    {"id": "6.3-03-e", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Criteria consider nature of users"},
+    {"id": "6.3-03-f", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Criteria consider nature of the product"},
+    {"id": "6.3-03-g", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Criteria consider state of the art"},
+    {"id": "6.3-03-h", "subsection": "6.3-03", "label": "Risk Acceptance Criteria Requirements", "description": "Criteria consider current values of society"},
+    # 6.3.4 Output
+    {"id": "6.3.4-a", "subsection": "6.3.4", "label": "Output", "description": "Product's cybersecurity risk acceptance criteria documented"},
+    {"id": "6.3.4-b", "subsection": "6.3.4", "label": "Output", "description": "Applied risk assessment and treatment methodology documented"},
+    # 6.3.5 Assessment Criteria
+    {"id": "6.3.5-a", "subsection": "6.3.5", "label": "Assessment Criteria", "description": "Risk acceptance criteria documentation exists"},
+    {"id": "6.3.5-b", "subsection": "6.3.5", "label": "Assessment Criteria", "description": "Applied risk assessment methodology documentation exists"},
+    {"id": "6.3.5-c", "subsection": "6.3.5", "label": "Assessment Criteria", "description": "Evidence that risk acceptance criteria meets requirements"},
+    {"id": "6.3.5-d", "subsection": "6.3.5", "label": "Assessment Criteria", "description": "Evidence that methodology meets requirements"},
+]
+
 
 def append_risk_management_section(
     document: Document, payload: Optional[object], product_name: str = "[Product Name]"
@@ -85,8 +122,10 @@ def append_risk_management_section(
     has_risk_assessment_methodology = _risk_assessment_methodology_has_content(risk_assessment_methodology_payload)
     risk_acceptance_criteria_payload = getattr(payload, "risk_acceptance_criteria", None)
     has_risk_acceptance_criteria = _risk_acceptance_criteria_has_content(risk_acceptance_criteria_payload)
+    risk_acceptance_criteria_assessment_payload = getattr(payload, "risk_acceptance_criteria_assessment", None)
+    has_risk_acceptance_criteria_assessment = _risk_acceptance_criteria_assessment_has_content(risk_acceptance_criteria_assessment_payload)
 
-    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture and not has_product_user_description and not has_product_context_assessment and not has_risk_assessment_methodology and not has_risk_acceptance_criteria:
+    if not general_html and not has_product_context and not has_product_function and not has_operational_environment and not has_product_architecture and not has_product_user_description and not has_product_context_assessment and not has_risk_assessment_methodology and not has_risk_acceptance_criteria and not has_risk_acceptance_criteria_assessment:
         return
 
     document.add_page_break()
@@ -157,6 +196,9 @@ def append_risk_management_section(
 
     if has_risk_acceptance_criteria:
         _append_risk_acceptance_criteria_section(document, risk_acceptance_criteria_payload)
+
+    if has_risk_acceptance_criteria_assessment:
+        _append_risk_acceptance_criteria_assessment_section(document, risk_acceptance_criteria_assessment_payload)
 
 
 def _append_product_context_section(
@@ -423,6 +465,34 @@ def _risk_acceptance_criteria_has_content(payload: Optional[object]) -> bool:
             bool(_normalize_evidence_entries(getattr(payload, "evidence_entries", None))),
         ]
     )
+
+
+def _risk_acceptance_criteria_assessment_has_content(payload: Optional[object]) -> bool:
+    """Check if Risk Acceptance Criteria Assessment section has content."""
+    if not payload:
+        return False
+    
+    # Check if any assessments have been filled in
+    assessments = getattr(payload, "assessments", None) or []
+    has_assessments = any(
+        _extract_value(a, "status") not in (None, "not_assessed") or
+        _extract_value(a, "evidence_id") or
+        _extract_value(a, "comments_html")
+        for a in assessments
+    )
+    
+    # Check if verdict is set
+    verdict = _extract_value(payload, "overall_verdict")
+    has_verdict = verdict and verdict != "not_assessed"
+    
+    # Check if summary has content
+    has_summary = bool(_extract_value(payload, "summary_of_findings_html"))
+    
+    # Check if there are non-conformities
+    non_conformities = getattr(payload, "non_conformities", None) or []
+    has_non_conformities = len(non_conformities) > 0
+    
+    return any([has_assessments, has_verdict, has_summary, has_non_conformities])
 
 
 def _append_product_function_section(document: Document, payload: Optional[object]) -> None:
@@ -1243,3 +1313,187 @@ def _append_risk_acceptance_criteria_section(document: Document, payload: Option
 
     # Evidence Reference
     _append_evidence_tracker(document, getattr(payload, "evidence_entries", None))
+
+
+def _append_risk_acceptance_criteria_assessment_section(document: Document, payload: Optional[object]) -> None:
+    """Append Section 5.3.3 Risk Acceptance Criteria Assessment Summary."""
+    from docx.shared import RGBColor
+    
+    if not payload:
+        return
+
+    # Start 5.3.3 Risk Acceptance Criteria Assessment on a new page
+    document.add_page_break()
+
+    heading = document.add_paragraph()
+    heading_run = heading.add_run("5.3.3 Risk Acceptance Criteria - Assessment Summary")
+    heading_run.font.size = Pt(18)
+    heading_run.font.bold = True
+    heading.space_after = Pt(6)
+
+    reference = document.add_paragraph("[Reference: Clause 6.3]")
+    reference.runs[0].font.bold = True
+    reference.space_after = Pt(10)
+
+    intro_para = document.add_paragraph(
+        "The following table provides a comprehensive checklist for assessing conformance "
+        "with risk acceptance criteria and methodology requirements."
+    )
+    intro_para.space_after = Pt(12)
+
+    # Overall Verdict
+    verdict = _extract_value(payload, "overall_verdict") or "not_assessed"
+    verdict_label = OVERALL_VERDICT_LABELS.get(verdict, verdict.upper())
+    
+    verdict_heading = document.add_paragraph()
+    verdict_run = verdict_heading.add_run("Overall Verdict for Clause 6.3:")
+    verdict_run.font.size = Pt(13)
+    verdict_run.font.bold = True
+    verdict_heading.space_before = Pt(6)
+    verdict_heading.space_after = Pt(4)
+
+    verdict_para = document.add_paragraph()
+    verdict_value_run = verdict_para.add_run(verdict_label)
+    verdict_value_run.font.bold = True
+    verdict_value_run.font.size = Pt(12)
+    # Color code the verdict
+    if verdict == "pass":
+        verdict_value_run.font.color.rgb = RGBColor(0, 128, 0)  # Green
+    elif verdict == "fail":
+        verdict_value_run.font.color.rgb = RGBColor(255, 0, 0)  # Red
+    elif verdict == "partial":
+        verdict_value_run.font.color.rgb = RGBColor(255, 165, 0)  # Orange
+    verdict_para.space_after = Pt(10)
+
+    # Summary of Findings
+    summary_html = _extract_value(payload, "summary_of_findings_html")
+    if summary_html:
+        summary_heading = document.add_paragraph()
+        summary_run = summary_heading.add_run("Summary of Findings:")
+        summary_run.font.size = Pt(13)
+        summary_run.font.bold = True
+        summary_heading.space_before = Pt(10)
+        summary_heading.space_after = Pt(4)
+        append_html_to_document(document, summary_html)
+
+    # Assessment Checklist Table
+    assessments = getattr(payload, "assessments", None) or []
+    if assessments:
+        _append_risk_acceptance_criteria_assessment_checklist_table(document, assessments)
+
+    # Non-Conformities Table
+    non_conformities = getattr(payload, "non_conformities", None) or []
+    if non_conformities:
+        _append_risk_acceptance_criteria_non_conformities_table(document, non_conformities)
+
+
+def _append_risk_acceptance_criteria_assessment_checklist_table(document: Document, assessments: list) -> None:
+    """Append the risk acceptance criteria assessment checklist table."""
+    checklist_heading = document.add_paragraph()
+    checklist_run = checklist_heading.add_run("Assessment Checklist:")
+    checklist_run.font.size = Pt(13)
+    checklist_run.font.bold = True
+    checklist_heading.space_before = Pt(10)
+    checklist_heading.space_after = Pt(4)
+
+    # Build a lookup map from assessments
+    assessment_map = {}
+    for a in assessments:
+        req_id = _extract_value(a, "id")
+        if req_id:
+            assessment_map[req_id] = a
+
+    # Create table with headers
+    table = document.add_table(rows=1, cols=5)
+    table.style = "Table Grid"
+    headers = ["ID", "Requirement", "Evidence", "Status", "Comments"]
+    header_cells = table.rows[0].cells
+    for idx, label in enumerate(headers):
+        paragraph = header_cells[idx].paragraphs[0]
+        run = paragraph.add_run(label)
+        run.font.bold = True
+
+    # Track current subsection for grouping
+    current_subsection = None
+
+    for req in RISK_ACCEPTANCE_CRITERIA_REQUIREMENTS:
+        req_id = req["id"]
+        subsection = req["subsection"]
+        description = req["description"]
+
+        # Add subsection header row if subsection changed
+        if subsection != current_subsection:
+            current_subsection = subsection
+            subsection_label = req["label"]
+            header_row = table.add_row().cells
+            # Merge cells for subsection header
+            header_row[0].merge(header_row[4])
+            header_para = header_row[0].paragraphs[0]
+            header_run = header_para.add_run(f"{subsection} - {subsection_label}")
+            header_run.font.bold = True
+            header_run.font.italic = True
+
+        # Get assessment data for this requirement
+        assessment = assessment_map.get(req_id, {})
+        evidence_ref = _extract_value(assessment, "evidence_ref_id") or ""
+        status = _extract_value(assessment, "status") or "not_assessed"
+        status_label = ASSESSMENT_STATUS_LABELS.get(status, status)
+        comments_html = _extract_value(assessment, "comments_html") or ""
+        comments_text = _strip_html(comments_html)
+        # Truncate comments for table display
+        if len(comments_text) > 100:
+            comments_text = comments_text[:97] + "..."
+
+        # Add requirement row
+        row = table.add_row().cells
+        row[0].text = req_id
+        row[1].text = description
+        row[2].text = evidence_ref
+        row[3].text = status_label
+        row[4].text = comments_text
+
+
+def _append_risk_acceptance_criteria_non_conformities_table(document: Document, non_conformities: list) -> None:
+    """Append the risk acceptance criteria non-conformities table."""
+    from docx.shared import RGBColor
+    
+    nc_heading = document.add_paragraph()
+    nc_run = nc_heading.add_run("Non-Conformities:")
+    nc_run.font.size = Pt(13)
+    nc_run.font.bold = True
+    nc_heading.space_before = Pt(10)
+    nc_heading.space_after = Pt(4)
+
+    # Create table with headers
+    table = document.add_table(rows=1, cols=5)
+    table.style = "Table Grid"
+    headers = ["NC ID", "Requirement", "Description", "Severity", "Corrective Action"]
+    header_cells = table.rows[0].cells
+    for idx, label in enumerate(headers):
+        paragraph = header_cells[idx].paragraphs[0]
+        run = paragraph.add_run(label)
+        run.font.bold = True
+
+    for nc in non_conformities:
+        nc_id = _extract_value(nc, "id") or ""
+        requirement_id = _extract_value(nc, "requirement_id") or ""
+        description = _extract_value(nc, "description") or ""
+        severity = _extract_value(nc, "severity") or "minor"
+        severity_label = NC_SEVERITY_LABELS.get(severity, severity.title())
+        corrective_action = _extract_value(nc, "corrective_action") or ""
+
+        row = table.add_row().cells
+        row[0].text = nc_id
+        row[1].text = requirement_id
+        row[2].text = description
+        
+        # Add severity with color coding
+        severity_para = row[3].paragraphs[0]
+        severity_run = severity_para.add_run(severity_label)
+        if severity == "critical":
+            severity_run.font.color.rgb = RGBColor(255, 0, 0)  # Red
+            severity_run.font.bold = True
+        elif severity == "major":
+            severity_run.font.color.rgb = RGBColor(255, 165, 0)  # Orange
+        
+        row[4].text = corrective_action

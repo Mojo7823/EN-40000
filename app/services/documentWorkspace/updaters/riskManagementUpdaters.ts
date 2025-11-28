@@ -9,6 +9,7 @@ import type {
   ProductContextAssessmentState,
   RiskAssessmentMethodologyState,
   RiskAcceptanceCriteriaState,
+  RiskAcceptanceCriteriaAssessmentState,
 } from '../types'
 import {
   RISK_PRODUCT_CONTEXT_SECTION_KEY,
@@ -28,6 +29,7 @@ import {
   defaultProductContextAssessmentState,
   defaultRiskAssessmentMethodologyState,
   defaultRiskAcceptanceCriteriaState,
+  defaultRiskAcceptanceCriteriaAssessmentState,
 } from '../defaults'
 import {
   getInMemoryState,
@@ -43,6 +45,7 @@ import {
   cloneProductContextAssessmentState,
   cloneRiskAssessmentMethodologyState,
   cloneRiskAcceptanceCriteriaState,
+  cloneRiskAcceptanceCriteriaAssessmentState,
 } from '../cloners'
 
 // ============================================================================
@@ -301,6 +304,25 @@ export function updateRiskManagementState(
     )
   }
 
+  // Risk Acceptance Criteria Assessment
+  const currentRiskAcceptanceCriteriaAssessment = current.riskAcceptanceCriteriaAssessment || cloneRiskAcceptanceCriteriaAssessmentState()
+  let nextRiskAcceptanceCriteriaAssessment: RiskAcceptanceCriteriaAssessmentState
+  if (patch.riskAcceptanceCriteriaAssessment) {
+    const assessmentPatch = patch.riskAcceptanceCriteriaAssessment
+    nextRiskAcceptanceCriteriaAssessment = {
+      assessments: assessmentPatch.assessments !== undefined
+        ? assessmentPatch.assessments.map((a) => ({ ...a }))
+        : currentRiskAcceptanceCriteriaAssessment.assessments.map((a) => ({ ...a })),
+      overallVerdict: assessmentPatch.overallVerdict ?? currentRiskAcceptanceCriteriaAssessment.overallVerdict,
+      summaryOfFindingsHtml: assessmentPatch.summaryOfFindingsHtml ?? currentRiskAcceptanceCriteriaAssessment.summaryOfFindingsHtml,
+      nonConformities: assessmentPatch.nonConformities !== undefined
+        ? assessmentPatch.nonConformities.map((nc) => ({ ...nc }))
+        : currentRiskAcceptanceCriteriaAssessment.nonConformities.map((nc) => ({ ...nc })),
+    }
+  } else {
+    nextRiskAcceptanceCriteriaAssessment = cloneRiskAcceptanceCriteriaAssessmentState(currentRiskAcceptanceCriteriaAssessment)
+  }
+
   // Combine all
   const nextRiskManagement: RiskManagementState = {
     generalApproachHtml: patch.generalApproachHtml ?? current.generalApproachHtml,
@@ -312,6 +334,7 @@ export function updateRiskManagementState(
     productContextAssessment: nextProductContextAssessment,
     riskAssessmentMethodology: nextRiskAssessmentMethodology,
     riskAcceptanceCriteria: nextRiskAcceptanceCriteria,
+    riskAcceptanceCriteriaAssessment: nextRiskAcceptanceCriteriaAssessment,
   }
 
   const next: DocumentWorkspaceState = {
