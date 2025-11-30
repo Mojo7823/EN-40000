@@ -116,7 +116,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: RiskEvidenceEntry[]): void
 }>()
 
-const statusOptions = RISK_EVIDENCE_STATUS_OPTIONS
+const statusOptions = [...RISK_EVIDENCE_STATUS_OPTIONS]
 const localEntries = ref<RiskEvidenceEntry[]>(cloneEntries(props.modelValue))
 const isUpdatingFromProps = ref(false)
 
@@ -177,6 +177,6 @@ const description = props.description ?? ''
 
 <style scoped>
 .evidence-tracker {
-  @apply w-full;
+  width: 100%;
 }
 </style>
